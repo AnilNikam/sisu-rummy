@@ -1,0 +1,68 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    //  "standard",
+    "eslint:recommended",
+    "prettier"
+    //"plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "no-undef": ["warn", { "typeof": true }],
+    //"no-console": 1,
+    "indent": ["error", 2, { "ignoredNodes": ["ConditionalExpression"], "SwitchCase": 1 }],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": ["socket", "user", "client", "player"]
+      }
+    ],
+    "no-prototype-builtins": "error",
+    //"no-param-reassign": [
+    //  "error",
+    //  {
+    //    "props": false,
+    //    "ignorePropertyModificationsFor": ["accu", "socket"]
+    //  }
+    //],
+    //"no-param-reassign": [
+    //  "error",
+    //  {
+    //    "props": true,
+    //    "ignorePropertyModificationsFor": ["socket", "user", "client"]
+    //  }
+    //],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": ["const", "let"],
+        "next": ["multiline-const", "multiline-let"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["if", "switch"],
+        "next": ["multiline-const", "multiline-let"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["multiline-const", "multiline-let"],
+        "next": ["const", "let", "return", "function", "if"]
+      }
+    ],
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "quotes": [2, "single", { "avoidEscape": true }],
+    "eqeqeq": ["error", "always"],
+    "object-curly-newline": "off",
+    "no-unused-vars": "error"
+  }
+}
