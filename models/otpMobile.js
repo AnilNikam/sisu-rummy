@@ -12,7 +12,7 @@ const OtpMobileSchema = new Schema(
     countryCode: { type: Number },
     otpType: {
       type: String,
-      enum: ['VERIFY_NUMBER', 'CHANGE_PASSWORD', 'VERIFY_NUMBER_FOR_LOGIN'],
+      enum: ['VERIFY_NUMBER_FOR_SIGNUP', 'CHANGE_PASSWORD', 'VERIFY_NUMBER_FOR_LOGIN'],
     },
     createdAt: { type: Date, default: Date.now },
     modifiedAt: { type: Date, default: Date.now },

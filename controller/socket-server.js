@@ -598,7 +598,7 @@ myIo.init = function (server) {
               logger.info('RE CONNECT Event Called ', payload.data, '\n<==== New Connected Socket id ===>', socket.id, '\n Table Id =>', socket.tbid);
               await userReconnect(payload.data, socket);
             } catch (error) {
-              logger.error('socketServer.js SEND_MESSAGE_TO_TABLE => ', error);
+              logger.error('socketServer.js RECONNECT => ', error);
             }
             break;
           }
