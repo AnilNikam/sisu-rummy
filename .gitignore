@@ -1,10 +1,10 @@
+.env
 /temp
 /node_modules
 /log_file.log
 log_file
 temp
 apidoc
-.env
 upload
 test
 /test
