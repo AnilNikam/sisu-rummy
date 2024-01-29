@@ -26,8 +26,8 @@ router.post('/', async (req, res) => {
       gamePlayType: req.body.gamePlayType,
       tableName: req.body.tableName,
       status: req.body.status,
-      commission: parseInt(req.body.commission),
-      maxSeat: parseInt(req.body.maxSeat),
+      commission: isNaN(parseInt(req.body.commission)) ? 15 : parseInt(req.body.commission),
+      maxSeat: isNaN(parseInt(req.body.maxSeat)) ? 6 : parseInt(req.body.maxSeat),
     };
 
     res.json(await mainCtrl.registerBetList(newData));
@@ -95,7 +95,7 @@ router.put('/', async (req, res) => {
       res.status(config.OK_STATUS).json({ status: 0, message: 'Deal Already Exists' });
     } else {
       const newData = {
-        entryFee,
+        entryFee: parent(entryFee),
         deal: deal,
         modifiedAt: Date.now(),
         maxSeat: maxSeat,
@@ -119,7 +119,7 @@ router.put('/', async (req, res) => {
       } else {
         res.status(config.DATABASE_ERROR_STATUS).json({
           status: 0,
-          message: 'record not Deleted',
+          message: 'record not Update',
         });
       }
     }

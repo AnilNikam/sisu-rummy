@@ -12,15 +12,15 @@ const commonHelper = require('../helper/commonHelper');
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
-  const { gamePlayType, entryFee, type } = requestBody;
-  logger.info('Pool Bet List Request Body => ', requestBody);
+  // logger.info('Pool Bet List Request Body => ', requestBody);
+  const { gamePlayType, entryFee, type, status, commission, maxSeat, tableName } = requestBody;
   try {
     const entryFeexists = await BetLists.countDocuments({ type });
     if (entryFeexists > 0) {
       return { status: 0, message: 'Game Type Already Exists' };
     }
 
-    const newData = { gamePlayType, entryFee, type };
+    const newData = { gamePlayType, entryFee, type, status, commission, maxSeat, tableName };
     const response = await usersHelper.poolBetLists(newData);
 
     if (response.status) {

@@ -6,6 +6,7 @@ const config = require('../../config');
 const commonHelper = require('../../helper/commonHelper');
 const mainCtrl = require('../../controller/poolBetlistController');
 const logger = require('../../logger');
+const { Logger } = require('logger');
 //const LOBBY_PRIFIX = 'point';
 
 /**
@@ -23,13 +24,14 @@ router.post('/', async (req, res) => {
     const newData = {
       entryFee: parseInt(req.body.entryFee),
       type: req.body.type,
-      gamePlayType: parseInt(req.body.gamePlayType),
+      gamePlayType: req.body.gamePlayType,
       tableName: req.body.tableName,
       status: req.body.status,
-      commission: parseInt(req.body.commission),
-      maxSeat: parseInt(req.body.maxSeat),
-      //gamePlayType: `${req.body.gamePlayType}-${req.body.entryFee}`,
+      commission: isNaN(parseInt(req.body.commission)) ? 15 : parseInt(req.body.commission),
+      maxSeat: isNaN(parseInt(req.body.maxSeat)) ? 6 : parseInt(req.body.maxSeat),
     };
+
+    // logger.info('admin/pool-lobbies/req.body  New Data => ', newData);
 
     res.json(await mainCtrl.registerBetList(newData));
   } catch (error) {
@@ -87,29 +89,28 @@ router.delete('/:id', async (req, res) => {
  * @apiError (Error 4xx) {String} message Validation or error message.
  */
 router.put('/', async (req, res) => {
-  //logger.info('Update Bet List req.body => ', req.body);
+  logger.info('Update Pool Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, gamePlayType, maxSeat, status, tableName } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName } = req.body;
     const entryFeexists = await BetLists.countDocuments({ entryFee });
     logger.info('put entryFeexists', entryFeexists);
     if (entryFeexists > 0) {
       res.status(config.OK_STATUS).json({ status: 0, message: 'Entry Fee Already Exists' });
     } else {
       const newData = {
-        entryFee,
-        gamePlayType: `${gamePlayType}-${req.body.entryFee}`,
+        entryFee: parseInt(entryFee),
         modifiedAt: Date.now(),
         maxSeat: maxSeat,
         status: status,
         tableName: tableName,
       };
-      // console.info('newData => ', newData);
+      // logger.info('newData => ', newData);
 
       const condition = { _id: commonHelper.strToMongoDb(betListId) };
-      // console.info('condition => ', condition);
+      // logger.info('condition => ', condition);
 
       const responseData = await commonHelper.update(BetLists, condition, newData);
-      // console.log('update response Data => ', responseData);
+      // logger.info('update response Data => ', responseData);
 
       if (responseData.status === 1) {
         res.status(config.OK_STATUS).json({
@@ -120,7 +121,7 @@ router.put('/', async (req, res) => {
       } else {
         res.status(config.DATABASE_ERROR_STATUS).json({
           status: 0,
-          message: 'record not Deleted',
+          message: 'record not Updated',
         });
       }
     }

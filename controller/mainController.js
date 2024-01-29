@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const Twilio = require('twilio');
 const { omit } = require('lodash');
+const axios = require('axios');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 
@@ -629,6 +630,7 @@ async function inAppPurchase(requestBody) {
 /*
 //Send OTP
 */
+/*
 async function sendOTP(payload) {
   try {
     logger.info('User Send OTP payload.data => ', payload);
@@ -667,6 +669,62 @@ async function sendOTP(payload) {
       .catch((error) => {
         logger.info('Twilio Error --> ', error);
       });
+    if (payload.email) {
+      // mailer(payload.email, otpCode)
+    }
+  } catch (error) {
+    logger.error('mainController.js sendOTP error=> ', error, payload);
+  }
+}
+*/
+
+/*
+//Send OTP
+*/
+async function sendOTP(payload) {
+  try {
+    logger.info('User Send OTP payload.data => ', payload);
+    const { email } = payload;
+    const accountSid = process.env.SID;
+    const apiKey = process.env.SMS_API;
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000);
+
+    const otpData = new OtpMobile({
+      mobileNumber: payload.mobileNumber,
+      email: email !== null ? email : '',
+      otpCode,
+      otpType: payload.otpType,
+      expireIn: new Date().getTime() * 60000,
+    });
+
+    const result = await otpData.save();
+    logger.info('Result Otp Data Save => ', result);
+    logger.info('send to this number', CONST.COUNTRY_CODE + payload.mobileNumber);
+
+    try {
+      // const { to, type, sender, body, callback, template_id } = payload;
+      // const apiKey = 'Aa3320ee6c6a0a33529f0680107521673';
+
+      const response = await axios.post('https://api.kaleyra.io/v1/messages', {
+        to: CONST.COUNTRY_CODE + payload.mobileNumber,
+        type: 'OTP',
+        sender: accountSid,
+        body: `Thank you for connecting with Rummy Legit .Your OTP is: ${otpCode}`,
+        callback: '',
+        template_id: '',
+      }, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'api-key': apiKey,
+        },
+      });
+
+      res.status(200).json(response.data);
+    } catch (error) {
+      logger.error('Error sending OTP:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
     if (payload.email) {
       // mailer(payload.email, otpCode)
     }
