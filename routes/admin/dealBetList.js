@@ -24,6 +24,10 @@ router.post('/', async (req, res) => {
       entryFee: parseInt(req.body.entryFee),
       deal: parseInt(req.body.deal),
       gamePlayType: req.body.gamePlayType,
+      tableName: req.body.tableName,
+      status: req.body.status,
+      commission: parseInt(req.body.commission),
+      maxSeat: parseInt(req.body.maxSeat),
     };
 
     res.json(await mainCtrl.registerBetList(newData));
@@ -84,7 +88,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, deal } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName } = req.body;
     const entryFeexists = await BetLists.countDocuments({ deal });
     logger.info('put entryFeexists', entryFeexists);
     if (entryFeexists > 0) {
@@ -94,6 +98,9 @@ router.put('/', async (req, res) => {
         entryFee,
         deal: deal,
         modifiedAt: Date.now(),
+        maxSeat: maxSeat,
+        status: status,
+        tableName: tableName,
       };
       // logger.info('newData => ', newData);
 

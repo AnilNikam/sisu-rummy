@@ -20,7 +20,7 @@ const { userReconnect, takeSeat } = require('../helper/common-function/reConnect
 
 const myIo = {};
 const users = new Map();
-const socketToUsers = new Map();
+const socketsers = new Map();
 
 // create a init function for initlize the socket object
 myIo.init = function (server) {

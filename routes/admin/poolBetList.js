@@ -24,6 +24,10 @@ router.post('/', async (req, res) => {
       entryFee: parseInt(req.body.entryFee),
       type: req.body.type,
       gamePlayType: parseInt(req.body.gamePlayType),
+      tableName: req.body.tableName,
+      status: req.body.status,
+      commission: parseInt(req.body.commission),
+      maxSeat: parseInt(req.body.maxSeat),
       //gamePlayType: `${req.body.gamePlayType}-${req.body.entryFee}`,
     };
 
@@ -85,7 +89,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, gamePlayType } = req.body;
+    const { entryFee, betListId, gamePlayType, maxSeat, status, tableName } = req.body;
     const entryFeexists = await BetLists.countDocuments({ entryFee });
     logger.info('put entryFeexists', entryFeexists);
     if (entryFeexists > 0) {
@@ -95,6 +99,9 @@ router.put('/', async (req, res) => {
         entryFee,
         gamePlayType: `${gamePlayType}-${req.body.entryFee}`,
         modifiedAt: Date.now(),
+        maxSeat: maxSeat,
+        status: status,
+        tableName: tableName,
       };
       // console.info('newData => ', newData);
 

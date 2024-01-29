@@ -634,8 +634,8 @@ async function sendOTP(payload) {
     logger.info('User Send OTP payload.data => ', payload);
     // logger.info('config.TWILIO_ACCOUNT_SID ', config.TWILIO_ACCOUNT_SID, "\nconfig.TWILIO_AUTH_TOKEN", config.TWILIO_AUTH_TOKEN, "\nconfig.TWILIO_NUMBER", config.TWILIO_NUMBER);
     const { email } = payload;
-    const accountSid = config.TWILIO_ACCOUNT_SID;
-    const authToken = config.TWILIO_AUTH_TOKEN;
+    const accountSid = process.env.SID;
+    const authToken = process.env.SMS_API;
 
     const client = new Twilio(accountSid, authToken);
     const otpCode = Math.floor(100000 + Math.random() * 900000);
@@ -654,7 +654,7 @@ async function sendOTP(payload) {
 
     client.messages
       .create({
-        body: `Thank you for connecting with Black1Rummy. Your OTP is: ${otpCode}`,
+        body: `Thank you for connecting with Rummy Legit. Your OTP is: ${otpCode}`,
         from: config.TWILIO_NUMBER, // From a valid Twilio number
         statusCallback: '',
         to: CONST.COUNTRY_CODE + payload.mobileNumber, // Text this number
@@ -835,6 +835,8 @@ async function getBetList(requestBody) {
         $project: {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
+          commission: '$commission',
+          status: '$status',
         },
       },
     ]);
