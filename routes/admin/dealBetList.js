@@ -23,13 +23,13 @@ router.post('/', async (req, res) => {
     const newData = {
       entryFee: parseInt(req.body.entryFee),
       deal: parseInt(req.body.deal),
-      gamePlayType: req.body.gamePlayType,
+      gamePlayType: req.body.gamePlayType, //dealrummy
       tableName: req.body.tableName,
       status: req.body.status,
       commission: isNaN(parseInt(req.body.commission)) ? 15 : parseInt(req.body.commission),
       maxSeat: isNaN(parseInt(req.body.maxSeat)) ? 6 : parseInt(req.body.maxSeat),
     };
-
+    console.log("11111111111111111111111111")
     res.json(await mainCtrl.registerBetList(newData));
   } catch (error) {
     logger.error('admin/users.js post bet-list error => ', error);
@@ -60,6 +60,7 @@ router.get('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
+    console.log("EAL :::::::::::::::::::::::::::::::::::")
     const condition = { _id: commonHelper.strToMongoDb(req.params.id) };
     // console.info('condition => ', condition);
 
@@ -88,8 +89,8 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, maxSeat, status, tableName } = req.body;
-    const entryFeexists = await BetLists.countDocuments({ deal });
+    const { entryFee, betListId, maxSeat, status, tableName,gamePlayType,deal } = req.body;
+    const entryFeexists = await BetLists.countDocuments({ gamePlayType:gamePlayType,entryFee:entryFee,deal:deal });
     logger.info('put entryFeexists', entryFeexists);
     if (entryFeexists > 0) {
       res.status(config.OK_STATUS).json({ status: 0, message: 'Deal Already Exists' });

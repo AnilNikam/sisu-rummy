@@ -821,14 +821,14 @@ async function mailer(email, otp) {
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
-  const { gamePlayType, entryFee } = requestBody;
+  const { gamePlayType, entryFee,maxSeat,status ,commission,tableName } = requestBody;
   logger.info('registerBetList requestBody => ', requestBody);
   try {
-    const entryFeexists = await BetLists.countDocuments({ entryFee });
+    const entryFeexists = await BetLists.countDocuments({ entryFee,maxSeat });
     if (entryFeexists > 0) {
       return { status: 0, message: 'Entry Fee Already Exists' };
     }
-    const newData = { gamePlayType, entryFee };
+    const newData = { gamePlayType, entryFee , status ,commission,maxSeat,tableName };
     const response = await usersHelper.betLists(newData);
     // logger.info('Create Bet table  response => ', response);
     if (response.status) {
@@ -894,11 +894,13 @@ async function getBetList(requestBody) {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
           commission: '$commission',
+          maxSeat: '$maxSeat',
           status: '$status',
+          tableName: '$tableName'
         },
       },
     ]);
-
+      console.log("responseData ",responseData)
     if (responseData.length !== 0) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
     } else {
