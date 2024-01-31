@@ -101,13 +101,13 @@ router.put('/', async (req, res) => {
         tableName: tableName,
         commission:commission
       };
-      // console.info('newData => ', newData);
+       console.log('newData => ', newData);
 
       const condition = { _id: commonHelper.strToMongoDb(betListId) };
-      // console.info('condition => ', condition);
+      console.log('condition => ', condition);
 
       const responseData = await commonHelper.update(BetLists, condition, newData);
-      // console.log('update response Data => ', responseData);
+       console.log('update response Data => ', responseData);
 
       if (responseData.status === 1) {
         res.status(config.OK_STATUS).json({

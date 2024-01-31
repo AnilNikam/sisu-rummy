@@ -89,27 +89,28 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, maxSeat, status, tableName,gamePlayType,deal } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName,gamePlayType,deal,commission } = req.body;
     const entryFeexists = await BetLists.countDocuments({ gamePlayType:gamePlayType,entryFee:entryFee,deal:deal });
-    logger.info('put entryFeexists', entryFeexists);
+    logger.info('put entryFeexists deal ', entryFeexists);
     if (entryFeexists > 0) {
       res.status(config.OK_STATUS).json({ status: 0, message: 'Deal Already Exists' });
     } else {
       const newData = {
-        entryFee: parent(entryFee),
-        deal: deal,
+        entryFee: parseInt(entryFee),
+        commission: parseInt(commission),
+        deal: parseInt(deal),
         modifiedAt: Date.now(),
-        maxSeat: maxSeat,
+        maxSeat: parseInt(maxSeat),
         status: status,
         tableName: tableName,
       };
-      // logger.info('newData => ', newData);
+       logger.info('newData => ', newData);
 
       const condition = { _id: commonHelper.strToMongoDb(betListId) };
-      // logger.info('condition => ', condition);
+    logger.info('condition => ', condition);
 
       const responseData = await commonHelper.update(BetLists, condition, newData);
-      // logger.info('update response Data => ', responseData);
+      logger.info('update response Data => ', responseData);
 
       if (responseData.status === 1) {
         res.status(config.OK_STATUS).json({
