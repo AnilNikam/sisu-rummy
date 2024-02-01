@@ -17,6 +17,9 @@ const { sendEvent, sendDirectEvent } = require('../helper/socketFunctions');
 const { getPaymentHistory, updateWallet } = require('../helper/walletFunction');
 const { registerUser } = require('../helper/signups/signupValidation');
 const { userReconnect, takeSeat } = require('../helper/common-function/reConnectFunction');
+const { initiatePayment } = require('./paymentController,js');
+const { createPayout } = require('./paymentController,js');
+const { checkPayoutStatus } = require('./paymentController,js');
 
 const myIo = {};
 const users = new Map();
@@ -558,7 +561,6 @@ myIo.init = function (server) {
             break;
           }
 
-
           case CONST.EXIT: {
             try {
               const disconnectedUser = socketToUsers.get(socket.id);
@@ -592,13 +594,44 @@ myIo.init = function (server) {
             break;
           }
 
-
           case CONST.RECONNECT: {
             try {
               logger.info('RE CONNECT Event Called ', payload.data, '\n<==== New Connected Socket id ===>', socket.id, '\n Table Id =>', socket.tbid);
               await userReconnect(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js RECONNECT => ', error);
+            }
+            break;
+          }
+
+          case CONST.PAY_IN: {
+            try {
+              const res = await initiatePayment(payload.data)
+              sendEvent(socket, CONST.PAY_IN, res)
+            } catch (error) {
+              logger.error("Error in pay in ->", error)
+            }
+            break;
+          }
+
+          case CONST.CREATE_PAY_OUT: {
+            try {
+              const res = await createPayout(payload.data)
+              sendEvent(socket, CONST.CREATE_PAY_OUT, res)
+
+            } catch (error) {
+              logger.error("Error in pay out ->", error)
+            }
+            break;
+          }
+
+          case CONST.CHECK_PAY_OUT_STATUS: {
+            try {
+              const res = await checkPayoutStatus(payload.data)
+              sendEvent(socket, CONST.CHECK_PAY_OUT_STATUS, res)
+
+            } catch (error) {
+              logger.error("Error in pay out ->", error)
             }
             break;
           }

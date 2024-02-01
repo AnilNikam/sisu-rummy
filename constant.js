@@ -231,6 +231,11 @@ const CONST = {
     GAME_LEAVE: 'Leave Game',
   },
 
+  //Payment Getway
+  PAY_IN: 'PAYIN',
+  CREATE_PAY_OUT: 'PAYOUT',
+  CHECK_PAY_OUT_STATUS: 'PAYOUT_STATUS',
+
   // friendship status
   // 1 for pending 2 for approved,3 for decline
 

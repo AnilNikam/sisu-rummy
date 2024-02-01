@@ -35,6 +35,7 @@ const GameUserSchema = new Schema(
     lastLoginDate: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
     modifiedAt: { type: Date, default: Date.now },
+    isBot: { type: Boolean, default: false }
   },
   { versionKey: false }
 );

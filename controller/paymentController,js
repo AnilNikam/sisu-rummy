@@ -1,0 +1,155 @@
+const mongoose = require('mongoose');
+const Users = mongoose.model('users');
+const axios = require('axios');
+
+const EPAISA = {
+    url: 'https://epaisaa.com/pay/paymentinit',
+    enquiry_url: 'https://epaisaa.com/pay/statusenquiry',
+    auth_id: 'M00006315',
+    api_key: 'xv2Pe9Jx9lb9wv1yk4Sk9Ks7yj0FV7HW',
+    WEBHOOK: 'https://gameapi.hyperrush.in/deposit-status-webhook',
+    iv: 'xv2Pe9Jx9lb9wv1y'
+};
+
+async function initiatePayment(amount, customerName, customerEmail, customerPhone, referenceId) {
+    try {
+        const payload = {
+            amount,
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
+            reference_id: referenceId,
+            auth_id: EPAISA.auth_id,
+            api_key: EPAISA.api_key
+        };
+
+        const response = await axios.post(EPAISA.url, payload);
+        if (response.data) {
+            //add amount in coins
+        } else {
+
+        }
+        return response.data; // Return the response data
+    } catch (error) {
+        console.error('Error initiating payment:', error.response ? error.response.data : error.message);
+        throw error; // Throw the error to be caught by the caller
+    }
+}
+
+
+const FRENZOPAY_PAYOUT = {
+    base_url: 'https://api.frenzopay.com/api/v1',
+    add_beneficiary_endpoint: '/payout/beneficiary',
+    create_payout_endpoint: '/payout/',
+    check_payout_status_endpoint: '/payout',
+    account_balance_endpoint: '/payout/balance',
+    access_key: '188dda4667a6b9f0873f87a98cb29074',
+    secret_key: '9ddfe1310dd91ad14996f6c5d64deb3b',
+    business_id: 204
+};
+
+async function addBeneficiary(beneficiaryData) {
+    try {
+        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.add_beneficiary_endpoint}`;
+        const response = await axios.post(url, beneficiaryData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
+    }
+}
+
+//payoutData (amount,payment_method_name,account_number,ifsc,name,address,email,bank_name,mobile_number)
+async function createPayout(payoutData) {
+    try {
+        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.create_payout_endpoint}`;
+        const response = await axios.post(url, payoutData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+            }
+        });
+        if (response.data) {
+            //Deduct a coin
+        }
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
+    }
+}
+
+//
+async function checkPayoutStatus(payoutId) {
+    try {
+        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.check_payout_status_endpoint}/${payoutId}`;
+        const response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
+    }
+}
+
+async function getAccountBalance() {
+    try {
+        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.account_balance_endpoint}`;
+        const response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
+    }
+}
+
+// Example usage:
+// (async () => {
+//     try {
+//         // Add beneficiary
+//         const beneficiaryData = { /* Add beneficiary data here */ };
+//         const addedBeneficiary = await addBeneficiary(beneficiaryData);
+//         console.log('Added beneficiary:', addedBeneficiary);
+
+//         // Create payout
+//         const payoutData = { /* Add payout data here */ };
+//         const createdPayout = await createPayout(payoutData);
+//         console.log('Created payout:', createdPayout);
+
+//         // Check payout status
+//         const payoutId = '123'; // Replace with actual payout ID
+//         const payoutStatus = await checkPayoutStatus(payoutId);
+//         console.log('Payout status:', payoutStatus);
+
+//         // Get account balance
+//         const accountBalance = await getAccountBalance();
+//         console.log('Account balance:', accountBalance);
+//     } catch (error) {
+//         console.error('Error:', error);
+//     }
+// })();
+
+
+module.exports = {
+    initiatePayment,
+    addBeneficiary,
+    createPayout,
+    checkPayoutStatus,
+    getAccountBalance
+};
+
+

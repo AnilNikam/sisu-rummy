@@ -217,6 +217,7 @@ module.exports.disCard = async (requestData, client) => {
       disCard: disCard,
     };
 
+
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, response);
 
     delete client.disCard;

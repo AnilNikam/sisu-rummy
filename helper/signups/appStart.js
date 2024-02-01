@@ -60,7 +60,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
   logger.info('getUserDefaultFields get User Default Fields -->', data);
   const setUserDetail = {
     id: 0,
-    deviceId: data.deviceId,
+    deviceId: data.deviceId ? data.deviceId : 'botDevice',
     username: data.username ? data.username : '',
     name: data.name ? data.name : '',
     status: data.status ? data.status : '',
@@ -81,7 +81,8 @@ module.exports.getUserDefaultFields = async (data, client) => {
     },
     referralCode: '',
     tableId: '',
-    sckId: client.id,
+    sckId: client && client.id ? client.id : '',
+    isBot: data.isBot ? data.isBot : false,
   };
 
   return setUserDetail;
@@ -98,7 +99,7 @@ module.exports.getReferralCode = async (length) => {
     result += digit.charAt(Math.floor(Math.random() * digit.length));
   }
   let parts = result.split('');
-  for (let i = parts.length; i > 0; ) {
+  for (let i = parts.length; i > 0;) {
     let random = parseInt(Math.random() * i);
     let temp = parts[--i];
     parts[i] = parts[random];
@@ -169,8 +170,8 @@ module.exports.getCountDetails = async (type) => {
 module.exports.userSesssionSet = async (userData, client) => {
   //logger.info('Redis User Session ', userData);
   try {
-    client.uid = userData._id.toString();
-    client.uniqueId = userData.uniqueId;
+    // client.uid = userData._id.toString();
+    // client.uniqueId = userData.uniqueId;
 
     // eslint-disable-next-line no-unused-vars
     let redisSet = {

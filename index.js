@@ -11,14 +11,14 @@ const SERVER_ID = process.argv[3];
 const SERVICE_HOST = process.argv[4];
 
 logger.info('SERVER_PORT', SERVER_PORT + ' \nSERVER_ID', SERVER_ID + ' \nSERVICE_HOST', SERVICE_HOST);
-(async () => {
-  const rClient = redis.createClient();
-  rClient.on('error', (err) => logger.info('Redis Client Error', err));
-  rClient.on('connect', () => {
-    logger.info('Redis Client connected');
-    rClient.hmset(SERVER_ID, 'host', SERVICE_HOST, 'port', SERVER_PORT, 'proto', 'http');
-  });
-})();
+// (async () => {
+//   const rClient = redis.createClient();
+//   rClient.on('error', (err) => logger.info('Redis Client Error', err));
+//   rClient.on('connect', () => {
+//     logger.info('Redis Client connected');
+//     rClient.hmset(SERVER_ID, 'host', SERVICE_HOST, 'port', SERVER_PORT, 'proto', 'http');
+//   });
+// })();
 
 const PORT = SERVER_PORT || 2828;
 const server = http.createServer(app);

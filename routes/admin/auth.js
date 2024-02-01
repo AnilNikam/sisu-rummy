@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mainCtrl = require('../../controller/mainController');
+const userCtrl = require('../../helper/signups/signupValidation');
 const { OK_STATUS, BAD_REQUEST } = require('../../config');
 const logger = require('../../logger');
 
@@ -15,6 +16,19 @@ const logger = require('../../logger');
 
 router.post('/signup-admin', async (req, res) => {
   res.json(await mainCtrl.registerAdmin(req.body));
+});
+
+/**
+ * @api {post} /admin/user
+ * @apiName  register user for bot
+ * @apiGroup  Admin
+ * @apiHeader {String}  x-access-token Admin's unique access-key
+ * @apiSuccess (Success 200) {Array} badges Array of badges document
+ * @apiError (Error 4xx) {String} message Validation or error message.
+ */
+
+router.post('/user-register', async (req, res) => {
+  res.json(await userCtrl.registerUser(req.body));
 });
 
 /**

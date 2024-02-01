@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const PlayingTables = mongoose.model('playingTable');
+const Users = mongoose.model('users');
 
 const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { leaveTable } = require('./leaveTable');
+const { pic } = require('../botFunction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
@@ -107,6 +109,7 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
 
     const deck = 'open';
 
+
     let response = {
       si: tb.currentPlayerTurnIndex,
       pi: tb.playerInfo[tb.currentPlayerTurnIndex]._id,
@@ -116,9 +119,20 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
 
     sendEventInTable(tb._id.toString(), CONST.USER_TURN_START, response);
 
+    //Assign to bot
+    let plid = tb.playerInfo[tb.currentPlayerTurnIndex]._id
+    const data = await Users.findOne({
+      _id: MongoID(plid),
+    }).lean();
+
+    if (data.isBot) {
+      await pic(tb, plid, tb.gamePlayType, 'close')
+    }
+
     let tbid = tb._id.toString();
     let time = CONST.userTurnTimer;
     let turnChangeDelayTimer = AddTime(time);
+
 
     await setDelay(jobId, new Date(turnChangeDelayTimer));
 

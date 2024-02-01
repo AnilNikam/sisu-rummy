@@ -5,6 +5,7 @@ const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
 
 const gameStartActions = require('./gameStart');
+const botLogic = require('../botFunction');
 const CONST = require('../../constant');
 const logger = require('../../logger');
 
@@ -149,6 +150,7 @@ module.exports.makeObjects = (length = 0) => {
 
 module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
   try {
+    logger.info("\n findEmptySeatAndUserSeat socket  -->", socket)
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
 
     if (seatIndex === '-1') {
@@ -198,6 +200,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       pickedCard: '',
       debitChips: false,
       rejoin: false,
+      isBot: userInfo.isBot
     };
 
     let whereCond = { _id: MongoID(table._id.toString()) };
@@ -257,7 +260,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     });
 
     //JT event
-    socket.join(tableInfo._id.toString());
+    if (userInfo.isBot == undefined || userInfo.isBot == false)
+      socket.join(tableInfo._id.toString());
 
     sendDirectEvent(socket.tbid.toString(), CONST.JOIN_TABLE, {
       ap: tableInfo.activePlayer,
@@ -270,6 +274,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
+    }
+    if (tableInfo.activePlayer <= 2) {
+      setTimeout(() => {
+        botLogic.findRoom(tableInfo)
+      }, 2000)
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
