@@ -82,6 +82,11 @@ async function getBetList(requestBody) {
         $project: {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
+          type: '$type',
+          status: '$status',
+          tableName: '$tableName',
+          maxSeat:'$maxSeat',
+          commission:'$commission'
         },
       },
     ]);

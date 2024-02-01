@@ -12,17 +12,18 @@ const commonHelper = require('../helper/commonHelper');
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
-  logger.info('Deal Bet List Request Body => ', requestBody);
-  const { gamePlayType, entryFee, deal } = requestBody;
+  console.log('Deal Bet List Request Body => ', requestBody);
+  const { gamePlayType, entryFee, deal,status,commission,maxSeat,tableName } = requestBody;
   try {
-    const entryFeexists = await BetLists.countDocuments({ deal });
-    if (entryFeexists > 0) {
+    const entryFeexists = await BetLists.find({ gamePlayType:gamePlayType,entryFee:entryFee,deal:deal });
+    console.log("entryFeexists ",entryFeexists)
+    if (entryFeexists != null && entryFeexists.length > 0) {
       return { status: 0, message: 'Game Type Already Exists' };
     }
 
-    const newData = { gamePlayType, entryFee, deal };
+    const newData = { gamePlayType, entryFee,deal,status,commission,maxSeat,tableName };
     const response = await usersHelper.dealBetLists(newData);
-
+    
     if (response.status) {
       response.message = 'Register Success';
     } else {
@@ -83,6 +84,10 @@ async function getBetList(requestBody) {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
           deal: '$deal',
+          status: '$status',
+          tableName: '$tableName',
+          maxSeat:'$maxSeat',
+          commission:'$commission'
         },
       },
     ]);

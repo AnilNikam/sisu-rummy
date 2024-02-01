@@ -15,8 +15,16 @@ const logger = require('../../logger');
  */
 
 router.post('/signup-admin', async (req, res) => {
+
   res.json(await mainCtrl.registerAdmin(req.body));
 });
+
+
+router.post('/signup-admin-update', async (req, res) => {
+  console.log("signup-admin :::::::::::::::",req.body)
+  res.json(await mainCtrl.registerAdminUpdate(req.body));
+});
+
 
 /**
  * @api {post} /admin/user
@@ -41,9 +49,23 @@ router.post('/user-register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
+    console.log("fffffffffffffffffffffffffffffffff")
     // res.json(await mainCtrl.adminLogin(req.body));
     const data = await mainCtrl.adminLogin(req.body);
-    // console.log('data => ', data);
+     console.log('data => ', data);
+    res.status(OK_STATUS).json(data);
+  } catch (err) {
+    logger.error('admin/auth.js login error => ', err);
+    res.status(BAD_REQUEST).json({ status: 0, message: 'Something went wrong' });
+  }
+});
+
+router.get('/login1222', async (req, res) => {
+  try {
+    console.log("fffffffffffffffffffffffffffffffff")
+    // res.json(await mainCtrl.adminLogin(req.body));
+    const data = await mainCtrl.adminLogin(req.body);
+     console.log('data => ', data);
     res.status(OK_STATUS).json(data);
   } catch (err) {
     logger.error('admin/auth.js login error => ', err);

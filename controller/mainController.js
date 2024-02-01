@@ -349,6 +349,70 @@ async function registerAdmin(requestBody) {
   }
 }
 
+
+/**
+ * @description . Create Admin User
+ * @param {Object} requestBody
+ * @returns {Object}
+ */
+
+async function registerAdminUpdate(requestBody) {
+  try {
+      const { email,oldPwd, newPwd, newEmail } = requestBody;
+     console.log('111111111111requestBody => ', requestBody);
+      console.log("dddd")
+      const data = await Admin.findOne({ email }).lean();
+      console.log("11111111111user =>", data);
+
+      if (data !== null) {
+          const passwordMatch = await bcrypt.compare(oldPwd, data.password);
+          console.log('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
+          if (passwordMatch) {
+
+              const updateData = {
+                  $set:{
+  
+                  }
+              };
+              if(newPwd != ""){
+                  
+                  const hashedPassword = await bcrypt.hash(newPwd, 10);
+                  updateData["$set"]["password"] = hashedPassword
+              
+              }
+  
+              if(newEmail != ""){
+                  updateData["$set"]["email"] = newEmail
+              
+              }
+  
+  
+              console.log("updateData ",updateData)
+  
+              const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
+          
+              console.log("res",response)
+              
+              const token = await commonHelper.sign(data);
+              data.token = token;
+              delete data.password;
+              return { status: 1, message: 'Update Admin Id Password Succesfully', data };
+          } else return { status: 0, message: 'Incorrect Password' };
+      } else {
+          logger.info('At mainController.js:571 userId not found => ', JSON.stringify(requestBody));
+          return { status: 0, message: 'Id not Found' };
+      }
+
+      
+  } catch (error) {
+      logger.error('adminController.js registerAdmin error=> ', error, requestBody);
+      return {
+          message: 'something went wrong while registering, please try again',
+          status: 0,
+      };
+  }
+}
+
 /**
  * @description . Create GAME REPORT PROBLEM
  * @param {Object} requestBody
@@ -816,14 +880,14 @@ async function mailer(email, otp) {
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
-  const { gamePlayType, entryFee } = requestBody;
+  const { gamePlayType, entryFee,maxSeat,status ,commission,tableName } = requestBody;
   logger.info('registerBetList requestBody => ', requestBody);
   try {
-    const entryFeexists = await BetLists.countDocuments({ entryFee });
+    const entryFeexists = await BetLists.countDocuments({ entryFee,maxSeat });
     if (entryFeexists > 0) {
       return { status: 0, message: 'Entry Fee Already Exists' };
     }
-    const newData = { gamePlayType, entryFee };
+    const newData = { gamePlayType, entryFee , status ,commission,maxSeat,tableName };
     const response = await usersHelper.betLists(newData);
     // logger.info('Create Bet table  response => ', response);
     if (response.status) {
@@ -889,11 +953,13 @@ async function getBetList(requestBody) {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
           commission: '$commission',
+          maxSeat: '$maxSeat',
           status: '$status',
+          tableName: '$tableName'
         },
       },
     ]);
-
+      console.log("responseData ",responseData)
     if (responseData.length !== 0) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
     } else {
@@ -954,4 +1020,5 @@ module.exports = {
   getBetList,
   getBetDetails,
   registerProblemReport,
+  registerAdminUpdate
 };

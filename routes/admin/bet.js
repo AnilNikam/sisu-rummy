@@ -26,6 +26,7 @@ router.post('/', async (req, res) => {
       tableName: req.body.tableName,
       commission: parseInt(req.body.commission),
       maxSeat: parseInt(req.body.maxSeat),
+      tableName:req.body.tableName
     };
     res.json(await mainCtrl.registerBetList(newData));
   } catch (error) {
@@ -85,7 +86,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, maxSeat, status, tableName } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName , commission } = req.body;
     const entryFeexists = await BetLists.countDocuments({ entryFee });
     logger.info('put entryFeexists', entryFeexists);
     if (entryFeexists > 0) {
@@ -98,14 +99,15 @@ router.put('/', async (req, res) => {
         maxSeat: maxSeat,
         status: status,
         tableName: tableName,
+        commission:commission
       };
-      // console.info('newData => ', newData);
+       console.log('newData => ', newData);
 
       const condition = { _id: commonHelper.strToMongoDb(betListId) };
-      // console.info('condition => ', condition);
+      console.log('condition => ', condition);
 
       const responseData = await commonHelper.update(BetLists, condition, newData);
-      // console.log('update response Data => ', responseData);
+       console.log('update response Data => ', responseData);
 
       if (responseData.status === 1) {
         res.status(config.OK_STATUS).json({
