@@ -19,6 +19,9 @@ module.exports.appLunchDetails = async (requestData, client) => {
     let response = await this.filterBeforeSendSPEvent(result);
     //logger.info('Guest Final response Dashboard', response);
     commandAcions.sendEvent(client, CONST.DASHBOARD, response);
+    if (requestData.referralCode != "") {
+      await this.referralReward(requestData.referralCode)
+    }
   } else {
     commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
     return false;
@@ -27,20 +30,30 @@ module.exports.appLunchDetails = async (requestData, client) => {
   return true;
 };
 
-module.exports.referralReward = async (referal_code) => {
-  let wh = {
-    referal_code: referal_code,
-  };
+module.exports.referralReward = async (referralCode) => {
+
+  let wh = {};
+  if (referralCode) {
+    wh.referralCode = referralCode.toLowerCase();
+  }
 
   let res = await GameUser.findOne(wh, {});
+  // let wh = {
+  //   referralCode: referralCode.toLowerCase(),
+  // };
+
+  // let res = await GameUser.findOne(wh, {});
   logger.info('referralReward res : ', res);
 
   if (res !== null) {
     await UserReferTracks.create({
       // eslint-disable-next-line no-undef
-      user_id: MongoID(userData._id.toString()),
-      rId: MongoID(res._id.toString()),
+      userId: MongoID(userData._id.toString()),
+      referalUserId: MongoID(res._id.toString()),
     });
+    let response = { valid: true, msg: 'Congrats! Referral Code Valid' };
+    commandAcions.sendEvent(socket, CONST.CHECK_REFERAL_CODE, response);
+
     // let reward = await bonusActions.getReferalBonus({
     //     referCounter : urc
     // })
@@ -52,6 +65,31 @@ module.exports.referralReward = async (referal_code) => {
     // }
     return true;
   } else {
+
+    return false;
+  }
+};
+
+module.exports.checkReferral = async (requestData, client) => {
+  let { referralCode, userId } = requestData
+  let wh = {
+    referralCode: referralCode,
+  };
+
+  let res = await GameUser.findOne(wh, {});
+  logger.info('referralReward res : ', res);
+
+  if (res !== null) {
+    await UserReferTracks.create({
+      // eslint-disable-next-line no-undef
+      userId: MongoID(userId.toString()),
+      referalUserId: MongoID(res._id.toString()),
+    });
+    let response = { valid: true, msg: 'Congrats! Referral Code Valid' };
+    commandAcions.sendEvent(socket, CONST.CHECK_REFERAL_CODE, response);
+    return true;
+  } else {
+    commandAcions.sendEvent(socket, CONST.CHECK_REFERAL_CODE, requestData, false, 'Enter valid referral!');
     return false;
   }
 };
@@ -79,7 +117,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
       gameLoss: 0,
       totalMatch: 0,
     },
-    referralCode: '',
+    referralCode: await this.getReferralCode(8),
     tableId: '',
     sckId: client && client.id ? client.id : '',
     isBot: data.isBot ? data.isBot : false,
@@ -212,64 +250,3 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
   //logger.info('filter Before Send SP Event -->', res);
   return res;
 };
-/*
-module.exports.appLunchDetail = async (requestData, client) => {
-  let { mobileNumber, deviceId, loginType, email } = requestData;
-  if (loginType === 'guest') {
-    logger.info('check Login Type ->', loginType);
-    let query = { deviceId: deviceId.toString() };
-    let result = await GameUser.findOne(query, {});
-    logger.info('guest Result --> ', result);
-    if (result) {
-      await this.userSesssionSet(result, client);
-
-      let response = await this.filterBeforeSendSPEvent(result);
-      logger.info('Guest Final response Dashboard', response);
-      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
-    } else {
-      commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
-      return false;
-    }
-  } else if (loginType === 'Google') {
-    logger.info('Check manual Login Using email');
-    let query = { email: email };
-    let result = await GameUser.findOne(query, {});
-    logger.info('Google data --> ', result);
-    //if (data) {
-    //  const result = await bcrypt.compare(requestData.password, data.password);
-    if (result) {
-      await this.userSesssionSet(result, client);
-
-      let response = await this.filterBeforeSendSPEvent(result);
-      logger.info('Final response Dashboard', response);
-      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
-      //} else {
-      //  commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Your Password Is Invalid!');
-      //  return false;
-      //}
-    } else {
-      commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
-      return false;
-    }
-  } else if (loginType === 'phone') {
-    let query = { mobileNumber: mobileNumber };
-    let result = await GameUser.findOne(query, {});
-    logger.info('Result --> ', result);
-    if (result) {
-      await this.userSesssionSet(result, client);
-
-      let response = await this.filterBeforeSendSPEvent(result);
-      logger.info('Final response Dashboard', response);
-      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
-    } else {
-      commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
-      return false;
-    }
-  } else {
-    commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Send  Valid Login Type');
-    return false;
-  }
-
-  return true;
-};
-*/

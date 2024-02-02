@@ -4,7 +4,7 @@ const UserOtp = require('../../models/userOtp');
 const smsActions = require('../sms');
 const mongoose = require('mongoose');
 const logger = require('../../logger');
-const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser } = require('./appStart');
+const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const Users = mongoose.model('users');
 
 const checkMobileNumber = async (requestData, socket) => {
@@ -223,6 +223,10 @@ const registerUser = async (requestBody, socket) => {
         let response = await filterBeforeSendSPEvent(userData);
 
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
+
+        if (requestData.referralCode != "") {
+          await checkReferral(requestData.referralCode)
+        }
       } else {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, requestBody, false, 'User Already Register!');
         return false;

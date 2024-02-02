@@ -18,6 +18,7 @@ const GameUserSchema = new Schema(
     chips: { type: Number, required: true },
     winningChips: { type: Number, required: true },
     referralCode: { type: String },
+    referredBy: { type: String },
     avatar: { type: String },
     deviceType: { type: String, default: 'Android' },
     loginType: { type: String, enum: ['Mobile', 'Guest', 'email', 'Google'], require: true, default: 'guest' },

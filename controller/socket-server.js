@@ -20,6 +20,7 @@ const { userReconnect, takeSeat } = require('../helper/common-function/reConnect
 const { initiatePayment } = require('./paymentController,js');
 const { createPayout } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
+const { checkReferral } = require('../helper/signups/appStart');
 
 const myIo = {};
 const users = new Map();
@@ -514,7 +515,6 @@ myIo.init = function (server) {
             break;
           }
 
-
           case CONST.REMOVE_USERSOCKET_FROM_TABLE: {
             try {
               let { tableId } = payload.data;
@@ -604,6 +604,15 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.CHECK_REFERAL_CODE: {
+            try {
+              logger.info('RE CONNECT Event Called REFFERAL ', payload.data);
+              await checkReferral(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js REFFERAL => ', error);
+            }
+            break;
+          }
           case CONST.PAY_IN: {
             try {
               const res = await initiatePayment(payload.data)

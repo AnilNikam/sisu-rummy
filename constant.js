@@ -180,6 +180,7 @@ const CONST = {
   REMOVE_USERSOCKET_FROM_TABLE: 'RUFT',
   DEAL_BET_LIST: 'DBT',
   KYC: 'KYC',
+  REFFERAL: 'REFFERAL',
 
   // Timer
   userTurnTimer: 30,
