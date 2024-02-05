@@ -54,6 +54,18 @@ module.exports.joinTable = async (requestData, socket) => {
         msg: 'Already In playing table!!',
       });
       logger.info('player already in table');
+
+      let updateData = {
+        $set: {
+          'playerInfo.$': {},
+        },
+      };
+
+      let tableInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+        new: true,
+      });
+
+      logger.info("Remove User table -->", tableInfo)
       delete socket.JT;
 
       return false;
@@ -275,11 +287,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    if (tableInfo.activePlayer <= 2) {
-      setTimeout(() => {
-        botLogic.findRoom(tableInfo)
-      }, 2000)
-    }
+    // if (tableInfo.activePlayer <= 2) {
+    //   setTimeout(() => {
+    //     botLogic.findRoom(tableInfo)
+    //   }, 2000)
+    // }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
   }
