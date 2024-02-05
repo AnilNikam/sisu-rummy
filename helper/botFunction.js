@@ -8,10 +8,10 @@ const commandAcions = require('./socketFunctions');
 const logger = require("../logger");
 const CONST = require("../constant");
 const config = require("../config");
-var io = require('socket.io-client')
+let io = require('socket.io-client')
 const schedule = require('node-schedule');
 const { getRandomNumber } = require("./helperFunction");
-var socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
+let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
 async function findRoom(tableInfo, betInfo) {
     try {
@@ -183,15 +183,15 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
             //DiscCard Logic
 
             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
-            schedule.scheduleJob(`table.tableId${table._id}`, startDiscScheduleTime, async function () {
+            schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                 try {
                     logger.info("Bot DISCARD event call");
 
                     //cancel the Schedule
-                    schedule.cancelJob(`table.tableId${table._id}`);
+                    schedule.cancelJob(`table.tableId${tableInfo._id}`);
                     // console.log("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
-                    let playerIndex = table.playerInfo.findIndex(o => o.playerId === table.currentPlayingPlayerId);
-                    let player = table.playerInfo[playerIndex];
+                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.playerId === tableInfo.currentPlayingPlayerId);
+                    let player = tableInfo.playerInfo[playerIndex];
                     logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
                     // console.log("Player Cards", player.cards);
                     //Select Card for Discard
@@ -209,7 +209,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         logger.info('DIS throwCard => ', throwCard);
 
                         let droppedCard = requestData.cardName;
-                        let playerInfo = tabInfo.playerInfo[client.seatIndex];
+                        let playerInfo = tableInfo.playerInfo[client.seatIndex];
                         let playersCards = playerInfo.cards;
 
                         const droppedCardIndex = playersCards.indexOf(droppedCard);
@@ -229,30 +229,28 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         if (playerInfo.playerStatus === 'PLAYING') {
                             updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
                             updateData.$set['playerInfo.$.pickedCard'] = '';
-                            updateData.$set['openDeck'] = tabInfo.openDeck;
+                            updateData.$set['openDeck'] = tableInfo.openDeck;
                         }
 
                         //cancel Schedule job
-                        commandAcions.clearJob(tabInfo.jobId);
+                        commandAcions.clearJob(tableInfo.jobId);
 
                         const upWh = {
-                            _id: MongoID(client.tbid.toString()),
-                            'playerInfo.seatIndex': Number(client.seatIndex),
+                            _id: MongoID(tableInfo._id.toString()),
+                            'playerInfo.seatIndex': Number(playerIndex),
                         };
 
                         const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
                             new: true,
                         });
 
-                        let response = {
+                        let responsee = {
                             playerId: playerInfo._id,
                             disCard: disCard,
                         };
 
 
-                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, response);
-
-                        commandAcions.sendEventInTable(table._id.toString(), CONST.DISCARD, responsee);
+                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
 
                     } else {
@@ -273,8 +271,8 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 }
 
 // const findDeclareCard = (max) => {
-//     var min = Math.ceil(0);
-//     var max = Math.floor(max);
+//     let min = Math.ceil(0);
+//     let max = Math.floor(max);
 //     return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
@@ -356,7 +354,7 @@ const checkCardFoundFollower = (card, checkCard) => {
         if (status == false) {
             for (let i = 0; i < cardNumber.length - 1; i++) {
 
-                var dif = cardNumber[i] - checkCardNumber;
+                let dif = cardNumber[i] - checkCardNumber;
 
                 if (dif == -1 || dif == 1) {
                     status = true;
@@ -381,10 +379,11 @@ const convertCardPairAndFollowers = (cards) => {
     try {
         let cardType = []
         let cardNumber = []
-        let pair = []
-        let followers = []
+        let pure = []
+        let impure = []
+        let set = []
         let dwd = []
-        //var intDo=[]
+        //let intDo=[]
 
         for (i = 0; i < cards.length; i++) {
             const words = cards[i].split('-');
@@ -402,18 +401,18 @@ const convertCardPairAndFollowers = (cards) => {
         console.info('After Copy and dwd => ', dwd);
 
         for (let i = 0; i < dwd.length - 1; i++) {
-            var dif = dwd[i] - dwd[i + 1];
+            let dif = dwd[i] - dwd[i + 1];
             if (dif == 0) {
 
                 pair.push(dwd[i], dwd[i + 1])
-                var idx = cardNumber.indexOf(dwd[i]);
+                let idx = cardNumber.indexOf(dwd[i]);
                 cardNumber.splice(idx, 2)
                 //i++
             } else { }
 
         }
         for (let i = 0; i < cardNumber.length - 1; i++) {
-            var dif = cardNumber[i] - cardNumber[i + 1];
+            let dif = cardNumber[i] - cardNumber[i + 1];
             console.info('dif Followers=> ', dif);
 
             if (dif !== 0) {
@@ -442,7 +441,7 @@ const checkPairAndFollowers = (card) => {
     let followers = []
     let dwd = []
     let status = false;
-    //var intDo=[]
+    //let intDo=[]
 
     for (i = 0; i < card.length; i++) {
         const words = card[i].split('-');
@@ -460,11 +459,11 @@ const checkPairAndFollowers = (card) => {
     console.info('After Copy and dwd => ', dwd);
 
     for (let i = 0; i < dwd.length - 1; i++) {
-        var dif = dwd[i] - dwd[i + 1];
+        let dif = dwd[i] - dwd[i + 1];
         if (dif == 0) {
 
             pair.push(dwd[i], dwd[i + 1])
-            var idx = cardNumber.indexOf(dwd[i]);
+            let idx = cardNumber.indexOf(dwd[i]);
             cardNumber.splice(idx, 2)
             //i++
         } else { }
@@ -479,18 +478,18 @@ const checkPairAndFollowers = (card) => {
     }
 
     for (let i = 0; i < cardNumber.length - 1; i++) {
-        var dif = cardNumber[i] - cardNumber[i + 1];
+        let dif = cardNumber[i] - cardNumber[i + 1];
         console.info('dif Followers=> ', dif);
 
         if (cardNumber[i] > 10) {
             if (dif == -1 || dif == -2) {
                 followers.push(cardNumber[i], cardNumber[i + 1])
-                var idx = cardNumber.indexOf(dwd[i]);
+                let idx = cardNumber.indexOf(dwd[i]);
                 cardNumber.splice(idx, 2)
             }
         } else if (dif == -1) {
             followers.push(cardNumber[i], cardNumber[i + 1])
-            var idx = cardNumber.indexOf(dwd[i]);
+            let idx = cardNumber.indexOf(dwd[i]);
             cardNumber.splice(idx, 2)
             // i++;
         } else {
@@ -505,7 +504,7 @@ const checkPairAndFollowers = (card) => {
     console.info('<= followers => ', followers);
 
     for (let i = 0; i < pair.length - 1; i++) {
-        var dif = pair[i] - pair[i + 1];
+        let dif = pair[i] - pair[i + 1];
         // console.log("dif =>", dif)
         if (dif == 0) {
             // console.log("Check Seqence Value Of True => " + dif)
