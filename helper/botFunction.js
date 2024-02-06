@@ -11,6 +11,8 @@ const config = require("../config");
 let io = require('socket.io-client')
 const schedule = require('node-schedule');
 const { getRandomNumber } = require("./helperFunction");
+const roundStartActions = require('./rummy/roundStart');
+
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
 async function findRoom(tableInfo, betInfo) {
@@ -58,6 +60,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
         deck = ['close', 'open'];
         const randomIndex = Math.floor(Math.random() * deck.length);
         const deckType = deck[randomIndex];
+        logger.info("open card deck Type ->", deckType, typeof deckType)
 
         const jobId = `BOTPIC+${tableInfo._id}`;
         let startPicScheduleTime = new Date(Date.now() + 5000);
@@ -108,23 +111,19 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         });
                         logger.info('Pic card Open Deck BOT ', tableInfo);
                     } else if (deckType === 'close') {
-                        if (tableInfo.closeDeck.length === 0) {
-                            let newOpenDeck = tableInfo.openDeck;
-                            let newCloseDeck = newOpenDeck.slice(0, newOpenDeck.length - 5);
+                        // Use player object as needed
 
-                            updateData.$set['closeDeck'] = shuffle(newCloseDeck);
-                            updateData.$set['openDeck'] = newOpenDeck;
+                        // let closeDeckCardIndex;
+                        // let closeDeckCard;
 
-                            let upWh = {
-                                _id: MongoID(tableInfo._id.toString()),
-                            };
+                        // closeDeckCardIndex = table.closeDeck.length - 1;
+                        // closeDeckCard = table.closeDeck[closeDeckCardIndex];
 
-                            let tbl = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                                new: true,
-                            });
-                            logger.info('check Close Deck ', tbl);
-                        }
+                        // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
+                        // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
+
                         pickedCard = tableInfo.closeDeck.pop();
+                        logger.info("close deck picked card ->", pickedCard)
                         playerInfo.cards.push(pickedCard.toString());
 
                         if (playerInfo.playerStatus === 'PLAYING') {
@@ -135,33 +134,22 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         }
 
                         const upWh = {
-                            _id: MongoID(client.tbid.toString()),
-                            'playerInfo.seatIndex': Number(client.seatIndex),
+                            _id: MongoID(tableInfo._id.toString()),
+                            'playerInfo.seatIndex': Number(playerIndex),
                         };
 
-                        if (playerInfo.turnMissCounter > 0) {
-                            playerInfo.turnMissCounter = 0;
-                            updateData.$set['playerInfo.' + client.seatIndex + '.turnMissCounter'] = playerInfo.turnMissCounter;
-                        }
 
                         tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
                             new: true,
                         });
+
+                        logger.info('Pic card Close Deck BOT ', tableInfo);
+
                     }
 
                     /////////////////////////////////////////////////////////////////
 
 
-                    // Use player object as needed
-
-                    // let closeDeckCardIndex;
-                    // let closeDeckCard;
-
-                    // closeDeckCardIndex = table.closeDeck.length - 1;
-                    // closeDeckCard = table.closeDeck[closeDeckCardIndex];
-
-                    // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
-                    // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
 
                     let response = {
                         pickedCard: pickedCard,
@@ -181,6 +169,11 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
             }
 
             //DiscCard Logic
+            // let qu = {
+            //     _id: MongoID(tableInfo._id.toString()),
+            // }
+            // tableInfo = await PlayingTables.findOne(qu).lean;
+            logger.info("find before discard table info", tableInfo);
 
             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
@@ -190,14 +183,19 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                     //cancel the Schedule
                     schedule.cancelJob(`table.tableId${tableInfo._id}`);
                     // console.log("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
-                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.playerId === tableInfo.currentPlayingPlayerId);
+                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
                     let player = tableInfo.playerInfo[playerIndex];
                     logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
-                    // console.log("Player Cards", player.cards);
+                    logger.info("DISCARD Player Cards", player.cards);
+
                     //Select Card for Discard
                     if (player) {
                         let playerCards = player.cards
-                        let selectDiscardCard = convertCardPairAndFollowers(playerCards);
+
+                        const randomIndex = Math.floor(Math.random() * playerCards.length);
+                        const throwCard = playerCards[randomIndex];
+
+                        // let selectDiscardCard = convertCardPairAndFollowers(playerCards);
 
                         // logger.info('selectDiscardCard => ', selectDiscardCard);
                         // logger.info('select Discard followers Card => ', selectDiscardCard.followers + ' select Discard followers Card => ' + selectDiscardCard.pair);
@@ -205,11 +203,11 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         // const isWinner = checkPairAndFollowers(playerCards);
                         // console.info('isWinner => ', isWinner);
 
-                        const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
+                        // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
                         logger.info('DIS throwCard => ', throwCard);
 
-                        let droppedCard = requestData.cardName;
-                        let playerInfo = tableInfo.playerInfo[client.seatIndex];
+                        let droppedCard = throwCard//requestData.cardName;
+                        let playerInfo = tableInfo.playerInfo[playerIndex];
                         let playersCards = playerInfo.cards;
 
                         const droppedCardIndex = playersCards.indexOf(droppedCard);
@@ -219,7 +217,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                         //remove picCard
                         playerInfo.pickedCard = '';
-                        tabInfo.openDeck.push(disCard);
+                        tableInfo.openDeck.push(disCard);
 
                         let updateData = {
                             $set: {},
@@ -244,6 +242,8 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                             new: true,
                         });
 
+                        logger.info("final discard table =>", tb);
+
                         let responsee = {
                             playerId: playerInfo._id,
                             disCard: disCard,
@@ -251,6 +251,9 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
 
                         commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+
+
+                        let re = await roundStartActions.nextUserTurnstart(tb);
 
 
                     } else {
@@ -376,6 +379,7 @@ const checkCardFoundFollower = (card, checkCard) => {
 }
 
 const convertCardPairAndFollowers = (cards) => {
+    logger.info("convertCardPairAndFollowers cards =>", cards)
     try {
         let cardType = []
         let cardNumber = []

@@ -112,9 +112,10 @@ module.exports.findTable = async (betInfo, socket) => {
 
 module.exports.getBetTable = async (betInfo) => {
   try {
+    logger.info("getBetTable betinfo =>", betInfo);
     let wh = {
       entryFee: betInfo.entryFee,
-      activePlayer: { $gte: 0, $lt: 6 },
+      activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
@@ -132,7 +133,7 @@ module.exports.getBetTable = async (betInfo) => {
 module.exports.createTable = async (betInfo) => {
   try {
     let insertobj = {
-      maxSeat: 6,
+      maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
@@ -287,11 +288,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    // if (tableInfo.activePlayer <= 2) {
-    //   setTimeout(() => {
-    //     botLogic.findRoom(tableInfo)
-    //   }, 2000)
-    // }
+    if (tableInfo.activePlayer <= 2) {
+      setTimeout(() => {
+        botLogic.findRoom(tableInfo)
+      }, 2000)
+    }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
   }

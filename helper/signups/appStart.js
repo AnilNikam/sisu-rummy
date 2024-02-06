@@ -20,7 +20,7 @@ module.exports.appLunchDetails = async (requestData, client) => {
     //logger.info('Guest Final response Dashboard', response);
     commandAcions.sendEvent(client, CONST.DASHBOARD, response);
     if (requestData.referralCode != "") {
-      await this.referralReward(requestData.referralCode)
+      await this.referralReward(requestData.referralCode, response)
     }
   } else {
     commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
@@ -30,7 +30,7 @@ module.exports.appLunchDetails = async (requestData, client) => {
   return true;
 };
 
-module.exports.referralReward = async (referralCode) => {
+module.exports.referralReward = async (referralCode, userData) => {
 
   let wh = {};
   if (referralCode) {

@@ -40,6 +40,7 @@ module.exports.getBetList = async (requestData, socket) => {
         $project: {
           entryFee: '$entryFee',
           gamePlayType: '$gamePlayType',
+          maxSeat: '$maxSeat',
         },
       },
     ]);
