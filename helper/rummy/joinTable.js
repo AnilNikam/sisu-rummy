@@ -287,11 +287,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    if (tableInfo.activePlayer <= 2) {
-      setTimeout(() => {
-        botLogic.findRoom(tableInfo)
-      }, 2000)
-    }
+    // if (tableInfo.activePlayer <= 2) {
+    //   setTimeout(() => {
+    //     botLogic.findRoom(tableInfo)
+    //   }, 2000)
+    // }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
   }

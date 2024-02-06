@@ -70,7 +70,7 @@ module.exports.referralReward = async (referralCode) => {
   }
 };
 
-module.exports.checkReferral = async (requestData, client) => {
+module.exports.checkReferral = async (requestData, socket) => {
   let { referralCode, userId } = requestData
   let wh = {
     referralCode: referralCode,

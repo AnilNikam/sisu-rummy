@@ -224,8 +224,8 @@ const registerUser = async (requestBody, socket) => {
 
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
 
-        if (requestData.referralCode != "") {
-          await checkReferral(requestData.referralCode)
+        if (requestBody.referralCode != "") {
+          await checkReferral({referralCode:requestBody.referralCode,userId:userInsertInfo._id},socket)
         }
       } else {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, requestBody, false, 'User Already Register!');
