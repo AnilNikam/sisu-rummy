@@ -27,6 +27,7 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let query = {
       entryFee: requestData.entryFee,
+      maxSeat:requestData.maxSeat
     };
 
     const betInfo = await BetLists.findOne(query, {}).lean();
@@ -137,7 +138,7 @@ module.exports.createTable = async (betInfo) => {
       entryFee: betInfo.entryFee,
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
-      playerInfo: this.makeObjects(6),
+      playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
@@ -288,7 +289,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    if (tableInfo.activePlayer <= 2) {
+    if (tableInfo.maxSeat !==2 && tableInfo.activePlayer <= 2) {
       setTimeout(() => {
         botLogic.findRoom(tableInfo)
       }, 2000)
