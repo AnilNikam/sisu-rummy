@@ -21,8 +21,8 @@ router.get('/BotList', async (req, res) => {
     try {
         //console.info('requet => ', req);
 
-        const userList = await Users.find({ Iscom: 1 }, { username: 1, id: 1, mobileNumber: 1,profileUrl:1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
-
+        const userList = await Users.find({ isBot: true }, { username: 1, id: 1, mobileNumber: 1,avatar:1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        console.log("BotList  ",userList)
         logger.info('admin/dahboard.js post dahboard  error => ', userList);
 
         res.json({ userList });
@@ -45,7 +45,7 @@ router.get('/BotData', async (req, res) => {
     try {
         console.info('requet => ', req.query);
         //
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { username: 1, id: 1, loginType: 1, avatar: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
         logger.info('admin/dahboard.js post dahboard  info => ', userInfo);
 
@@ -77,9 +77,14 @@ router.post('/BotAdd', async (req, res) => {
             isVIP: 0,
             country: req.body.country,
             username: req.body.name,
-            Iscom: 1,
-            profileUrl: req.body.profileUrl,
-            status:req.body.status
+            isBot: true,
+            avatar: req.body.profileUrl,
+            status:req.body.status,
+            loginType:"Guest",
+            name:req.body.name,
+            chips:150000,
+            winningChips:0
+
         }
 
 
@@ -117,6 +122,7 @@ router.post('/BotAdd', async (req, res) => {
 var multer = require('multer')
 var storage1 = multer.diskStorage({
     destination: function (req, file, cb) {
+        console.log("req",req.file)
         cb(null, 'public/upload/BotUpload')
     },
     filename: function (req, file, cb) {
@@ -128,10 +134,10 @@ var upload = multer({ storage: storage1 })
 router.post('/ProfileUpload', upload.single('image'), async (req, res) => {
     try {
 
-        console.log("(req.file ", req.file)
+        console.log("(req.file ::::::::::::::::", req.file)
 
 
-        if (req.file.path != 'undefined' && req.file.path != '' && req.file.path != null) {
+        if (req.file != undefined && req.file.path != undefined && req.file.path != '' && req.file.path != null) {
 
             res.json({ flag: true, path: req.file.path.substr(7) });
         } else {

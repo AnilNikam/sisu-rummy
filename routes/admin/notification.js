@@ -22,7 +22,7 @@ router.post('/sendNotification', async (req, res) => {
         console.info('requet => ', req.body);
         if(req.body.title != undefined && req.body.title != null && req.body.notification != undefined && req.body.notification != null){
         
-            pushNotifications.sendAllUser({title:req.body.title,body:req.body.notification})
+            //pushNotifications.sendAllUser({title:req.body.title,body:req.body.notification})
 
             logger.info('admin/dahboard.js post dahboard  error => ');
 

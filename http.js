@@ -62,13 +62,13 @@ httpApp.use(
 );
 
 // Image Upload
-httpApp.use(
-  fileUpload({
-    limits: {
-      fileSize: 15 * 1024 * 1024,
-    },
-  })
-);
+// httpApp.use(
+//   fileUpload({
+//     limits: {
+//       fileSize: 15 * 1024 * 1024,
+//     },
+//   })
+// );
 
 httpApp.use('/upload', express.static(path.join(__dirname, 'upload')));
 

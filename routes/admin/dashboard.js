@@ -19,25 +19,25 @@ const logger = require('../../logger');
  * @apiError (Error 4xx) {String} message Validation or error message.
  */
 
-router.get('/', async (req, res) => {
-  try {
-    const playingTableDetails = await playingTables.find();
-    // logger.info("playingTableDetails --> ", playingTableDetails);
-    if (playingTableDetails) {
-      res.status(config.OK_STATUS).json({
-        message: ' Details found',
-        status: 1,
-        data: { count: playingTableDetails.length },
-      });
-    } else {
-      // logger.info("withdraw Details Not found");
-      res.status(config.OK_STATUS).json({ message: ' Details Not found', status: 0 });
-    }
-  } catch (error) {
-    logger.error('dashboard.js something went wrong', error);
-    res.status(config.OK_STATUS).json({ message: 'something went wrong, please try again', status: 0 });
-  }
-});
+// router.get('/', async (req, res) => {
+//   try {
+//     const playingTableDetails = await playingTables.find();
+//     // logger.info("playingTableDetails --> ", playingTableDetails);
+//     if (playingTableDetails) {
+//       res.status(config.OK_STATUS).json({
+//         message: ' Details found',
+//         status: 1,
+//         data: { count: playingTableDetails.length },
+//       });
+//     } else {
+//       // logger.info("withdraw Details Not found");
+//       res.status(config.OK_STATUS).json({ message: ' Details Not found', status: 0 });
+//     }
+//   } catch (error) {
+//     logger.error('dashboard.js something went wrong', error);
+//     res.status(config.OK_STATUS).json({ message: 'something went wrong, please try again', status: 0 });
+//   }
+// });
 
 /**
  * @api {get} /admin/dashboard/gameplay-track
@@ -242,6 +242,37 @@ router.get('/statistics', async (req, res) => {
     res.status(config.OK_STATUS).json({ message: 'something went wrong, please try again', status: 0 });
   }
 });
+
+
+/**
+ * @api {post} /admin/lobbies
+ * @apiName  add-bet-list
+ * @apiGroup  Admin
+ * @apiHeader {String}  x-access-token Admin's unique access-key
+ * @apiSuccess (Success 200) {Array} badges Array of badges document
+ * @apiError (Error 4xx) {String} message Validation or error message.
+ */
+router.get('/', async (req, res) => {
+  try {
+    console.log('requet => ', req);
+    const totalUser = await Users.find().count()
+    const totalDeposit = 0;
+    const totalWithdraw = 0;
+    const todayDeposit = 0;
+    const todayWithdraw = 0;
+    const todayKYC = 0;
+    const totalGamePay = 0;
+
+
+    logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
+
+    res.json({totalUser,totalDeposit,totalWithdraw,todayDeposit,todayWithdraw,todayKYC,totalGamePay});
+  } catch (error) {
+    logger.error('admin/dahboard.js post bet-list error => ', error);
+    res.status(config.INTERNAL_SERVER_ERROR).json(error);
+  }
+});
+
 
   /**
  * @api {post} /admin/lobbies

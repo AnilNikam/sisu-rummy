@@ -22,9 +22,9 @@ router.get('/blackwhitegamehistory', async (req, res) => {
     try {
         console.log('requet => ', req);
 
-        const gameHistoryData = await GameHistory.find({ "game": "BlackandWhite" },
-            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game: 1 }).sort({ DateTime: -1 })
-
+        const gameHistoryData = await GameHistory.find({  },
+            { date: 1, gamePlayType: 1, commission: 1, gameId: 1, entryFee: 1, maxSeat: 1 }).sort({ date: -1 })
+            
         console.log("completeWithdrawalData ", gameHistoryData)
 
         res.json({ gameHistoryData });
