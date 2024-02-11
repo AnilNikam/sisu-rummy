@@ -266,7 +266,7 @@ router.get('/', async (req, res) => {
 
     logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
 
-    res.json({totalUser,totalDeposit,totalWithdraw,todayDeposit,todayWithdraw,todayKYC,totalGamePay});
+    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay });
   } catch (error) {
     logger.error('admin/dahboard.js post bet-list error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -274,29 +274,29 @@ router.get('/', async (req, res) => {
 });
 
 
-  /**
- * @api {post} /admin/lobbies
- * @apiName  add-bet-list
- * @apiGroup  Admin
- * @apiHeader {String}  x-access-token Admin's unique access-key
- * @apiSuccess (Success 200) {Array} badges Array of badges document
- * @apiError (Error 4xx) {String} message Validation or error message.
- */
-  router.get('/latatestUser', async (req, res) => {
-    try {
-      //console.info('requet => ', req);
-      let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-        
-        logger.info('admin/dahboard.js post dahboard  error => ', t);
-      const RecentUser = await Users.find({ createdAt :{$gte: new Date(t) } },{username:1,id:1,createdAt:1})
-      
-      logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+/**
+* @api {post} /admin/lobbies
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/latatestUser', async (req, res) => {
+  try {
+    //console.info('requet => ', req);
+    let t = new Date().setSeconds(new Date().getSeconds() - 604800);
 
-      res.json({RecentUser});
-    } catch (error) {
-      logger.error('admin/dahboard.js post bet-list error => ', error);
-      res.status(config.INTERNAL_SERVER_ERROR).json(error);
-    }
-  });
+    logger.info('admin/dahboard.js post dahboard  error => ', t);
+    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 })
+
+    logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+
+    res.json({ RecentUser });
+  } catch (error) {
+    logger.error('admin/dahboard.js post bet-list error => ', error);
+    res.status(config.INTERNAL_SERVER_ERROR).json(error);
+  }
+});
 
 module.exports = router;

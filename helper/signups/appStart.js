@@ -8,26 +8,33 @@ const GameUser = mongoose.model('users');
 const UserReferTracks = mongoose.model('userReferTracks');
 const IdCounter = mongoose.model('idCounter');
 const logger = require('../../logger');
+const { tryEach } = require('async');
 
 module.exports.appLunchDetails = async (requestData, client) => {
-  let { playerId /*mobileNumber, deviceId, loginType, email*/ } = requestData;
-  let query = { _id: playerId.toString() };
-  let result = await GameUser.findOne(query, {});
-  if (result) {
-    await this.userSesssionSet(result, client);
+  try {
 
-    let response = await this.filterBeforeSendSPEvent(result);
-    //logger.info('Guest Final response Dashboard', response);
-    commandAcions.sendEvent(client, CONST.DASHBOARD, response);
-    if (requestData.referralCode != "") {
-      await this.referralReward(requestData.referralCode, response)
+    let { playerId /*mobileNumber, deviceId, loginType, email*/ } = requestData;
+    let query = { _id: playerId.toString() };
+    let result = await GameUser.findOne(query, {});
+
+    if (result) {
+      await this.userSesssionSet(result, client);
+
+      let response = await this.filterBeforeSendSPEvent(result);
+      //logger.info('Guest Final response Dashboard', response);
+      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
+      if (requestData.referralCode != "") {
+        await this.referralReward(requestData.referralCode, response)
+      }
+    } else {
+      commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
+      return false;
     }
-  } else {
-    commandAcions.sendEvent(client, CONST.DASHBOARD, requestData, false, 'Please register the user first');
-    return false;
-  }
 
-  return true;
+    return true;
+  } catch (error) {
+    logger.error("Check APp launch Deatils", error)
+  }
 };
 
 module.exports.referralReward = async (referralCode, userData) => {

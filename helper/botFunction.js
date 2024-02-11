@@ -12,6 +12,8 @@ let io = require('socket.io-client')
 const schedule = require('node-schedule');
 const { getRandomNumber } = require("./helperFunction");
 const roundStartActions = require('./rummy/roundStart');
+const checkWinnerActions = require('./rummy/checkWinner');
+
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
@@ -67,6 +69,10 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
         // let startPicScheduleTime = Date.now() + getRandomNumber(3000, 6500)
         logger.info("startPicScheduleTime ->", startPicScheduleTime)
 
+        let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
+        logger.info('bot playerIndex: ', playerIndex);
+        let pickedCard;
+
         schedule.scheduleJob(jobId, startPicScheduleTime, async () => {
             schedule.cancelJob(jobId);
             logger.info("Bot PIC event call");
@@ -82,7 +88,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                         $inc: {},
                     };
                     /////////////////////////////////////////////////////////////////
-                    let pickedCard;
+                    // let pickedCard;
                     if (deckType === 'open') {
                         pickedCard = tableInfo.openDeck.pop();
                         playerInfo.cards.push(pickedCard.toString());
@@ -175,6 +181,85 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
             // tableInfo = await PlayingTables.findOne(qu).lean;
             logger.info("find before discard table info", tableInfo);
 
+            /*
+            let playerInfo = tableInfo.playerInfo[playerIndex];
+
+            // Bot Win Logic
+            //Cancel the Scheduele job
+            commandAcions.clearJob(tableInfo.jobId);
+
+            let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
+            console.log("ressss-->", ress);
+            let updateData1 = {
+                $set: {},
+                $inc: {},
+            };
+            const upWh1 = {
+                _id: MongoID(tableInfo._id.toString()),
+                'playerInfo.seatIndex': Number(playerIndex),
+            };
+            updateData1.$set['playerInfo.$.gCard'] = ress;
+
+            tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
+                new: true,
+            });
+
+            let response = {
+                playerId: playerId,
+                disCard: pickedCard,
+            };
+
+            const upWh2 = {
+                _id: MongoID(tableInfo._id.toString()),
+                'playerInfo.seatIndex': Number(playerIndex),
+            };
+
+            const updateData2 = {
+                $set: {
+                    discardCard: pickedCard,
+                },
+            };
+
+            const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
+                new: true,
+            });
+            logger.info('Declare tbl : ', tbl);
+
+            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
+
+            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
+
+            delete client.declare;
+
+            let roundTime = CONST.finishTimer;
+            let tableId = tbl._id;
+            let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
+            let delay = commandAcions.AddTime(roundTime);
+
+            await commandAcions.setDelay(finishJobId, new Date(delay));
+
+            //update user game finish status
+            let updateStatus = {
+                $set: {},
+                $inc: {},
+            };
+            updateStatus.$set['playerInfo.$.finished'] = true;
+
+            const qr = {
+                _id: MongoID(tbl._id.toString()),
+                'playerInfo.seatIndex': Number(playerIndex),
+            };
+            //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
+
+            const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
+                new: true,
+            });
+
+            logger.info('check status ==> and Table ', tabl);
+
+            await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
+            //finish Bot win logic
+*/
             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                 try {
@@ -598,9 +683,121 @@ const selectThrowcard = (playerCards, followersCard, pair) => {
     return throwCard;
 }
 
+const checkWinCard = (deck, wildCard) => {
+    const jokers = ['J-0-0', 'J-1-1']
+    const generatePureSequence = (deck) => {
+        const suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
+        const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']; // Card values
+
+        // Shuffle the deck
+        const shuffledDeck = shuffleArray(deck);
+
+        // Choose a random suit
+        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+
+        // Filter cards with the chosen suit
+        const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit));
+
+        // Sort the suit cards based on their values
+        suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+
+        // Check if there are at least three consecutive cards in the suit
+        for (let i = 0; i <= suitCards.length - 3; i++) {
+            const sequence = suitCards.slice(i, i + 3);
+            const valuesDiff = sequence.map(card => parseInt(card.split('-')[1]) - 1);
+            const isConsecutive = valuesDiff.every((val, index) => val === parseInt(sequence[0].split('-')[1]) - 1 + index);
+            if (isConsecutive) {
+                return sequence;
+            }
+        }
+
+        // If no consecutive sequence found, try again
+        return generatePureSequence(deck);
+    };
+
+    // Function to generate an impure sequence
+    const generateImpureSequence = (deck, joker) => {
+        const suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
+
+        // Shuffle the deck
+        const shuffledDeck = shuffleArray(deck);
+
+        // Choose a random suit
+        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+
+        // Filter cards with the chosen suit
+        const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit));
+
+        // Sort the suit cards based on their values
+        suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+
+        // Choose two cards randomly from the suit cards
+        const chosenCards = [suitCards[0], suitCards[1]];
+
+        // Insert the joker at a random position
+        const randomIndex = Math.floor(Math.random() * 3);
+        chosenCards.splice(randomIndex, 0, joker);
+
+        return chosenCards;
+    };
+
+    // Function to generate a set
+    // Function to generate a set
+    const generateSet = (deck) => {
+        // Shuffle the deck
+        const shuffledDeck = shuffleArray(deck);
+
+        // Choose a random rank (value)
+        const randomRank = Math.floor(Math.random() * 13) + 1; // Random number from 1 to 13 representing card ranks
+
+        // Choose three cards of the same rank from different suits
+        const set = [];
+
+        // Loop through the shuffled deck to find three cards of the chosen rank from different suits
+        for (let i = 0; i < shuffledDeck.length; i++) {
+            const card = shuffledDeck[i];
+            const rank = parseInt(card.split('-')[1]);
+
+            if (rank === randomRank && set.length < 3) {
+                set.push(card);
+            }
+        }
+
+        // If less than three cards of the same rank are found, try again recursively
+        if (set.length < 3) {
+            return generateSet(deck);
+        }
+
+        return set;
+    };
+
+
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    // Generate sequences
+    const pureSequence = generatePureSequence(deck);
+    const impureSequences = jokers.map(joker => generateImpureSequence(deck, joker));
+    const cardSet = generateSet(deck);
+
+    // Output the generated sequences
+    const sequences = {
+        pure: [pureSequence],
+        impure: impureSequences,
+        set: [cardSet]
+    };
+    return sequences
+}
+
 module.exports = {
     findRoom,
     pic,
     checkCardMatched,
     checkCardFoundFollower,
+    checkWinCard
 }

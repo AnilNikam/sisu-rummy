@@ -182,6 +182,23 @@ module.exports.manageOnUserLeave = async (tb, client) => {
       if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
+        let wh = { _id: MongoID(tb._id).toString(), isBot: true }
+
+        let updateData = {
+          $set: {
+            'playerInfo.$': { isBot: true },
+          },
+          $inc: {
+            activePlayer: -1,
+          },
+        };
+
+        let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+          new: true,
+        });
+        logger.info("remove robot tbInfo", tbInfo)
+
+
         await roundStartActions.nextUserTurnstart(tb);
       }
     } else if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex !== client.seatIndex) {
