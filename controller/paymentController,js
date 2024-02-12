@@ -11,6 +11,8 @@ const EPAISA = {
     iv: 'xv2Pe9Jx9lb9wv1y'
 };
 
+
+
 async function initiatePayment(amount, customerName, customerEmail, customerPhone, referenceId) {
     try {
         const payload = {
@@ -24,8 +26,12 @@ async function initiatePayment(amount, customerName, customerEmail, customerPhon
         };
 
         const response = await axios.post(EPAISA.url, payload);
+        console.log("response    ",response)
         if (response.data) {
             //add amount in coins
+
+            //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+
         } else {
 
         }

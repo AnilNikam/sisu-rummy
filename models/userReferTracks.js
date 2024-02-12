@@ -8,6 +8,7 @@ const UserReferTracksSchema = new Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: GameUser },
     referalUserId: { type: mongoose.Schema.Types.ObjectId, ref: GameUser },
+    isFrist_deposit: { type: Boolean, default: false }
   },
   { versionKey: false },
   { timestamps: true }
