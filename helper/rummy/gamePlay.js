@@ -1,17 +1,24 @@
 const mongoose = require('mongoose');
+const _ = require("underscore");
 const PlayingTables = mongoose.model('playingTable');
 const MongoID = mongoose.Types.ObjectId;
+
 
 const commandAcions = require('../socketFunctions');
 const roundStartActions = require('./roundStart');
 const gameFinishActions = require('./gameFinish');
 const checkWinnerActions = require('./checkWinner');
+
+
 const CONST = require('../../constant');
 const logger = require('../../logger');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 
 const { pushPlayerScoreToPlayerScoreBoard } = require('../common-function/cardFunction');
 const { ifSocketDefine, shuffle } = require('../helperFunction');
+
+
+
 
 module.exports.pickCard = async (requestData, client) => {
   try {
@@ -236,6 +243,9 @@ module.exports.disCard = async (requestData, client) => {
 
 module.exports.cardGroup = async (requestData, client) => {
   try {
+    
+    console.log("cardGroup :::::::::::::::::::::::::::::::::",requestData)
+
     if (!ifSocketDefine(requestData, client, CONST.CARD_GROUP)) {
       return false;
     }
@@ -328,7 +338,7 @@ module.exports.declare = async (requestData, client) => {
 
     // eslint-disable-next-line no-unused-vars
     const playerInGame = await getPlayingUserInRound(tableInfo.playerInfo);
-
+    
     let droppedCard = requestData.cardName;
     let playerDetails = tableInfo.playerInfo[client.seatIndex];
     let playersCards = playerDetails.cards;
@@ -367,6 +377,9 @@ module.exports.declare = async (requestData, client) => {
 
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
+    console.log("playerInGame ",playerInGame)
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]),tb._id.toString())
+
     delete client.declare;
 
     let roundTime = CONST.finishTimer;
@@ -402,6 +415,8 @@ module.exports.declare = async (requestData, client) => {
     logger.error('gamePlay.js declare error => ', e);
   }
 };
+
+
 
 module.exports.invalidDeclare = async (table, client) => {
   try {
@@ -720,6 +735,13 @@ module.exports.playerDrop = async (requestData, client) => {
         gameTracks: userTrack,
       },
     };
+
+    // eslint-disable-next-line no-unused-vars
+    const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
+
+    console.log("playerInGame ",playerInGame)
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]),client.tbid.toString())
+
 
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
       new: true,

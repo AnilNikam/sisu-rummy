@@ -7,10 +7,11 @@ const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { leaveTable } = require('./leaveTable');
-const { pic } = require('../botFunction');
+const { pic,mycardGroup } = require('../botFunction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
+
 
 module.exports.roundStarted = async (tbid) => {
   try {
@@ -126,7 +127,12 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     }).lean();
 
     if (data.isBot) {
+     
+
       await pic(tb, plid, tb.gamePlayType, 'close')
+
+      
+
     }
 
     let tbid = tb._id.toString();
@@ -265,3 +271,51 @@ module.exports.getUserTurnSeatIndex = async (tbInfo, prevTurn, cnt) => {
     return x;
   }
 };
+
+
+module.exports.DealerRobotLogicCard = async(PlayerInfo,wildcard,tbid)=>{
+  console.log("PlayerInfo ",PlayerInfo)
+  console.log("wildcard ",wildcard)
+  console.log("tbid ",tbid)
+
+
+
+  if (PlayerInfo.length == 0) {
+    return false
+  }
+  var userData = PlayerInfo.splice(0, 1)
+  console.log("userData ",userData)
+  if(userData[0].isBot){
+
+      console.log("cardjson ")
+
+       mycardGroup(userData[0].cards,wildcard,async(cardjson)=>{
+
+       
+
+      console.log("await ",cardjson)
+        //update user game finish status
+        let updateStatus = {
+          $set: {},
+         
+        };
+        updateStatus.$set['playerInfo.$.gCard'] = cardjson;
+
+        const qr = {
+          _id: MongoID(tbid.toString()),
+          'playerInfo.seatIndex': Number(userData[0].seatIndex),
+        };
+        console.log("qr ",qr)
+        console.log("updateStatus ",updateStatus)
+
+        const table = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
+          new: true,
+        });
+
+        this.DealerRobotLogicCard(PlayerInfo,wildcard,tbid)
+  
+      });
+  }else{
+      this.DealerRobotLogicCard(PlayerInfo,wildcard,tbid)
+  }
+}
