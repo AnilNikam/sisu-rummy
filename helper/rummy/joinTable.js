@@ -196,7 +196,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       playerId: userInfo._id,
       name: userInfo.name,
       username: userInfo.username,
-      avatar: userInfo.avatar,
+      avatar: userInfo.avatar ||  "1",
       chips: totalWallet,
       gameChips: playerGameChips,
       playerStatus: '',
