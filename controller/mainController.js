@@ -19,7 +19,7 @@ const OtpEmail = mongoose.model('otpEmail');
 const BetLists = mongoose.model('betLists');
 const OtpMobile = mongoose.model('otpMobile');
 const Friend = mongoose.model('friends');
-
+const otpAdharkyc = mongoose.model('otpAdharkyc');
 /**
  * @description  User Sign In
  * @param {Object} requestBody
@@ -204,7 +204,7 @@ async function playerDetails(requestBody) {
     );
 
     console.log("isverified ",isverified)
-
+      user.verified = isverified ? isverified.verified : false
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
