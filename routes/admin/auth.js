@@ -73,4 +73,10 @@ router.get('/login1222', async (req, res) => {
   }
 });
 
+
+router.get('/responce', async (req, res) => {
+  console.log("sdddddddddddddddddddddd",req)
+  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req);
+});
+
 module.exports = router;
