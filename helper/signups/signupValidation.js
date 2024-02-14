@@ -326,7 +326,7 @@ const OKYCRequest = async (requestBody, socket) => {
     // };
 
 
-    const payload =body
+    const payload = body
 
     const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/request', payload, {
       'headers': {
@@ -335,25 +335,25 @@ const OKYCRequest = async (requestBody, socket) => {
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
       }
-  });
+    });
 
-    
-      console.log("response::::::::::::::::::",response.data);
 
-      if(response.data.success){
-        commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, {request_id:response.data.request_id,success: 1, msg: "Successful" });
-        return false;
-      }
-  
+    console.log("response::::::::::::::::::", response.data);
+
+    if (response.data.success) {
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful" });
+      return false;
+    }
+
 
 
   } catch (error) {
-    console.log('mainController.js OKYCRequest error=> ',error.response.data );
-    if(error.response)
-    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:error.response.data.response_code,statusText:error.response.data.response_message });
-    else{
-    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:error.response.data.response_code,statusText:error.response.data.response_message});
-      
+    console.log('mainController.js OKYCRequest error=> ', error.response.data);
+    if (error.response)
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+    else {
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+
     }
   }
 };
@@ -378,50 +378,44 @@ const OKYCverifyRequest = async (requestBody, socket) => {
       "task_id": "6270e9c2f5419a2153744f5a"
     }
 
-    var options = {
-      'method': 'POST',
-      'url': 'https://test.zoop.one/in/identity/okyc/otp/verify',
-      'headers': {
+    const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/verify', body, {
+      'headers':  {
         "app-id": "63b6927ed78829001d9aa71c",
         "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
-      },
-      body: body
-    };
-
-
-    request(options,async  function (error, response) {
-      console.log("Error :::", error)
-      if (error) throw new Error(error);
-      console.log(response.body);
-
-      if(response.body.success){
-        await otpAdharkyc.updateOne(
-          {
-            userId: OBJECT_ID(requestBody.playerId.toString()),
-          },
-          {
-            $set: {
-              verified: true,
-            },
-          },
-          {}
-        );
-
-        commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful" });
-        return false;
-      }else{
-        commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
       }
+    });
+    console.log("response.data ::::::::::::",response.data)
+    if (response.data.success) {
+      await otpAdharkyc.updateOne(
+        {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+        },
+        {
+          $set: {
+            verified: true,
+          },
+        },
+        {}
+      );
 
-    })
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful" });
+      return false;
+    } else {
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
+    }
+} catch (error) {
+  logger.error('mainController.js OKYCRequest error=> ', error);
+ 
+  if (error.response)
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+    else {
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
 
+    }
 
-  } catch (error) {
-    logger.error('mainController.js OKYCRequest error=> ', error);
-    commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
-  }
+}
 };
 
 
