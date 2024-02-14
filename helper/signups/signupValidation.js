@@ -395,19 +395,19 @@ const OKYCverifyRequest = async (requestBody, socket) => {
         {
           $set: {
             verified: true,
-            userInfo:response.data
+            userInfo:response.data.result
           },
         },
         {}
       );
 
-      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful" });
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
       return false;
     } else {
-      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: response.data.response_code, statusText: response.data.response_message });
     }
 } catch (error) {
-  logger.error('mainController.js OKYCRequest error=> ', error);
+ console.log('mainController.js OKYCRequest error=> ', error);
  
   if (error.response)
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
