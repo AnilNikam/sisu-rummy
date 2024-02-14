@@ -9,7 +9,7 @@ const logger = require('../../logger');
 const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
-var request = require('request');
+const axios = require('axios');
 
 const checkMobileNumber = async (requestData, socket) => {
   logger.info(' Signup validation Request Data ->', requestData);
@@ -313,34 +313,48 @@ const OKYCRequest = async (requestBody, socket) => {
       "task_id": insertRes._id.toString()
     }
 
-    var options = {
-      'method': 'POST',
-      'url': 'https://test.zoop.one/in/identity/okyc/otp/request',
+    // var options = {
+    //   'method': 'POST',
+    //   'url': 'https://test.zoop.one/in/identity/okyc/otp/request',
+    //   'headers': {
+    //     "app-id": "63b6927ed78829001d9aa71c",
+    //     "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+    //     "org-id": "60800ca35ed0c7001cad2605",
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: body
+    // };
+
+
+    const payload =body
+
+    const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/request', payload, {
       'headers': {
         "app-id": "63b6927ed78829001d9aa71c",
         "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
-      },
-      body: body
-    };
+      }
+  });
 
+    
+      console.log("response::::::::::::::::::",response.data);
 
-    request(options, function (error, response) {
-      console.log("Error :::", error)
-      if (error) throw new Error(error);
-      console.log(response.body);
-
-      if(response.body.success){
-        commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, {request_id:response.body.request_id,success: 1, msg: "Successful" });
+      if(response.data.success){
+        commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, {request_id:response.data.request_id,success: 1, msg: "Successful" });
         return false;
       }
-    })
+  
 
 
   } catch (error) {
-    logger.error('mainController.js OKYCRequest error=> ', error);
-    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
+    console.log('mainController.js OKYCRequest error=> ',error.response.data );
+    if(error.response)
+    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:error.response.data.response_code,statusText:error.response.data.response_message });
+    else{
+    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:error.response.data.response_code,statusText:error.response.data.response_message});
+      
+    }
   }
 };
 
