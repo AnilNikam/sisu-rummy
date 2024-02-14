@@ -321,7 +321,7 @@ const OKYCRequest = async (requestBody, socket) => {
                   "org-id":"60800ca35ed0c7001cad2605",
                   "Content-Type":"application/json"
       },
-      body: JSON.stringify(body)
+      body:body
     };
     
 
