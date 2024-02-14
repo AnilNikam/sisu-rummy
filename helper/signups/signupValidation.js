@@ -301,8 +301,21 @@ const OKYCRequest = async (requestBody, socket) => {
       verified: false,
     }
 
-    let insertRes = await otpAdharkyc.create(okyc);
-    console.log("insertRes ", insertRes)
+    const isverified =  await otpAdharkyc.find({userId: commonHelper.strToMongoDb(playerId)},{})
+
+    console.log("isverified ", isverified)
+    console.log("isverified ", isverified)
+
+
+
+    var task_id;
+    if(isverified.length == 0){
+      insertRes = await otpAdharkyc.create(okyc);
+      task_id = insertRes._id.toString()
+    }else{
+      task_id = isverified[0]._id.toString()
+    }
+    console.log("task_id ", task_id)
 
     var body = {
       "data": {

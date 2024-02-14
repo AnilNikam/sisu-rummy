@@ -192,6 +192,19 @@ async function playerDetails(requestBody) {
     // const user = await Users.findOne({ condition }).lean();
     const user = await Users.findOne({ _id: commonHelper.strToMongoDb(playerId) }).lean();
     //logger.info('mainController.js playerDetails => ', user);
+
+    const isverified =  await otpAdharkyc.findOne(
+      {
+        userId: commonHelper.strToMongoDb(playerId),
+        verified: true,
+      },
+      {
+          verified: 1
+      }
+    );
+
+    console.log("isverified ",isverified)
+
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
