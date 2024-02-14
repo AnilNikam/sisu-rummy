@@ -43,6 +43,16 @@ myIo.init = function (server) {
         const payload = JSON.parse(decryptObj);
 
         switch (payload.eventName) {
+
+          case CONST.CHECK_KYC_ADHARA_NUMBER: {
+            try {
+              await signupActions.OKYCRequest(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js CHECK_KYC_ADHARA_NUMBER Number User error => ', error);
+            }
+            break;
+          }
+
           case CONST.CHECK_MOBILE_NUMBER: {
             try {
               await signupActions.checkMobileNumber(payload.data, socket);

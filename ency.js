@@ -65,7 +65,7 @@ const secretMessage = JSON.stringify({
     "CustRefNum": "65c5adf605df6b0f2d264140",
     "AuthID": "M00006450",
     "AuthKey": "iS5JK0cz6GU9IW2cU6kj1tA6Vv5ZA7sZ",
-    "CallbackURL": " http://rummylegit.com:3000/",
+    "CallbackURL": "http://rummylegit.com:3000/admin/responce",
     "adf1": "NA",
     "adf2": "NA",
     "adf3": "NA",
@@ -81,10 +81,9 @@ const encrypted =
 console.log("Encrypted message:", encrypted);
 
 
-
-var des
+data = "7BTY6h+xdqHM4dxiV6kDpjGVGHQynhQetNQ/oH0XVnnu5Ln5Tj80z+37YMgVuefMom4PCn5yfp+pffgoB6uIIrqwcYa8OPp4fntT3y18uDPyjYCRSBQRQhUhbUj+jETewhcH33ZB4cKRcfFIv2yMnuCD+ZX1NICKq+iA0s9Tau0PvM9Eh6Vdie4Le2qE+yeygw9tbbP48GcQL78pE8FM3z3JLAX3uWJBnthpkv2P/AUr4qWOhZmouSnVPEXRFZd5VZho91SUUzUrai0czkuytHFadZgrmqEXKSdtSyOLGLq8uyzZloeGezQK1Vqu5YLz7yvoJ2ZMfKnLWQPOJatAUCnN5g/BRyWrGpQ9fMCJKR2bpFXH9myMLZqI/G2v42NXs3it0hXRF+uTat2Ai2edGD+O9VJgLm2I5QSQyNCaoN8L4jM1Rh+OfLU35NT8hvf3Up9zqX3lXhjU2XUFfp6+NHz08/224Ka9EXXfKOFNvqyKHGvLmPokd6wSfhdprPyutD7TCkIDUdXKG84CiPEidiAF4QRFEuDahYAUK2xV1D2f7Bo4NRztBQymqNzCmBQTDMrHnpghaJc6SA6PVoAenns9oiDpb5o3ElNSfCwNLRCn0vzQsv4odeWyS0XwirM0"
 //AES decryption
-const decrypted = decrypt(Buffer.from(encrypted, "base64"), securitykey, "utf8", iv)
+const decrypted = decrypt(Buffer.from(data, "base64"), securitykey, "utf8", iv)
 console.log("Decrypted string:", decrypted);
 
 
@@ -92,6 +91,7 @@ console.log("Decrypted string:", decrypted);
 function decrypt(cipherText, securitykey, outputEncoding, iv) {
     const cipher = crypto.
         createDecipheriv("aes-256-cbc", securitykey, iv);
+        
     return Buffer.
         concat([cipher.update(cipherText), cipher.final()]).
         toString(outputEncoding);

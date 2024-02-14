@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const User = mongoose.model('users');
 const Admin = mongoose.model('admin');
 const Wallet = mongoose.model('wallets');
@@ -8,6 +9,7 @@ const DealBetLists = mongoose.model('dealbetLists');
 const ProblemReport = mongoose.model('problemReport');
 const bcrypt = require('bcrypt');
 const logger = require('../logger');
+
 
 const usersHelper = {
   registerAdmin: async function (newData) {

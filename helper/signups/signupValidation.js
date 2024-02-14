@@ -1,4 +1,6 @@
 const commandAcions = require('../socketFunctions');
+const { OBJECT_ID } = require('../../config');
+
 const CONST = require('../../constant');
 const UserOtp = require('../../models/userOtp');
 const smsActions = require('../sms');
@@ -6,6 +8,8 @@ const mongoose = require('mongoose');
 const logger = require('../../logger');
 const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const Users = mongoose.model('users');
+const otpAdharkyc = mongoose.model('otpAdharkyc');
+var request = require('request');
 
 const checkMobileNumber = async (requestData, socket) => {
   logger.info(' Signup validation Request Data ->', requestData);
@@ -283,6 +287,61 @@ const registerUser = async (requestBody, socket) => {
   }
 };
 
+
+/**
+ * @description OKYCRequest
+ * @param {Object} {customer_aadhaar_number : "" ,playerId }
+ * @returns {Object}{ status:0/1, message: '', data: Response }
+ */
+const OKYCRequest = async (requestBody, socket) => {
+  try {
+    let okyc={
+        userId:OBJECT_ID(requestBody.playerId.toString()),
+        adharcard: requestBody.customer_aadhaar_number,
+        verified:  false ,
+    }
+
+    let insertRes = await otpAdharkyc.create(okyc);
+    console.log("insertRes ",insertRes)
+
+   var body  = {
+      "data": {
+        "customer_aadhaar_number": requestBody.customer_aadhaar_number,
+        "consent": "Y",
+        "consent_text": "I hear by declare my consent agreement for fetching my information via ZOOP API"
+      },
+      "task_id": insertRes._id.toString()
+    }
+
+    var options = {
+      'method': 'POST',
+      'url': 'https://test.zoop.one/in/identity/okyc/otp/request',
+      'headers': {"app-id":"63b6927ed78829001d9aa71c",
+                  "api-key":"ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+                  "org-id":"60800ca35ed0c7001cad2605",
+                  "Content-Type":"application/json"
+      },
+      body: JSON.stringify(body)
+    };
+    
+
+    request(options, function (error, response) {
+      console.log("Error :::",error)
+      if (error) throw new Error(error);
+      console.log(response.body);
+    })
+   
+
+  } catch (error) {
+    logger.error('mainController.js registerUser error=> ', error);
+    return {
+      message: 'something went wrong while registering, please try again',
+      status: 0,
+    };
+  }
+};
+
+
 module.exports = {
   checkMobileNumber,
   checkReferalOrCouponCode,
@@ -291,4 +350,5 @@ module.exports = {
   verifyOTP,
   resendOTP,
   registerUser,
+  OKYCRequest
 };
