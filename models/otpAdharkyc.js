@@ -11,6 +11,7 @@ const KycSchema = new Schema(
     verified: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     modifiedAt: { type: Date, default: Date.now },
+    userInfo:{}
   },
   { versionKey: false },
   { timestamps: true }

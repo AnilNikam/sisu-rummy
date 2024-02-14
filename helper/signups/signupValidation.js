@@ -395,6 +395,7 @@ const OKYCverifyRequest = async (requestBody, socket) => {
         {
           $set: {
             verified: true,
+            userInfo:response.data
           },
         },
         {}
