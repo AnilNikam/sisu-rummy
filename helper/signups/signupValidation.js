@@ -229,7 +229,7 @@ const registerUser = async (requestBody, socket) => {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
 
         if (requestBody.referralCode != "") {
-          await checkReferral({referralCode:requestBody.referralCode,userId:userInsertInfo._id},socket)
+          await checkReferral({ referralCode: requestBody.referralCode, userId: userInsertInfo._id }, socket)
         }
       } else {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, requestBody, false, 'User Already Register!');
@@ -295,16 +295,16 @@ const registerUser = async (requestBody, socket) => {
  */
 const OKYCRequest = async (requestBody, socket) => {
   try {
-    let okyc={
-        userId:OBJECT_ID(requestBody.playerId.toString()),
-        adharcard: requestBody.customer_aadhaar_number,
-        verified:  false ,
+    let okyc = {
+      userId: OBJECT_ID(requestBody.playerId.toString()),
+      adharcard: requestBody.customer_aadhaar_number,
+      verified: false,
     }
 
     let insertRes = await otpAdharkyc.create(okyc);
-    console.log("insertRes ",insertRes)
+    console.log("insertRes ", insertRes)
 
-   var body  = {
+    var body = {
       "data": {
         "customer_aadhaar_number": requestBody.customer_aadhaar_number,
         "consent": "Y",
@@ -316,28 +316,97 @@ const OKYCRequest = async (requestBody, socket) => {
     var options = {
       'method': 'POST',
       'url': 'https://test.zoop.one/in/identity/okyc/otp/request',
-      'headers': {"app-id":"63b6927ed78829001d9aa71c",
-                  "api-key":"ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
-                  "org-id":"60800ca35ed0c7001cad2605",
-                  "Content-Type":"application/json"
+      'headers': {
+        "app-id": "63b6927ed78829001d9aa71c",
+        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "org-id": "60800ca35ed0c7001cad2605",
+        "Content-Type": "application/json"
       },
-      body:body
+      body: body
     };
-    
+
 
     request(options, function (error, response) {
-      console.log("Error :::",error)
+      console.log("Error :::", error)
       if (error) throw new Error(error);
       console.log(response.body);
+
+      if(response.body.success){
+        commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, {request_id:response.body.request_id,success: 1, msg: "Successful" });
+        return false;
+      }
     })
-   
+
 
   } catch (error) {
-    logger.error('mainController.js registerUser error=> ', error);
-    return {
-      message: 'something went wrong while registering, please try again',
-      status: 0,
+    logger.error('mainController.js OKYCRequest error=> ', error);
+    commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
+  }
+};
+
+
+/**
+ * @description OKYCVERIFY
+ * @param {Object} {customer_aadhaar_number : "" ,playerId:"",otp:"",request_id:"" }
+ * @returns {Object}{ status:0/1, message: '', data: Response }
+ */
+const OKYCverifyRequest = async (requestBody, socket) => {
+  try {
+
+
+    var body = {
+      "data": {
+        "request_id": requestBody.request_id,
+        "otp": requestBody.otp,
+        "consent": "Y",
+        "consent_text": "I hear by declare my consent agreement for fetching my information via ZOOP API"
+      },
+      "task_id": "6270e9c2f5419a2153744f5a"
+    }
+
+    var options = {
+      'method': 'POST',
+      'url': 'https://test.zoop.one/in/identity/okyc/otp/verify',
+      'headers': {
+        "app-id": "63b6927ed78829001d9aa71c",
+        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "org-id": "60800ca35ed0c7001cad2605",
+        "Content-Type": "application/json"
+      },
+      body: body
     };
+
+
+    request(options,async  function (error, response) {
+      console.log("Error :::", error)
+      if (error) throw new Error(error);
+      console.log(response.body);
+
+      if(response.body.success){
+        await otpAdharkyc.updateOne(
+          {
+            userId: OBJECT_ID(requestBody.playerId.toString()),
+          },
+          {
+            $set: {
+              verified: true,
+            },
+          },
+          {}
+        );
+
+        commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful" });
+        return false;
+      }else{
+        commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
+      }
+
+    })
+
+
+  } catch (error) {
+    logger.error('mainController.js OKYCRequest error=> ', error);
+    commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail" });
   }
 };
 
@@ -350,5 +419,6 @@ module.exports = {
   verifyOTP,
   resendOTP,
   registerUser,
-  OKYCRequest
+  OKYCRequest,
+  OKYCverifyRequest,
 };
