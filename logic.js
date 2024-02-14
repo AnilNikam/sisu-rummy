@@ -14,7 +14,22 @@ let deckOne = _.shuffle([
     'J-1-1',
 ]);
 
-let myCard1 = deckOne.splice(0, 13);
+let myCard1 =[
+    "D-8-0",
+    "D-8-1",
+    "H-7-0",
+    "C-2-0",
+    "D-2-1",
+    "C-9-1",
+    "H-1-0",
+    "C-13-0",
+    "D-11-0",
+    "H-11-1",
+    "C-3-1",
+    "S-6-1",
+    "S-5-1"
+]
+// deckOne.splice(0, 13);
 
 
 // myCard = ['H-1-0', 'H-12-0', 'H-13-0', 'H-11-1', 'S-13-0', 'J-100-1', 'D-2-0', 'C-4-1', 'c-7-0', 'C-2-1', 'H-6-1'];
@@ -27,7 +42,7 @@ let myCard1 = deckOne.splice(0, 13);
 //         'S-1-1', 'S-8-1',
 //         'D-3-1']
 
-MycardGroup(myCard1, 12)
+MycardGroup(myCard1, 9)
 
 function MycardGroup(myCard, wildcard) {
 

@@ -1330,7 +1330,7 @@ const mycardGroup = async (myCard,wildcard,cb) => {
         set: Teen,
         dwd: RemainCard
     }
-
+    
     console.log("JSON +++ ", JSON)
     console.log("*********************************************")
 
