@@ -73,6 +73,7 @@ myIo.init = function (server) {
 
           case CONST.REGISTER_USER: {
             try {
+              console.log("payload.data ",payload.data)
               await registerUser(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js Register User Table error => ', error);

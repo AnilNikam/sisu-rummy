@@ -111,6 +111,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
     status: data.status ? data.status : '',
     mobileNumber: data.mobileNumber ? data.mobileNumber : '',
     email: data.email ? data.email : '',
+    location: data.location ? data.location : '',
     uniqueId: '',
     loginType: data.loginType,
     avatar: data.avatar,
