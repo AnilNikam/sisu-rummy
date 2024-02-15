@@ -28,7 +28,9 @@ const usersHelper = {
   },
 
   registerUser: async function (newData) {
+    console.log("newData ",newData)
     const newUser = new User(newData);
+
     const data = await newUser.save();
 
     if (data) {
