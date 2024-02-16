@@ -66,11 +66,8 @@ async function initiatePayment(requestData,socket) {
                     commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
 
                 }else{
-                    
-
                     commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.data.message); 
                 }
-
             } else {
                 commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);   
             }   
