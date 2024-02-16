@@ -6,7 +6,7 @@ const express = (module.exports = require('express'));
 require('./newrelic');
 // const { REDIS_HOST } = require('./config')
 
-const http = require('http');
+const http = require('https');
 
 const path = require('path');
 const cors = require('cors');
@@ -98,7 +98,12 @@ httpApp.get('/home', (req, res) => {
 httpApp.use(express.static(path.join(__dirname, 'public')));
 httpApp.use('/reports', express.static(path.join(__dirname, 'reports')));
 
-const server = http.createServer(httpApp);
+const options = {
+    key: fs.readFileSync('/var/www/html/AdminPenalLegitRummy/SSL/www.rummylegit.com.key'),
+    cert: fs.readFileSync('/var/www/html/AdminPenalLegitRummy/SSL/www.rummylegit.com.crt')
+  };
+console.log("options ",options)
+const server = http.createServer(options,httpApp);
 server.listen(SERVER_PORT, () => {
   logger.info('Server ID : => ' + SERVER_ID + ' - Express server listening on port : ' + SERVER_PORT + ' date : ' + new Date());
   socket.init(server);

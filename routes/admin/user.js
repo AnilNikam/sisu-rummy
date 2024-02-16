@@ -88,6 +88,7 @@ router.post('/AddUser', async (req, res) => {
     
         let query = { mobileNumber: mobileNumber };
         let result = await Users.findOne(query, {});
+        console.log("result ",result)
         if (!result) {
             let defaultData = await getUserDefaultFields(response);
             logger.info('registerUser defaultData : ', defaultData);
@@ -96,15 +97,16 @@ router.post('/AddUser', async (req, res) => {
             logger.info('registerUser userInsertInfo : ', userInsertInfo);
             
             if(userInsertInfo){
-                res.json({ status: true });
+                res.json({ restatus: true,msg:'User Register Successfully!'});
             }else{
-                res.status(config.NOT_FOUND).json(error);   
+                res.status(config.NOT_FOUND).json({restatus: false,msg:'User not register!'});   
             }
         }else{
-            res.status(config.NOT_FOUND).json(error);
+            res.status(config.NOT_FOUND).json({restatus: false,msg:'Mobile number not register!'});
         } 
         
     } catch (error) {
+        console.log("result ",error)
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
 

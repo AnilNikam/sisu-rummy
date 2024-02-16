@@ -302,6 +302,8 @@ const OKYCRequest = async (requestBody, socket) => {
     }
 
     const isverified =  await otpAdharkyc.find({userId: commonHelper.strToMongoDb(requestBody.playerId.toString())},{})
+    const findadharcard =  await otpAdharkyc.find({adharcard: requestBody.customer_aadhaar_number},{})
+
 
     console.log("isverified ", isverified)
 
@@ -313,6 +315,15 @@ const OKYCRequest = async (requestBody, socket) => {
     }else{
       task_id = isverified[0]._id.toString()
     }
+    console.log("findadharcard[0].userId ",findadharcard[0].userId)
+    console.log("isverified[0].userId.toString() ",isverified[0].userId.toString())
+
+    if(findadharcard.length != 0 && findadharcard[0].userId.toString() != isverified[0].userId.toString()){
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:"001", statusText:"Already Adharcad Use ...!!!" });
+
+      return false;
+    }
+  
     console.log("task_id ", task_id)
 
     var body = {

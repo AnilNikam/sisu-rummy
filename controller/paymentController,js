@@ -1,43 +1,87 @@
 const mongoose = require('mongoose');
+const MongoID = mongoose.Types.ObjectId;
 const Users = mongoose.model('users');
+const paymentin = mongoose.model('paymentin');
 const axios = require('axios');
 
-const EPAISA = {
-    url: 'https://epaisaa.com/pay/paymentinit',
-    enquiry_url: 'https://epaisaa.com/pay/statusenquiry',
-    auth_id: 'M00006315',
-    api_key: 'xv2Pe9Jx9lb9wv1yk4Sk9Ks7yj0FV7HW',
-    WEBHOOK: 'https://gameapi.hyperrush.in/deposit-status-webhook',
-    iv: 'xv2Pe9Jx9lb9wv1y'
+const PaymentInOrderCreate = {
+    url: 'https://api.wowpe.in/api/GOrders/generateorder',
+    token: "250066b4-3b16-4b6f-a76e-d5478f701ef5",
+    secret_key: '04d34b84-e065-42a7-bbef-795965535275',
 };
 
+const PaymentInDeepLink = {
+    url: 'https://api.wowpe.in/api/DeepLinks/intentinitiate',
+    token: "250066b4-3b16-4b6f-a76e-d5478f701ef5",
+    secret_key: '04d34b84-e065-42a7-bbef-795965535275',
+};
 
-
-async function initiatePayment(amount, customerName, customerEmail, customerPhone, referenceId) {
+async function initiatePayment(requestData,socket) {
     try {
-        const payload = {
-            amount,
-            customer_name: customerName,
-            customer_email: customerEmail,
-            customer_phone: customerPhone,
-            reference_id: referenceId,
-            auth_id: EPAISA.auth_id,
-            api_key: EPAISA.api_key
-        };
+        console.log("initiatePayment requestData ",requestData)
+        const paymentindata = await paymentin.create({
+            userId: requestData.playerId,
+            transactionId: "aaa",
+            name: requestData.customerName,
+            email: requestData.customerEmail,
+            phone: requestData.customerPhone,
+            amount: requestData.amount,
+            paymentStatus: "Pending"
+          });
 
-        const response = await axios.post(EPAISA.url, payload);
-        console.log("response    ",response)
-        if (response.data) {
-            //add amount in coins
+        if(paymentindata){
 
-            //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
 
-        } else {
+            const payload = {
+                "token": PaymentInOrderCreate.token,
+                "name": customerName,
+                "mobileNo": customerPhone,
+                "emailID": customerEmail,
+                "amount": amount,
+                "orderInfo": paymentindata._id.toString()
+            };
 
+            const response = await axios.post(PaymentInOrderCreate.url, payload);
+            console.log("response    ",response)
+            if (response.code == "OK") {
+                //add amount in coins
+
+                //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+                if(response.body != undefined && response.body.orderID != undefined){
+
+                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.body.orderID}}, {
+                        new: true,
+                    });     
+                    console.log("Updatedata ",Updatedata)
+                    const payloaddeeplink = {
+                        "note": "rechargeMoney_103",
+                        "OrderID": response.body.orderID,
+                        "token": PaymentInOrderCreate.token
+                    }
+
+                    const response = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
+                    console.log("response Deeplink ",response)
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, response);
+
+                }else{
+                    
+
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.message); 
+                }
+
+            } else {
+                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.message);   
+            }   
+        }else{
+            console.log("Data Not Insert ")
+            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
-        return response.data; // Return the response data
+            
     } catch (error) {
         console.error('Error initiating payment:', error.response ? error.response.data : error.message);
+
+        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+
         throw error; // Throw the error to be caught by the caller
     }
 }
