@@ -3,6 +3,8 @@ const MongoID = mongoose.Types.ObjectId;
 const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
 const axios = require('axios');
+const commandAcions = require('../helper/socketFunctions');
+const CONST = require('../constant');
 
 const PaymentInOrderCreate = {
     url: 'https://api.wowpe.in/api/GOrders/generateorder',
@@ -31,46 +33,46 @@ async function initiatePayment(requestData,socket) {
 
         if(paymentindata){
 
-
+            console.log("paymentindata ",paymentindata)
             const payload = {
                 "token": PaymentInOrderCreate.token,
-                "name": customerName,
-                "mobileNo": customerPhone,
-                "emailID": customerEmail,
-                "amount": amount,
+                "name": requestData.customerName,
+                "mobileNo": requestData.customerPhone,
+                "emailID": requestData.customerEmail,
+                "amount": requestData.amount,
                 "orderInfo": paymentindata._id.toString()
             };
 
             const response = await axios.post(PaymentInOrderCreate.url, payload);
-            console.log("response    ",response)
-            if (response.code == "OK") {
+            console.log("response    ",response.data)
+            if (response.data.code == "OK") {
                 //add amount in coins
 
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if(response.body != undefined && response.body.orderID != undefined){
+                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined){
 
-                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.body.orderID}}, {
+                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
                         new: true,
                     });     
                     console.log("Updatedata ",Updatedata)
                     const payloaddeeplink = {
                         "note": "rechargeMoney_103",
-                        "OrderID": response.body.orderID,
+                        "OrderID": response.data.body.orderID,
                         "token": PaymentInOrderCreate.token
                     }
 
-                    const response = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
-                    console.log("response Deeplink ",response)
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, response);
+                    const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
+                    console.log("response Deeplink ",responseDeep.data)
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
 
                 }else{
                     
 
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.message); 
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.data.message); 
                 }
 
             } else {
-                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.message);   
+                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);   
             }   
         }else{
             console.log("Data Not Insert ")

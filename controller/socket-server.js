@@ -635,8 +635,9 @@ myIo.init = function (server) {
           }
           case CONST.PAY_IN: {
             try {
-              const res = await initiatePayment(payload.data,socket)
-              sendEvent(socket, CONST.PAY_IN, res)
+              console.log("PAY_IN ",payload.data)
+              await initiatePayment(payload.data,socket)
+              //sendEvent(socket, CONST.PAY_IN, res)
             } catch (error) {
               logger.error("Error in pay in ->", error)
             }
