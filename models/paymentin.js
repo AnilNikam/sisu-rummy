@@ -15,7 +15,9 @@ const TransactionSchema = new Schema(
       enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
       default: 'Pending',
     },
-    OrderID:{ type: String ,default: ''}
+    OrderID:{ type: String ,default: ''},
+    orderInfo:{ type: String ,default: ''},
+    webhook:{}
   },
   {
     timestamps: true,

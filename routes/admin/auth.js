@@ -4,6 +4,11 @@ const mainCtrl = require('../../controller/mainController');
 const userCtrl = require('../../helper/signups/signupValidation');
 const { OK_STATUS, BAD_REQUEST } = require('../../config');
 const logger = require('../../logger');
+const mongoose = require('mongoose');
+const paymentin = mongoose.model('paymentin');
+
+const walletActions = require('../../helper/common-function/walletTrackTransaction');
+
 
 /**
  * @api {post} /admin/signup-admin
@@ -84,6 +89,27 @@ router.get('/responce', async (req, res) => {
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   console.log("sdddddddddddddddddddddd",req.body)
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
+
+  //Find Any reacod here 
+
+  // if there 
+  
+  if(req.body != undefined && req.body.Status != undefined){
+    console.log("res.body. ",req.body.OrderId)
+      const PaymentIndata = await paymentin.findOneAndUpdate({"OrderID": req.body.OrderId}, {$set:{webhook:req.body}}, {
+          new: true,
+      }); 
+      console.log("PaymentIndata ",PaymentIndata)
+      if(PaymentIndata && PaymentIndata.userId && req.body.Status == "Success"){ 
+        
+        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+      }else{
+        console.log("PaymentIndata ",PaymentIndata)
+        console.log("req.body Faild  ",req.body)
+      }
+  }else{
+    console.log("req.body ",req.body)
+  }
   res.send("ok")
 });
 
