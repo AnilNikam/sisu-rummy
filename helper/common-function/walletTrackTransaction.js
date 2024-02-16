@@ -225,6 +225,10 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
       };
       await this.trackUserWallet(walletTrack);
     }
+    console.log("tbl.sckId ",tbl.sckId)
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, {chips:tbl.chips});
+
     return totalRemaningAmount;
   } catch (e) {
     logger.error('walletTrackTransaction.js addWallet error =>', e);
@@ -260,8 +264,9 @@ module.exports.getWalletDetails = async (obj, client) => {
     if (walletDetails !== null) {
       response = {
         db: Number(walletDetails.chips.toFixed(2)),
+        wb:Number(walletDetails.winningChips.toFixed(2)), 
         // wb: userCoinInfoData.winningAmount,
-        // tw: userCoinInfoData.balance + userCoinInfoData.winningAmount,
+        tw: (walletDetails.chips.toFixed(2) + walletDetails.winningChips.toFixed(2)),
       };
       logger.info('get Wallet Details Response : ', response);
       commandAcions.sendDirectEvent(client.id, CONST.PLAYER_BALANCE, response);

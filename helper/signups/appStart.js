@@ -21,6 +21,13 @@ module.exports.appLunchDetails = async (requestData, client) => {
       await this.userSesssionSet(result, client);
 
       let response = await this.filterBeforeSendSPEvent(result);
+
+
+      
+      const dataUpdate = await GameUser.findOneAndUpdate({ _id: MongoID(playerId.toString()) }, {$set:{sckId:client.id}}, {
+        new: true,
+      });
+      console.log("dataUpdate ",dataUpdate)
       //logger.info('Guest Final response Dashboard', response);
       commandAcions.sendEvent(client, CONST.DASHBOARD, response);
       if (requestData.referralCode != "") {
