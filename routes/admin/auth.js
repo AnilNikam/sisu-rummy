@@ -80,4 +80,11 @@ router.get('/responce', async (req, res) => {
   res.send("ok")
 });
 
+
+router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
+  console.log("sdddddddddddddddddddddd",req)
+  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req);
+  res.send("ok")
+});
+
 module.exports = router;
