@@ -81,9 +81,9 @@ router.get('/responce', async (req, res) => {
 });
 
 
-router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
-  console.log("sdddddddddddddddddddddd",req)
-  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req);
+router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
+  console.log("sdddddddddddddddddddddd",req.body)
+  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
   res.send("ok")
 });
 
