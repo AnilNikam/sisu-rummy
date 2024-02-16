@@ -27,7 +27,7 @@ filesNames.forEach((file) => {
 });
 
 const SERVER_ID = (module.exports = 'HTTPServer');
-const SERVER_PORT = (module.exports = process.env.PORT || 80);
+const SERVER_PORT = (module.exports = process.env.PORT || 3000);
 
 // const RDS_HOST = "127.0.0.1";
 // const RDS_HOST = REDIS_HOST
@@ -100,7 +100,7 @@ httpApp.use('/reports', express.static(path.join(__dirname, 'reports')));
 
 const server = http.createServer(httpApp);
 server.listen(SERVER_PORT, () => {
-  logger.info('Server ID : => ' + SERVER_ID + ' - Express server listening on port : ' + SERVER_PORT + ' date : ' + new Date());
+  console.log('Server ID : => ' + SERVER_ID + ' - Express server listening on port : ' + SERVER_PORT + ' date : ' + new Date());
   socket.init(server);
 });
 
