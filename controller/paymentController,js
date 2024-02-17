@@ -86,85 +86,169 @@ async function initiatePayment(requestData,socket) {
 }
 
 
-const FRENZOPAY_PAYOUT = {
-    base_url: 'https://api.frenzopay.com/api/v1',
-    add_beneficiary_endpoint: '/payout/beneficiary',
-    create_payout_endpoint: '/payout/',
-    check_payout_status_endpoint: '/payout',
-    account_balance_endpoint: '/payout/balance',
-    access_key: '188dda4667a6b9f0873f87a98cb29074',
-    secret_key: '9ddfe1310dd91ad14996f6c5d64deb3b',
-    business_id: 204
+
+const Account_WOWPE_PAYOUT = {
+    base_url: 'https://api.wowpe.in/api/PayoutAPI/accountverification',
+    clientId: 'aa482292-1675-444d-91d0-57d68829f560',
+    secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
+
 
 async function addBeneficiary(beneficiaryData) {
     try {
-        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.add_beneficiary_endpoint}`;
-        const response = await axios.post(url, beneficiaryData, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-            }
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response ? error.response.data : error.message;
-    }
-}
 
-//payoutData (amount,payment_method_name,account_number,ifsc,name,address,email,bank_name,mobile_number)
-async function createPayout(payoutData) {
-    try {
-        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.create_payout_endpoint}`;
-        const response = await axios.post(url, payoutData, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+        //Insert Payout Table 
+        const paymentindata = await paymentin.create({
+            userId: requestData.playerId,
+            transactionId: "aaa",
+            name: requestData.customerName,
+            email: requestData.customerEmail,
+            phone: requestData.customerPhone,
+            amount: requestData.amount,
+            accountNo: requestData.accountNo,
+            ifscCode: requestData.ifscCode,
+            paymentStatus: "Pending"
+          });
+
+        if(paymentindata){
+
+            console.log("paymentindata ",paymentindata)
+            const Paylod = {
+                "clientId": Account_WOWPE_PAYOUT.clientId,
+                "secretKey": Account_WOWPE_PAYOUT.secretKey,
+                "number":  requestData.customerPhone,
+                "accountNo": requestData.accountNo,
+                "ifscCode": requestData.ifscCode,
+                "orderID": paymentindata._id.toString()
             }
-        });
-        if (response.data) {
-            //Deduct a coin
+     
+            const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept':'application/json'
+                }
+            });
+
+            if (response.data.code == "OK") {
+                //add amount in coins
+
+                //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined){
+
+                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
+                        new: true,
+                    });     
+                    console.log("Updatedata ",Updatedata)
+                    const payloaddeeplink = {
+                        "note": "rechargeMoney_103",
+                        "OrderID": response.data.body.orderID,
+                        "token": PaymentInOrderCreate.token
+                    }
+
+                    const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
+                    console.log("response Deeplink ",responseDeep.data)
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
+
+                }else{
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.data.message); 
+                }
+            } else {
+                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);   
+            }   
+        }else{
+            console.log("Data Not Insert ")
+            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
+
+       
+
+
+
         return response.data;
     } catch (error) {
         throw error.response ? error.response.data : error.message;
     }
 }
 
-//
-async function checkPayoutStatus(payoutId) {
-    try {
-        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.check_payout_status_endpoint}/${payoutId}`;
-        const response = await axios.get(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-            }
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response ? error.response.data : error.message;
-    }
-}
+// const FRENZOPAY_PAYOUT = {
+//     base_url: 'https://api.frenzopay.com/api/v1',
+//     add_beneficiary_endpoint: '/payout/beneficiary',
+//     create_payout_endpoint: '/payout/',
+//     check_payout_status_endpoint: '/payout',
+//     account_balance_endpoint: '/payout/balance',
+//     access_key: '188dda4667a6b9f0873f87a98cb29074',
+//     secret_key: '9ddfe1310dd91ad14996f6c5d64deb3b',
+//     business_id: 204
+// };
 
-async function getAccountBalance() {
-    try {
-        const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.account_balance_endpoint}`;
-        const response = await axios.get(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-                'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-            }
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response ? error.response.data : error.message;
-    }
-}
+// async function addBeneficiary(beneficiaryData) {
+//     try {
+//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.add_beneficiary_endpoint}`;
+//         const response = await axios.post(url, beneficiaryData, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+//             }
+//         });
+//         return response.data;
+//     } catch (error) {
+//         throw error.response ? error.response.data : error.message;
+//     }
+// }
+
+// //payoutData (amount,payment_method_name,account_number,ifsc,name,address,email,bank_name,mobile_number)
+// async function createPayout(payoutData) {
+//     try {
+//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.create_payout_endpoint}`;
+//         const response = await axios.post(url, payoutData, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+//             }
+//         });
+//         if (response.data) {
+//             //Deduct a coin
+//         }
+//         return response.data;
+//     } catch (error) {
+//         throw error.response ? error.response.data : error.message;
+//     }
+// }
+
+// //
+// async function checkPayoutStatus(payoutId) {
+//     try {
+//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.check_payout_status_endpoint}/${payoutId}`;
+//         const response = await axios.get(url, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+//             }
+//         });
+//         return response.data;
+//     } catch (error) {
+//         throw error.response ? error.response.data : error.message;
+//     }
+// }
+
+// async function getAccountBalance() {
+//     try {
+//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.account_balance_endpoint}`;
+//         const response = await axios.get(url, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
+//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
+//             }
+//         });
+//         return response.data;
+//     } catch (error) {
+//         throw error.response ? error.response.data : error.message;
+//     }
+// }
 
 // Example usage:
 // (async () => {

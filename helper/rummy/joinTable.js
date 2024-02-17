@@ -292,7 +292,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     if (tableInfo.maxSeat !== 2 && tableInfo.activePlayer <= 2) {
       setTimeout(() => {
         botLogic.findRoom(tableInfo)
-      }, 2000)
+      }, 10000)
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
