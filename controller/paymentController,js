@@ -280,9 +280,9 @@ async function addBeneficiary(beneficiaryData) {
 module.exports = {
     initiatePayment,
     addBeneficiary,
-    createPayout,
-    checkPayoutStatus,
-    getAccountBalance
+    // createPayout,
+    // checkPayoutStatus,
+    // getAccountBalance
 };
 
 
