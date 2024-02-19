@@ -113,4 +113,14 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   res.send("ok")
 });
 
+
+router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
+  console.log("sdddddddddddddddddddddd",req.body)
+  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
+
+  
+  res.send("ok")
+});
+
+
 module.exports = router;

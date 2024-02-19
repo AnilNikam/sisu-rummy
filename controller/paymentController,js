@@ -93,8 +93,17 @@ const Account_WOWPE_PAYOUT = {
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
 
+/*
+playerId
+customerName
+customerEmail
+customerPhone
+amount
+accountNo
+ifscCode
+*/
 
-async function addBeneficiary(beneficiaryData) {
+async function addBeneficiary(requestData,socket) {
     try {
 
         //Insert Payout Table 
@@ -108,7 +117,7 @@ async function addBeneficiary(beneficiaryData) {
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
             paymentStatus: "Pending"
-          });
+        });
 
         if(paymentindata){
 
@@ -159,12 +168,7 @@ async function addBeneficiary(beneficiaryData) {
             console.log("Data Not Insert ")
             commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
-
-       
-
-
-
-        return response.data;
+      
     } catch (error) {
         throw error.response ? error.response.data : error.message;
     }

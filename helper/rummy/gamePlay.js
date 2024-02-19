@@ -298,12 +298,15 @@ module.exports.cardGroup = async (requestData, client) => {
     logger.error('gamePlay.js cardGroup error => ', e);
   }
 };
+/*
+isbot
 
+*/
 module.exports.declare = async (requestData, client) => {
   try {
     logger.info('declare Request Data =>', requestData);
 
-    if (!ifSocketDefine(requestData, client, CONST.DECLARE)) {
+    if (client.isbot == undefined && !ifSocketDefine(requestData, client, CONST.DECLARE)) {
       return false;
     }
 
