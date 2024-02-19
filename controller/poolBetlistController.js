@@ -90,7 +90,7 @@ async function getBetList(requestBody) {
         },
       },
     ]);
-
+    console.log("responseData ",responseData)
     if (responseData.length !== 0) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
     } else {

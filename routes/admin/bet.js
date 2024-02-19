@@ -26,7 +26,8 @@ router.post('/', async (req, res) => {
       tableName: req.body.tableName,
       commission: parseInt(req.body.commission),
       maxSeat: parseInt(req.body.maxSeat),
-      tableName:req.body.tableName
+      tableName:req.body.tableName,
+      status: req.body.status,
     };
     res.json(await mainCtrl.registerBetList(newData));
   } catch (error) {
@@ -86,14 +87,14 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, maxSeat, status, tableName , commission } = req.body;
-    const entryFeexists = await BetLists.countDocuments({ entryFee });
-    logger.info('put entryFeexists', entryFeexists);
-    if (entryFeexists > 0) {
-      res.status(config.OK_STATUS).json({ status: 0, message: 'Entry Fee Already Exists' });
-    } else {
+     const { entryFee, betListId, maxSeat, status, tableName , commission } = req.body;
+    // const entryFeexists = await BetLists.countDocuments({ entryFee });
+    // logger.info('put entryFeexists', entryFeexists);
+    // if (entryFeexists > 0) {
+    //   res.status(config.OK_STATUS).json({ status: 0, message: 'Entry Fee Already Exists' });
+    // } else {
       const newData = {
-        entryFee,
+        entryFee:parseInt(entryFee),
         gamePlayType: 'pointrummy',
         modifiedAt: Date.now(),
         maxSeat: maxSeat,
@@ -121,7 +122,7 @@ router.put('/', async (req, res) => {
           message: 'record not Deleted',
         });
       }
-    }
+    //}
   } catch (error) {
     logger.error('admin/users.js put bet-list error => ', error);
     return { status: 0, message: 'record not Found', data: null };

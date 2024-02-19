@@ -471,7 +471,10 @@ async function adminLogin(requestBody) {
     const data = await Admin.findOne({ email }).lean();
     if (data !== null) {
       const passwordMatch = await bcrypt.compare(password, data.password);
-      //logger.info('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
+      
+      console.log('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
+
+     
       if (passwordMatch) {
         const token = await commonHelper.sign(data);
         data.token = token;
@@ -893,6 +896,7 @@ async function mailer(email, otp) {
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
+  console.log("requestBody ",requestBody)
   const { gamePlayType, entryFee, maxSeat, status, commission, tableName } = requestBody;
   logger.info('registerBetList requestBody => ', requestBody);
   try {

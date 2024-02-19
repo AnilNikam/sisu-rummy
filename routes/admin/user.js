@@ -97,20 +97,25 @@ router.post('/AddUser', async (req, res) => {
             logger.info('registerUser userInsertInfo : ', userInsertInfo);
             
             if(userInsertInfo){
+                console.log("dfdddddddffff")
                 res.json({ restatus: true,msg:'User Register Successfully!'});
             }else{
-                res.status(config.NOT_FOUND).json({restatus: false,msg:'User not register!'});   
+                res.json({ restatus: false,msg:'User already Register Successfully!'});
             }
         }else{
-            res.status(config.NOT_FOUND).json({restatus: false,msg:'Mobile number not register!'});
+            console.log("HLELLLL")
+            res.json({ restatus: false,msg:'User already Register Successfully!'});
         } 
         
     } catch (error) {
-        console.log("result ",error)
+        console.log("errrrrr ",error)
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
+        //res.status(config.INTERNAL_SERVER_ERROR).json(error);
 
-        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+        res.json({ restatus: false,msg:error});
+        //res.status(config.INTERNAL_SERVER_ERROR).json(error);
+
     }
 });
 

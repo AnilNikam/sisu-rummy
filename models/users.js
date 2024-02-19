@@ -21,7 +21,7 @@ const GameUserSchema = new Schema(
     referredBy: { type: String },
     avatar: { type: String },
     deviceType: { type: String, default: 'Android' },
-    loginType: { type: String, enum: ['Mobile', 'Guest', 'email', 'Google'], require: true, default: 'guest' },
+    loginType: { type: String, enum: ['Mobile', 'Guest', 'email', 'Google'], require: true, default: 'Guest' },
     flags: {
       isOnline: { type: Number, default: 0 },
     },

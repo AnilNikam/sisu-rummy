@@ -97,15 +97,15 @@ router.post('/BotAdd', async (req, res) => {
 
         logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
         if (RecentUser.username != undefined) {
-            res.json({ status: "ok" });
+            res.json({ status: 1,message:"" });
         } else {
-            res.status(config.INTERNAL_SERVER_ERROR).json(error);
+            res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
         }
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
 
-        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+        res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
     }
 });
 

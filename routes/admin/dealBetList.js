@@ -90,11 +90,11 @@ router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
     const { entryFee, betListId, maxSeat, status, tableName,gamePlayType,deal,commission } = req.body;
-    const entryFeexists = await BetLists.countDocuments({ gamePlayType:gamePlayType,entryFee:entryFee,deal:deal });
-    logger.info('put entryFeexists deal ', entryFeexists);
-    if (entryFeexists > 0) {
-      res.status(config.OK_STATUS).json({ status: 0, message: 'Deal Already Exists' });
-    } else {
+    //const entryFeexists = await BetLists.countDocuments({ gamePlayType:gamePlayType,entryFee:entryFee,deal:deal });
+    //logger.info('put entryFeexists deal ', entryFeexists);
+    // if (entryFeexists > 0) {
+    //   res.status(config.OK_STATUS).json({ status: 0, message: 'Deal Already Exists' });
+    // } else {
       const newData = {
         entryFee: parseInt(entryFee),
         commission: parseInt(commission),
@@ -124,7 +124,7 @@ router.put('/', async (req, res) => {
           message: 'record not Update',
         });
       }
-    }
+    //}
   } catch (error) {
     logger.error('admin/users.js put bet-list error => ', error);
     return { status: 0, message: 'record not Found', data: null };

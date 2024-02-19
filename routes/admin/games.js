@@ -18,7 +18,7 @@ const fs = require("fs")
 * @apiSuccess (Success 200) {Array} badges Array of badges document
 * @apiError (Error 4xx) {String} message Validation or error message.
 */
-router.get('/blackwhitegamehistory', async (req, res) => {
+router.get('/rummygamehistory', async (req, res) => {
     try {
         console.log('requet => ', req);
 
