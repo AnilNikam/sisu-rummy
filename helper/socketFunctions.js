@@ -6,13 +6,16 @@ const { createClient } = require('redis');
 
 module.exports.sendEvent = (socket, eventName, data = {}, flag, msg, rest = {}) => {
   try {
+    console.log("Send L::::::::::::::::::::::::::",eventName)
+    console.log("Send L::::::::::::::::::::::::::",data)
+
     // eslint-disable-next-line no-param-reassign
     flag = typeof flag === 'undefined' ? true : false;
     // eslint-disable-next-line no-param-reassign
     msg = msg || '';
     const response = { eventName, data, flag, msg, ...rest };
     const encryptedData = commonHelper.encrypt(response);
-    logger.info('\nResponse Time :' + new Date() + ' : Data : ' + JSON.stringify(response));
+    console.log('\nResponse Time :' + new Date() + ' : Data : ' + JSON.stringify(response));
     socket.emit('req', { payload: encryptedData });
   } catch (error) {
     logger.error('socketFunction.js sendEvent error :--> ' + error);

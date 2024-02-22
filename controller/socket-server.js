@@ -645,9 +645,8 @@ myIo.init = function (server) {
 
           case CONST.CREATE_PAY_OUT: {
             try {
-              const res = await PayOutTransfer(payload.data)
-              sendEvent(socket, CONST.CREATE_PAY_OUT, res)
-
+             await PayOutTransfer(payload.data,socket)
+              
             } catch (error) {
               logger.error("Error in pay out ->", error)
             }

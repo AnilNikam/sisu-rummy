@@ -169,7 +169,7 @@ async function PayOutTransfer(requestData,socket) {
 
                 }else{
                     console.log("response elase 1 ",response.data)
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false,response.data.message); 
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false,response.data.message); 
                 }
             } else {
                 console.log("response elase 2 ",response.data)
@@ -182,7 +182,7 @@ async function PayOutTransfer(requestData,socket) {
         }
       
     } catch (error) {
-    
+        console.log("error ::::::::::::",error)
 
         throw error.response ? error.response.data : error.message;
     }
