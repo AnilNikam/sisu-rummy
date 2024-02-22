@@ -149,7 +149,7 @@ async function PayOutTransfer(requestData,socket) {
                     'accept':'application/json'
                 }
             });
-            console.log("response ",response)
+            console.log("response ",response.data)
 
             
 
@@ -181,7 +181,7 @@ async function PayOutTransfer(requestData,socket) {
         }
       
     } catch (error) {
-        console.log("response elase 3 ",response.data)
+    
 
         throw error.response ? error.response.data : error.message;
     }
