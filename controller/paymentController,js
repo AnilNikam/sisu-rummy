@@ -144,7 +144,7 @@ async function PayOutTransfer(requestData,socket) {
                     'accept':'application/json'
                 }
             });
-
+            console.log("response ",response)
             if (response.data.code == "OK") {
                 //add amount in coins
 
