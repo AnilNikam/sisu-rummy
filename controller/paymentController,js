@@ -90,7 +90,7 @@ async function initiatePayment(requestData,socket) {
 
 
 const Account_WOWPE_PAYOUT = {
-    base_url: 'https://api.wowpe.in/api/PayoutAPI/accountverification',
+    base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',
     clientId: 'aa482292-1675-444d-91d0-57d68829f560',
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
