@@ -95,6 +95,10 @@ const Account_WOWPE_PAYOUT = {
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
 
+
+
+
+
 /*
 playerId
 customerName
@@ -118,7 +122,7 @@ async function PayOutTransfer(requestData,socket) {
             amount: requestData.amount,
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
-            "beneficiaryName": requestData.BeneficiaryName,
+            "beneficiaryName": requestData.BeneficiaryName.trim(),
             "transferMode":requestData.transferMode,
             paymentStatus: "Pending"
         });
@@ -131,13 +135,14 @@ async function PayOutTransfer(requestData,socket) {
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
                 "number":  requestData.customerPhone,
                 "transferMode":requestData.transferMode,
+                "amount": requestData.amount,
                 "accountNo": requestData.accountNo,
                 "ifscCode": requestData.ifscCode,
-                "BeneficiaryName": requestData.BeneficiaryName,
+                "BeneficiaryName": requestData.BeneficiaryName.trim(),
                 "vpa": "",
                 "orderID": paymentoutdata._id.toString()
             }
-     
+            console.log("Paylod ",Paylod)
             const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,7 +154,7 @@ async function PayOutTransfer(requestData,socket) {
                 //add amount in coins
 
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined){
+                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null){
 
                     const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
                         new: true,
@@ -229,7 +234,7 @@ const Account_WOWPE_VERIFICATION = {
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
 
-async function checkPayoutStatus(requestData,socket) {
+async function checkPayoutStatus(requestData,callback) {
     try {
             const Paylod = {
                 "clientId": Account_WOWPE_VERIFICATION.clientId,
@@ -247,7 +252,7 @@ async function checkPayoutStatus(requestData,socket) {
                 }
             });
             console.log("checkPayoutStatus ",response)
-        return response.data;
+        return callback(response.data);
     } catch (error) {
         throw error.response ? error.response.data : error.message;
     }
