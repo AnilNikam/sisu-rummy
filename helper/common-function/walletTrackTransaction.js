@@ -97,7 +97,10 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
         tableId:  '',
       };
       await this.trackUserWallet(walletTrack);
-    }
+    } 
+    console.log("tbl.sckId ",tbl.sckId)
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, {chips:tbl.chips});
 
     return totalRemaningAmount;
   } catch (e) {

@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
+const paymentout = mongoose.model('paymentout');
+
 const axios = require('axios');
 const commandAcions = require('../helper/socketFunctions');
 const CONST = require('../constant');
@@ -107,7 +109,7 @@ async function PayOutTransfer(requestData,socket) {
     try {
 
         //Insert Payout Table 
-        const paymentindata = await paymentin.create({
+        const paymentoutdata = await paymentout.create({
             userId: requestData.playerId,
             transactionId: "aaa",
             name: requestData.customerName,
@@ -121,9 +123,9 @@ async function PayOutTransfer(requestData,socket) {
             paymentStatus: "Pending"
         });
 
-        if(paymentindata){
+        if(paymentoutdata){
 
-            console.log("paymentindata ",paymentindata)
+            console.log("paymentoutdata ",paymentoutdata)
             const Paylod = {
                 "clientId": Account_WOWPE_PAYOUT.clientId,
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
@@ -133,7 +135,7 @@ async function PayOutTransfer(requestData,socket) {
                 "ifscCode": requestData.ifscCode,
                 "BeneficiaryName": requestData.BeneficiaryName,
                 "vpa": "",
-                "orderID": paymentindata._id.toString()
+                "orderID": paymentoutdata._id.toString()
             }
      
             const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
@@ -153,25 +155,18 @@ async function PayOutTransfer(requestData,socket) {
                         new: true,
                     });     
                     console.log("Updatedata ",Updatedata)
-                    const payloaddeeplink = {
-                        "note": "rechargeMoney_103",
-                        "OrderID": response.data.body.orderID,
-                        "token": PaymentInOrderCreate.token
-                    }
-
-                    const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
-                    console.log("response Deeplink ",responseDeep.data)
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
+                    
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
 
                 }else{
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.data.message); 
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false,response.data.message); 
                 }
             } else {
-                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);   
+                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);   
             }   
         }else{
             console.log("Data Not Insert ")
-            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
         }
       
     } catch (error) {

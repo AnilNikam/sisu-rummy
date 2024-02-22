@@ -7,6 +7,7 @@ const logger = require('../../logger');
 const mongoose = require('mongoose');
 const paymentin = mongoose.model('paymentin');
 
+const paymentout = mongoose.model('paymentout');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
 
 
@@ -118,6 +119,22 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   console.log("sdddddddddddddddddddddd",req.body)
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
 
+  if(req.body != undefined && req.body.StatusCode != undefined){
+    console.log("res.body. ",req.body.Data.ClientOrderId)
+      const PaymentOutdata = await paymentout.findOneAndUpdate({"OrderID": req.body.Data.ClientOrderId}, {$set:{webhook:req.body}}, {
+          new: true,
+      }); 
+      console.log("PaymentOutdata ",PaymentOutdata)
+      if(PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1){ 
+        
+        await walletActions.deductWalletPayOut(PaymentOutdata.userId, Number(req.body.Data.Amount), 'Debit', 'PayOut');
+      }else{
+        console.log("PaymentOutdata ",PaymentOutdata)
+        console.log("req.body Faild  ",req.body)
+      }
+  }else{
+    console.log("req.body ",req.body)
+  }
   
   res.send("ok")
 });
