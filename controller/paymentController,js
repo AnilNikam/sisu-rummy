@@ -149,7 +149,8 @@ async function PayOutTransfer(requestData,socket) {
                     'accept':'application/json'
                 }
             });
-            console.log("response ",response.data)
+            console.log("response ",response)
+
             
 
             if (response.data.code == "OK") {
