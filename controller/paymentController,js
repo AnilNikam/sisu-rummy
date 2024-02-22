@@ -135,7 +135,7 @@ async function PayOutTransfer(requestData,socket) {
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
                 "number":  requestData.customerPhone,
                 "transferMode":requestData.transferMode,
-                "amount": requestData.amount,
+                "amount": requestData.amount.toString(),
                 "accountNo": requestData.accountNo,
                 "ifscCode": requestData.ifscCode,
                 "BeneficiaryName": requestData.BeneficiaryName.trim(),
