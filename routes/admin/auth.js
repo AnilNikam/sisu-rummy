@@ -121,7 +121,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
 
   if(req.body != undefined && req.body.StatusCode != undefined){
     console.log("res.body. ",req.body.Data.ClientOrderId)
-      const PaymentOutdata = await paymentout.findOneAndUpdate({"OrderID": req.body.Data.ClientOrderId}, {$set:{webhook:req.body}}, {
+      const PaymentOutdata = await paymentout.findOneAndUpdate({"OrderID": req.body.Data.TransactionId.toString()}, {$set:{webhook:req.body}}, {
           new: true,
       }); 
       console.log("PaymentOutdata ",PaymentOutdata)
