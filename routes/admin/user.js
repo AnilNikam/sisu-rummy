@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
+const otpAdharkyc = mongoose.model('otpAdharkyc');
+
 const express = require('express');
 const router = express.Router();
 const config = require('../../config');
@@ -22,9 +24,9 @@ router.get('/UserList', async (req, res) => {
     try {
         //console.info('requet => ', req);
 
-        const userList = await Users.find({isBot:false}, { username: 1,profileUrl:1,winningChips:1,bonusChips:1, id: 1,email:1,uniqueId:1,
+        const userList = await Users.find({isBot:false}, { username: 1,profileUrl:1,winningChips:1,bonusChips:1, id: 1,email:1,uniqueId:1,name:1,
             "blackandwhite.totalMatch":1,"aviator.totalMatch":1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
-
+            
         logger.info('admin/dahboard.js post dahboard  error => ', userList);
 
         res.json({ userList });
@@ -46,12 +48,29 @@ router.get('/UserList', async (req, res) => {
 router.get('/UserData', async (req, res) => {
     try {
         console.info('requet => ', req.query);
-        //
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        //userInfo
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', userInfo);
+        
 
-        res.json({ userInfo });
+        let UserOKYC = await otpAdharkyc.findOne({userId: new mongoose.Types.ObjectId(req.query.userId)},{adharcard:1,verified:1,"userInfo.user_address":1})
+        console.log("UserOKYC",UserOKYC)
+        if(UserOKYC == undefined || UserOKYC == null ){
+            
+            UserOKYC = {
+                adharcard:" - ",
+                verified:"",
+                userInfo:""
+            }
+        }
+        UserOKYC.userInfo  =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
+         ""+UserOKYC.userInfo.user_address.house+","+UserOKYC.userInfo.user_address.street+","+UserOKYC.userInfo.user_address.po+","+UserOKYC.userInfo.user_address.loc+","
+         +UserOKYC.userInfo.user_address.vtc+","+UserOKYC.userInfo.user_address.dist+","+UserOKYC.userInfo.user_address.state+","+UserOKYC.userInfo.user_address.country+"" :"Not Available";
+
+
+        console.log('admin/dahboard.js post dahboard  error => :::::::: ', UserOKYC);
+
+        res.json({ userInfo,UserOKYC });
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);

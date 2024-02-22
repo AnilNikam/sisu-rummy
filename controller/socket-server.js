@@ -18,7 +18,7 @@ const { getPaymentHistory, updateWallet } = require('../helper/walletFunction');
 const { registerUser } = require('../helper/signups/signupValidation');
 const { userReconnect, takeSeat } = require('../helper/common-function/reConnectFunction');
 const { initiatePayment } = require('./paymentController,js');
-const { createPayout } = require('./paymentController,js');
+const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
 const { checkReferral } = require('../helper/signups/appStart');
 
@@ -645,7 +645,7 @@ myIo.init = function (server) {
 
           case CONST.CREATE_PAY_OUT: {
             try {
-              const res = await createPayout(payload.data)
+              const res = await PayOutTransfer(payload.data)
               sendEvent(socket, CONST.CREATE_PAY_OUT, res)
 
             } catch (error) {

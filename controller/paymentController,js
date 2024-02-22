@@ -103,7 +103,7 @@ accountNo
 ifscCode
 */
 
-async function addBeneficiary(requestData,socket) {
+async function PayOutTransfer(requestData,socket) {
     try {
 
         //Insert Payout Table 
@@ -116,6 +116,8 @@ async function addBeneficiary(requestData,socket) {
             amount: requestData.amount,
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
+            "beneficiaryName": requestData.BeneficiaryName,
+            "transferMode":requestData.transferMode,
             paymentStatus: "Pending"
         });
 
@@ -126,8 +128,11 @@ async function addBeneficiary(requestData,socket) {
                 "clientId": Account_WOWPE_PAYOUT.clientId,
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
                 "number":  requestData.customerPhone,
+                "transferMode":requestData.transferMode,
                 "accountNo": requestData.accountNo,
                 "ifscCode": requestData.ifscCode,
+                "BeneficiaryName": requestData.BeneficiaryName,
+                "vpa": "",
                 "orderID": paymentindata._id.toString()
             }
      
@@ -221,22 +226,37 @@ async function addBeneficiary(requestData,socket) {
 //     }
 // }
 
-// //
-// async function checkPayoutStatus(payoutId) {
-//     try {
-//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.check_payout_status_endpoint}/${payoutId}`;
-//         const response = await axios.get(url, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-//             }
-//         });
-//         return response.data;
-//     } catch (error) {
-//         throw error.response ? error.response.data : error.message;
-//     }
-// }
+//
+
+const Account_WOWPE_VERIFICATION = {
+    base_url: 'https://api.wowpe.in/PayoutAPI/accountverification',
+    clientId: 'aa482292-1675-444d-91d0-57d68829f560',
+    secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
+};
+
+async function checkPayoutStatus(requestData,socket) {
+    try {
+            const Paylod = {
+                "clientId": Account_WOWPE_VERIFICATION.clientId,
+                "secretKey": Account_WOWPE_VERIFICATION.secretKey,
+                "number":  requestData.customerPhone,
+                "accountNo": requestData.accountNo,
+                "ifscCode": requestData.ifscCode,
+                "orderID": requestData.orderID
+            }
+            console.log("PayOut ::::::::::::::::::::::",Paylod)
+            const response = await axios.post(Account_WOWPE_VERIFICATION.base_url, Paylod, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept':'application/json'
+                }
+            });
+            console.log("checkPayoutStatus ",response)
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
+    }
+}
 
 // async function getAccountBalance() {
 //     try {
@@ -283,7 +303,8 @@ async function addBeneficiary(requestData,socket) {
 
 module.exports = {
     initiatePayment,
-    addBeneficiary,
+    PayOutTransfer,
+    checkPayoutStatus
     // createPayout,
     // checkPayoutStatus,
     // getAccountBalance

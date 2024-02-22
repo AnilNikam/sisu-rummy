@@ -20,6 +20,7 @@ const TransactionSchema = new Schema(
     accountNo: { type: String ,default: ''},
     ifscCode: { type: String ,default: ''},
     beneficiaryName: { type: String ,default: ''},
+    transferMode: { type: String ,default: ''},
     rrn: { type: String ,default: ''},
     webhook:{}
   },
