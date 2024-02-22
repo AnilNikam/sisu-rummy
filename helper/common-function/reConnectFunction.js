@@ -7,6 +7,7 @@ const { GetRandomString, socketUserRedis } = require('../socketFunctions');
 const schedule = require('node-schedule');
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
+const PlayingTables = mongoose.model("playingTable");
 
 const userReconnect = async (payload, socket) => {
   try {

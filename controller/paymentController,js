@@ -159,7 +159,7 @@ async function PayOutTransfer(requestData,socket) {
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
                 if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null){
 
-                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
+                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentoutdata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
                         new: true,
                     });     
                     console.log("Updatedata ",Updatedata)
