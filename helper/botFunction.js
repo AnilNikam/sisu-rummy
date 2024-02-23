@@ -1298,7 +1298,8 @@ const findIndexesTeen = (cards, joker) => {
     // let sortedObject = {};
     for (let [key, value] of sortedArray) {
         // logger.info(key, " ", value)
-        cardCount[key] = value;
+        let filteredArray = value.filter((card, index, array) => array.findIndex(c => c[0] === card[0]) === index);
+        cardCount[key] = filteredArray;
     }
 
     // logger.info("sortedObject 555555555555555555555555555555555555555", cardCount)

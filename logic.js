@@ -14,7 +14,7 @@ let deckOne = _.shuffle([
     'J-1-1',
 ]);
 
-let myCard1 =[
+let myCard1 = [
     "D-8-0",
     "D-8-1",
     "H-7-0",
@@ -42,7 +42,7 @@ let myCard1 =[
 //         'S-1-1', 'S-8-1',
 //         'D-3-1']
 
-MycardGroup(myCard1, 9)
+//MycardGroup(myCard1, 9)
 
 function MycardGroup(myCard, wildcard) {
 
@@ -82,14 +82,7 @@ function MycardGroup(myCard, wildcard) {
 // console.log("IMPURE LENGTH ",_.flatten(impureSequences).length)
 // console.log("TEEN LENGTH ",_.flatten(Teen).length)
 // console.log("REMAIN LENGTH",_.flatten(RemainCard).length)
-
-
-
-
-
-
-
-
+findIndexesTeen(['C-3-0', 'S-3-1', 'S-3-0'], 1)
 function findIndexesTeen(cards, joker) {
     let cardCount = {};
     // console.log("CARDS :::::::::", cards)
@@ -97,7 +90,7 @@ function findIndexesTeen(cards, joker) {
     let jokers = cards.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker);
     // console.log("jokers.length", jokers)
     cards = _.difference(cards, jokers)
-
+    console.log("cards ", cards)
     for (const card of cards) {
         const index = card.split('-')[1];
         if (cardCount[`0${index}`]) {
@@ -106,17 +99,19 @@ function findIndexesTeen(cards, joker) {
             cardCount[`0${index}`] = [card];
         }
     }
-    // console.log("cardCount *-*-*-*-* ", cardCount)
+    console.log("cardCount *-*-*-*-* ", cardCount)
 
     let sortedArray = Object.entries(cardCount);
     sortedArray.sort((a, b) => b[1].length - a[1].length);
     // let sortedObject = {};
+    console.log("sortedArray ", sortedArray)
     for (let [key, value] of sortedArray) {
         // console.log(key, " ", value)
-        cardCount[key] = value;
+        let filteredArray = value.filter((card, index, array) => array.findIndex(c => c[0] === card[0]) === index);
+        cardCount[key] = filteredArray;
     }
 
-    // console.log("sortedObject 555555555555555555555555555555555555555", cardCount)
+    console.log("sortedObject 555555555555555555555555555555555555555", cardCount)
 
 
     if (jokers.length > 0) {
@@ -142,7 +137,7 @@ function findIndexesTeen(cards, joker) {
     if (repeatedIndexes.length > 0) {
         repeatedIndexes = repeatedIndexes.map(index => cardCount[index]);
     }
-    // console.log(" repeat edIndexes ........... ", repeatedIndexes)
+    console.log(" repeat edIndexes ........... ", repeatedIndexes)
     return repeatedIndexes;
 }
 function findPureSequences(cards) {
@@ -211,7 +206,7 @@ function findPureSequences(cards) {
     // console.log("pureSequences =====", pureSequences)
     return pureSequences;
 }
-function findImpureSequences(cards, joker) {
+const findImpureSequences = (cards, joker) => {
     // Sort the cards based on suit and rank
     cards.sort((a, b) => {
         const suitA = a.split('-')[0];
@@ -224,18 +219,19 @@ function findImpureSequences(cards, joker) {
         return suitA.localeCompare(suitB); // Then by suit
     });
 
-    // console.log("AFTER SORTING CARD", cards)
+    // logger.info("AFTER SORTING CARD", cards)
     let impureSequences = [];
 
 
     let currentSequence = [];
     // Iterate through the sorted cards
     let jokers = cards.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker);
-    // console.log("jokers.length",jokers)
+    // logger.info("jokers.length",jokers)
 
     cards = _.difference(cards, jokers)
     for (let i = 0; i < cards.length; i++) {
         const currentCard = cards[i];
+        const currentSuit = currentCard.split('-')[0];
         const currentRank = parseInt(currentCard.split('-')[1]);
 
         let InCurrentSequenceJoker = currentSequence.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker).length == 1
@@ -243,20 +239,20 @@ function findImpureSequences(cards, joker) {
         if (currentSequence.length === 0) {
             currentSequence.push(currentCard);
 
-        } else if ((parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
+        } else if (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
             currentSequence.push(currentCard);
-        } else if ((jokers.length > 0 && !InCurrentSequenceJoker && (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 2))) {
-            // console.log("HERE +++++++++++++++++++",cards[i])
+        } else if ((jokers.length > 0 && !InCurrentSequenceJoker && (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 2))) {
+            // logger.info("HERE +++++++++++++++++++",cards[i])
             // let result = currentSequence.some(element => element.startsWith("J") || element.split('-')[1] === joker);
             // if (!result) {
 
             currentSequence.push(jokers[0]);
-            // console.log("INDEX 333333333333", jokers[0])
+            // logger.info("INDEX 333333333333", jokers[0])
             jokers.splice(jokers.indexOf(jokers[0]), 1);
-            // console.log("Jokers ", jokers)
+            // logger.info("Jokers ", jokers)
             // }
             currentSequence.push(currentCard)
-            // console.log("currentSequence 9888888888889989898989898",currentSequence);
+            // logger.info("currentSequence 9888888888889989898989898",currentSequence);
 
         } else {
             // If the sequence breaks and it's not a pure sequence, add it to impure sequences
@@ -265,14 +261,14 @@ function findImpureSequences(cards, joker) {
             }
             currentSequence = [currentCard];
         }
-        // console.log("currentSequence :::: ", currentSequence)
+        // logger.info("currentSequence :::: ", currentSequence)
     }
-    // console.log("JOKERSSSS", jokers)
+    // logger.info("JOKERSSSS", jokers)
     // Check the last sequence
     if (currentSequence.length >= 2) {
         impureSequences.push(currentSequence);
     }
-    // console.log("impureSequences",impureSequences)
+    // logger.info("impureSequences",impureSequences)
     // Iterate through impure sequences to add jokers if available
     for (let i = 0; i < impureSequences.length; i++) {
         const sequence = impureSequences[i];
@@ -284,9 +280,9 @@ function findImpureSequences(cards, joker) {
                 break;
             }
         }
-        // console.log("sequence",sequence)
+        // logger.info("sequence",sequence)
     }
-    // console.log("impureSequences 786",impureSequences)
+    // logger.info("impureSequences 786",impureSequences)
     impureSequences = impureSequences.filter(subArray => subArray.length >= 3);
 
     return impureSequences;
