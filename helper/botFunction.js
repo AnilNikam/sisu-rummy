@@ -110,7 +110,7 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
                             'playerInfo.seatIndex': Number(playerIndex),
                         };
 
-                        // console.log("pickCard upWh updateData :: ", upWh, updateData);
+                        // logger.info("pickCard upWh updateData :: ", upWh, updateData);
                         if (playerInfo.turnMissCounter > 0) {
                             playerInfo.turnMissCounter = 0;
                             updateData.$set['playerInfo.' + playerIndex + '.turnMissCounter'] = playerInfo.turnMissCounter;
@@ -192,7 +192,7 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
             commandAcions.clearJob(tableInfo.jobId);
 
             let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
-            console.log("ressss-->", ress);
+            logger.info("ressss-->", ress);
             let updateData1 = {
                 $set: {},
                 $inc: {},
@@ -270,7 +270,7 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
 
                     //cancel the Schedule
                     schedule.cancelJob(`table.tableId${tableInfo._id}`);
-                    // console.log("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
+                    // logger.info("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
                     let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
                     let player = tableInfo.playerInfo[playerIndex];
                     logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
@@ -370,404 +370,404 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
         if (tableInfo.playerInfo && tableInfo.playerInfo.length > 0) {
             let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
             logger.info('playerIndex: ', playerIndex);
-            if (playerIndex !== -1) {  
+            if (playerIndex !== -1) {
                 let playerInfo = tableInfo.playerInfo[playerIndex];
                 logger.info('bot player cards => ', playerInfo.cards);
 
-                PickCardcloseDeck_or_open_deck(playerInfo.cards.slice(0,playerInfo.cards.length),tableInfo.wildCard,
-                    tableInfo.openDeck[tableInfo.openDeck.length-1],
-                    tableInfo.closeDeck[tableInfo.closeDeck.length-1],(deckType1)=>{
+                PickCardcloseDeck_or_open_deck(playerInfo.cards.slice(0, playerInfo.cards.length), tableInfo.wildCard,
+                    tableInfo.openDeck[tableInfo.openDeck.length - 1],
+                    tableInfo.closeDeck[tableInfo.closeDeck.length - 1], (deckType1) => {
 
-                    console.log("deckType ::::::::::::::::::::",deckType1)
-                    const deckType = deckType1 //|| deck[randomIndex];
+                        logger.info("deckType ::::::::::::::::::::", deckType1)
+                        const deckType = deckType1 //|| deck[randomIndex];
 
-                    logger.info("open card deck Type ->", deckType, typeof deckType)
+                        logger.info("open card deck Type ->", deckType, typeof deckType)
 
-                    const jobId = `BOTPIC+${tableInfo._id}`;
-                    let startPicScheduleTime = new Date(Date.now() + 5000);
-                    // let startPicScheduleTime = Date.now() + getRandomNumber(3000, 6500)
-                    logger.info("startPicScheduleTime ->", startPicScheduleTime)
+                        const jobId = `BOTPIC+${tableInfo._id}`;
+                        let startPicScheduleTime = new Date(Date.now() + 5000);
+                        // let startPicScheduleTime = Date.now() + getRandomNumber(3000, 6500)
+                        logger.info("startPicScheduleTime ->", startPicScheduleTime)
 
-                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-                    logger.info('bot playerIndex: ', playerIndex);
-                    let pickedCard;
+                        let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
+                        logger.info('bot playerIndex: ', playerIndex);
+                        let pickedCard;
 
-                    schedule.scheduleJob(jobId, startPicScheduleTime, async () => {
-                        schedule.cancelJob(jobId);
-                        logger.info("Bot PIC event call");
+                        schedule.scheduleJob(jobId, startPicScheduleTime, async () => {
+                            schedule.cancelJob(jobId);
+                            logger.info("Bot PIC event call");
 
-                        if (tableInfo.playerInfo && tableInfo.playerInfo.length > 0) {
-                            let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-                            logger.info('playerIndex: ', playerIndex);
-                            if (playerIndex !== -1) {
-                                let playerInfo = tableInfo.playerInfo[playerIndex];
-                                logger.info('bot player cards => ', playerInfo.cards);
-                                let updateData = {
-                                    $set: {},
-                                    $inc: {},
-                                };
-                                /////////////////////////////////////////////////////////////////
-                                // let pickedCard;
-                                if (deckType === 'open') {
-                                    pickedCard = tableInfo.openDeck.pop();
-                                    playerInfo.cards.push(pickedCard.toString());
-
-                                    if (playerInfo.playerStatus === 'PLAYING') {
-                                        updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                                        updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
-                                        updateData.$set['openDeck'] = tableInfo.openDeck;
-                                    }
-
-                                    //Cancel the Scheduele job
-                                    // commandAcions.clearJob(tabInfo.jobId);
-
-                                    const upWh = {
-                                        _id: MongoID(tableInfo._id.toString()),
-                                        'playerInfo.seatIndex': Number(playerIndex),
-                                    };
-
-                                    // console.log("pickCard upWh updateData :: ", upWh, updateData);
-                                    if (playerInfo.turnMissCounter > 0) {
-                                        playerInfo.turnMissCounter = 0;
-                                        updateData.$set['playerInfo.' + playerIndex + '.turnMissCounter'] = playerInfo.turnMissCounter;
-                                    }
-                                    tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                                        new: true,
-                                    });
-                                    logger.info('Pic card Open Deck BOT ', tableInfo);
-                                } else if (deckType === 'close') {
-                                    // Use player object as needed
-
-                                    // let closeDeckCardIndex;
-                                    // let closeDeckCard;
-
-                                    // closeDeckCardIndex = table.closeDeck.length - 1;
-                                    // closeDeckCard = table.closeDeck[closeDeckCardIndex];
-
-                                    // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
-                                    // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
-
-                                    pickedCard = tableInfo.closeDeck.pop();
-                                    logger.info("close deck picked card ->", pickedCard)
-                                    playerInfo.cards.push(pickedCard.toString());
-
-                                    if (playerInfo.playerStatus === 'PLAYING') {
-                                        updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                                        updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
-                                        updateData.$set['closeDeck'] = tableInfo.closeDeck;
-                                        updateData.$inc['playerInfo.$.turnCount'] = 1;
-                                    }
-
-                                    const upWh = {
-                                        _id: MongoID(tableInfo._id.toString()),
-                                        'playerInfo.seatIndex': Number(playerIndex),
-                                    };
-
-
-                                    tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                                        new: true,
-                                    });
-
-                                    logger.info('Pic card Close Deck BOT ', tableInfo);
-
-                                }
-
-                                /////////////////////////////////////////////////////////////////
-
-
-
-                                let response = {
-                                    pickedCard: pickedCard,
-                                    playerId: playerId,
-                                    deck: deckType,
-                                    closedecklength: tableInfo.closeDeck.length,
-                                }
-
-                                logger.info('Bot PIC card response  => ', response);
-                                commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.PICK_CARD, response);
-
-                            } else {
-                                logger.info('Player not found with seatIndex: ', tableInfo.currentPlayerTurnIndex);
-                            }
-                        } else {
-                            logger.info('No players found in the table.');
-                        }
-
-                        //DiscCard Logic
-                        // let qu = {
-                        //     _id: MongoID(tableInfo._id.toString()),
-                        // }
-                        // tableInfo = await PlayingTables.findOne(qu).lean;
-                        logger.info("find before discard table info", tableInfo);
-
-                        /*
-                        let playerInfo = tableInfo.playerInfo[playerIndex];
-
-                        // Bot Win Logic
-                        //Cancel the Scheduele job
-                        commandAcions.clearJob(tableInfo.jobId);
-
-                        let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
-                        console.log("ressss-->", ress);
-                        let updateData1 = {
-                            $set: {},
-                            $inc: {},
-                        };
-                        const upWh1 = {
-                            _id: MongoID(tableInfo._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-                        updateData1.$set['playerInfo.$.gCard'] = ress;
-
-                        tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
-                            new: true,
-                        });
-
-                        let response = {
-                            playerId: playerId,
-                            disCard: pickedCard,
-                        };
-
-                        const upWh2 = {
-                            _id: MongoID(tableInfo._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-
-                        const updateData2 = {
-                            $set: {
-                                discardCard: pickedCard,
-                            },
-                        };
-
-                        const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
-                            new: true,
-                        });
-                        logger.info('Declare tbl : ', tbl);
-
-                        commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
-
-                        commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
-
-                        delete client.declare;
-
-                        let roundTime = CONST.finishTimer;
-                        let tableId = tbl._id;
-                        let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
-                        let delay = commandAcions.AddTime(roundTime);
-
-                        await commandAcions.setDelay(finishJobId, new Date(delay));
-
-                        //update user game finish status
-                        let updateStatus = {
-                            $set: {},
-                            $inc: {},
-                        };
-                        updateStatus.$set['playerInfo.$.finished'] = true;
-
-                        const qr = {
-                            _id: MongoID(tbl._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-                        //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
-
-                        const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
-                            new: true,
-                        });
-
-                        logger.info('check status ==> and Table ', tabl);
-
-                        await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
-                        //finish Bot win logic
-            */
-                        let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
-                        schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
-                            try {
-                                logger.info("Bot DISCARD event call");
-
-                                //cancel the Schedule
-                                schedule.cancelJob(`table.tableId${tableInfo._id}`);
-                                // console.log("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
+                            if (tableInfo.playerInfo && tableInfo.playerInfo.length > 0) {
                                 let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-                                let player = tableInfo.playerInfo[playerIndex];
-                                logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
-                                logger.info("DISCARD Player Cards", player.cards);
+                                logger.info('playerIndex: ', playerIndex);
+                                if (playerIndex !== -1) {
+                                    let playerInfo = tableInfo.playerInfo[playerIndex];
+                                    logger.info('bot player cards => ', playerInfo.cards);
+                                    let updateData = {
+                                        $set: {},
+                                        $inc: {},
+                                    };
+                                    /////////////////////////////////////////////////////////////////
+                                    // let pickedCard;
+                                    if (deckType === 'open') {
+                                        pickedCard = tableInfo.openDeck.pop();
+                                        playerInfo.cards.push(pickedCard.toString());
 
-                                //Select Card for Discard
-                                if (player) {
-                                    let playerCards = player.cards
-                                    console.log("tableInfo ", tableInfo.wildCard)
-                                    mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
-                                        let throwCard = "";
-                                        let randomIndex = -1
+                                        if (playerInfo.playerStatus === 'PLAYING') {
+                                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
+                                            updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
+                                            updateData.$set['openDeck'] = tableInfo.openDeck;
+                                        }
 
-                                        console.log("cardjson ", cardjson)
-                                        RemainCardTounusecardThrow(cardjson, async (RemainCard) => {
+                                        //Cancel the Scheduele job
+                                        // commandAcions.clearJob(tabInfo.jobId);
 
+                                        const upWh = {
+                                            _id: MongoID(tableInfo._id.toString()),
+                                            'playerInfo.seatIndex': Number(playerIndex),
+                                        };
 
-                                            console.log("RemainCard ", RemainCard)
+                                        // logger.info("pickCard upWh updateData :: ", upWh, updateData);
+                                        if (playerInfo.turnMissCounter > 0) {
+                                            playerInfo.turnMissCounter = 0;
+                                            updateData.$set['playerInfo.' + playerIndex + '.turnMissCounter'] = playerInfo.turnMissCounter;
+                                        }
+                                        tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+                                            new: true,
+                                        });
+                                        logger.info('Pic card Open Deck BOT ', tableInfo);
+                                    } else if (deckType === 'close') {
+                                        // Use player object as needed
 
-                                            // pureSeqs: MycardSet.pure,
-                                            // ImpureSeqs: unusedJoker.impureSequences,
-                                            // Teen: unusedJoker.Teen,
-                                            // possibilityCard1: possibiltyCard1,
-                                            // RemainCard: RemainCard
+                                        // let closeDeckCardIndex;
+                                        // let closeDeckCard;
 
-                                            let Isdecalre = false;
+                                        // closeDeckCardIndex = table.closeDeck.length - 1;
+                                        // closeDeckCard = table.closeDeck[closeDeckCardIndex];
 
-                                            // RemainCard  {
-                                            //     pureSeqs: [ 'S-11-0', 'S-12-0', 'S-13-0' ],
-                                            //     ImpureSeqs: [
-                                            //       'C-1-0', 'C-4-1',
-                                            //       'C-3-0', 'S-5-0',
-                                            //       'C-6-0', 'H-7-0',
-                                            //       'S-7-1', 'D-8-0',
-                                            //       'C-9-0', 'C-10-0'
-                                            //     ],
-                                            //     Teen: [],
-                                            //     possibilityCard1: [],
-                                            //     RemainCard: [ 'C-4-0' ]
-                                            //   }
-                                            if(RemainCard.RemainCard != undefined && RemainCard.RemainCard.length == 1 
-                                               && RemainCard.RemainCard != undefined && RemainCard.possibilityCard1.length == 0
-                                               && RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length >= 1                                               
-                                               ){
-                                                Isdecalre = true  
-                                            }
+                                        // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
+                                        // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
 
-                                            if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length > 0) {
-                                                console.log("RemainCard  RemainCard  ", RemainCard.RemainCard)
-                                                RemainCard.RemainCard.sort((e,f)=>{
-                                                    return parseInt(f.split("-")[1]) - parseInt(e.split("-")[1])
-                                                })
-                                                //randomIndex = Math.floor(Math.random() * RemainCard.RemainCard.length);
-                                                throwCard = RemainCard.RemainCard[0];
+                                        pickedCard = tableInfo.closeDeck.pop();
+                                        logger.info("close deck picked card ->", pickedCard)
+                                        playerInfo.cards.push(pickedCard.toString());
 
-                                            } else if (RemainCard.possibilityCard1 != undefined && RemainCard.possibilityCard1.length > 0) {
-                                                console.log("RemainCard  possibilityCard1  ", RemainCard.possibilityCard1)
-                                                
-                                                RemainCard.possibilityCard1 = _.flatten(RemainCard.possibilityCard1)
+                                        if (playerInfo.playerStatus === 'PLAYING') {
+                                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
+                                            updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
+                                            updateData.$set['closeDeck'] = tableInfo.closeDeck;
+                                            updateData.$inc['playerInfo.$.turnCount'] = 1;
+                                        }
 
-                                                randomIndex = Math.floor(Math.random() * RemainCard.possibilityCard1.length);
-                                                throwCard = RemainCard.possibilityCard1[randomIndex];
-
-                                            } else if (RemainCard.Teen != undefined && RemainCard.Teen.length > 0) {
-                                                console.log("Teen  sequestion  ")
-
-
-                                                randomIndex = Math.floor(Math.random() * RemainCard.Teen[0].length);
-                                                throwCard = RemainCard.Teen[randomIndex];
-                                            } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0) {
-                                                console.log("ImpureSeqs  sequestion  ")
+                                        const upWh = {
+                                            _id: MongoID(tableInfo._id.toString()),
+                                            'playerInfo.seatIndex': Number(playerIndex),
+                                        };
 
 
-                                                randomIndex = Math.floor(Math.random() * RemainCard.ImpureSeqs[0].length);
-                                                throwCard = RemainCard.ImpureSeqs[randomIndex];
-                                            } else if (RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length > 0) {
+                                        tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+                                            new: true,
+                                        });
 
-                                                console.log("pureSeqs  sequestion  ")
-                                                randomIndex = Math.floor(Math.random() * RemainCard.pureSeqs[0].length);
-                                                throwCard = RemainCard.pureSeqs[randomIndex];
-                                            } else {
-                                                console.log("else :::::::::::::::::: ")
-                                                randomIndex = Math.floor(Math.random() * playerCards.length);
-                                                throwCard = playerCards[randomIndex];
-                                            }
-                                            console.log("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
-                                            // let selectDiscardCard = convertCardPairAndFollowers(playerCards);
+                                        logger.info('Pic card Close Deck BOT ', tableInfo);
 
-                                            // logger.info('selectDiscardCard => ', selectDiscardCard);
-                                            // logger.info('select Discard followers Card => ', selectDiscardCard.followers + ' select Discard followers Card => ' + selectDiscardCard.pair);
+                                    }
 
-                                            // const isWinner = checkPairAndFollowers(playerCards);
-                                            // console.info('isWinner => ', isWinner);
+                                    /////////////////////////////////////////////////////////////////
 
-                                            // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
-                                            console.log('DIS throwCard => ', throwCard);
-                                            console.log('DIS Isdecalre => ', Isdecalre);
 
-                                            if(Isdecalre){
-                                                console.log(tableInfo.gamePlayType)
-                                                switch (tableInfo.gamePlayType) {
-                                                    case CONST.GAME_TYPE.POINT_RUMMY:
-                                                        await gamePlayActions.declare({cardName:throwCard}, {seatIndex:playerIndex,isbot:true,tbid:tableInfo._id.toString()});
-                                                        break;
-                                    
-                                                    case CONST.GAME_TYPE.POOL_RUMMY:
-                                                        await poolGamePlayActions.declare({cardName:throwCard}, {seatIndex:playerIndex,isbot:true,tbid:tableInfo._id.toString()});
-                                                        break;
-                                    
-                                                    case CONST.GAME_TYPE.DEAL_RUMMY:
-                                                        await dealGamePlayActions.declare({cardName:throwCard}, {seatIndex:playerIndex,isbot:true,tbid:tableInfo._id.toString()});
-                                                        break;
-                                                    }
 
-                                            }else{
-                                                let droppedCard = throwCard//requestData.cardName;
-                                                let playerInfo = tableInfo.playerInfo[playerIndex];
-                                                let playersCards = playerInfo.cards;
+                                    let response = {
+                                        pickedCard: pickedCard,
+                                        playerId: playerId,
+                                        deck: deckType,
+                                        closedecklength: tableInfo.closeDeck.length,
+                                    }
 
-                                                const droppedCardIndex = playersCards.indexOf(droppedCard);
-                                                const disCard = playersCards[droppedCardIndex];
+                                    logger.info('Bot PIC card response  => ', response);
+                                    commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.PICK_CARD, response);
 
-                                                playerInfo.cards.splice(droppedCardIndex, 1);
+                                } else {
+                                    logger.info('Player not found with seatIndex: ', tableInfo.currentPlayerTurnIndex);
+                                }
+                            } else {
+                                logger.info('No players found in the table.');
+                            }
 
-                                                //remove picCard
-                                                playerInfo.pickedCard = '';
-                                                tableInfo.openDeck.push(disCard);
+                            //DiscCard Logic
+                            // let qu = {
+                            //     _id: MongoID(tableInfo._id.toString()),
+                            // }
+                            // tableInfo = await PlayingTables.findOne(qu).lean;
+                            logger.info("find before discard table info", tableInfo);
 
-                                                let updateData = {
-                                                    $set: {},
-                                                    $inc: {},
-                                                };
+                            /*
+                            let playerInfo = tableInfo.playerInfo[playerIndex];
+    
+                            // Bot Win Logic
+                            //Cancel the Scheduele job
+                            commandAcions.clearJob(tableInfo.jobId);
+    
+                            let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
+                            logger.info("ressss-->", ress);
+                            let updateData1 = {
+                                $set: {},
+                                $inc: {},
+                            };
+                            const upWh1 = {
+                                _id: MongoID(tableInfo._id.toString()),
+                                'playerInfo.seatIndex': Number(playerIndex),
+                            };
+                            updateData1.$set['playerInfo.$.gCard'] = ress;
+    
+                            tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
+                                new: true,
+                            });
+    
+                            let response = {
+                                playerId: playerId,
+                                disCard: pickedCard,
+                            };
+    
+                            const upWh2 = {
+                                _id: MongoID(tableInfo._id.toString()),
+                                'playerInfo.seatIndex': Number(playerIndex),
+                            };
+    
+                            const updateData2 = {
+                                $set: {
+                                    discardCard: pickedCard,
+                                },
+                            };
+    
+                            const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
+                                new: true,
+                            });
+                            logger.info('Declare tbl : ', tbl);
+    
+                            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
+    
+                            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
+    
+                            delete client.declare;
+    
+                            let roundTime = CONST.finishTimer;
+                            let tableId = tbl._id;
+                            let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
+                            let delay = commandAcions.AddTime(roundTime);
+    
+                            await commandAcions.setDelay(finishJobId, new Date(delay));
+    
+                            //update user game finish status
+                            let updateStatus = {
+                                $set: {},
+                                $inc: {},
+                            };
+                            updateStatus.$set['playerInfo.$.finished'] = true;
+    
+                            const qr = {
+                                _id: MongoID(tbl._id.toString()),
+                                'playerInfo.seatIndex': Number(playerIndex),
+                            };
+                            //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
+    
+                            const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
+                                new: true,
+                            });
+    
+                            logger.info('check status ==> and Table ', tabl);
+    
+                            await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
+                            //finish Bot win logic
+                */
+                            let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
+                            schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
+                                try {
+                                    logger.info("Bot DISCARD event call");
 
-                                                if (playerInfo.playerStatus === 'PLAYING') {
-                                                    updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                                                    updateData.$set['playerInfo.$.pickedCard'] = '';
-                                                    updateData.$set['openDeck'] = tableInfo.openDeck;
+                                    //cancel the Schedule
+                                    schedule.cancelJob(`table.tableId${tableInfo._id}`);
+                                    // logger.info("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
+                                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
+                                    let player = tableInfo.playerInfo[playerIndex];
+                                    logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
+                                    logger.info("DISCARD Player Cards", player.cards);
+
+                                    //Select Card for Discard
+                                    if (player) {
+                                        let playerCards = player.cards
+                                        logger.info("tableInfo ", tableInfo.wildCard)
+                                        mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
+                                            let throwCard = "";
+                                            let randomIndex = -1
+
+                                            logger.info("cardjson ", cardjson)
+                                            RemainCardTounusecardThrow(cardjson, async (RemainCard) => {
+
+
+                                                logger.info("RemainCard ", RemainCard)
+
+                                                // pureSeqs: MycardSet.pure,
+                                                // ImpureSeqs: unusedJoker.impureSequences,
+                                                // Teen: unusedJoker.Teen,
+                                                // possibilityCard1: possibiltyCard1,
+                                                // RemainCard: RemainCard
+
+                                                let Isdecalre = false;
+
+                                                // RemainCard  {
+                                                //     pureSeqs: [ 'S-11-0', 'S-12-0', 'S-13-0' ],
+                                                //     ImpureSeqs: [
+                                                //       'C-1-0', 'C-4-1',
+                                                //       'C-3-0', 'S-5-0',
+                                                //       'C-6-0', 'H-7-0',
+                                                //       'S-7-1', 'D-8-0',
+                                                //       'C-9-0', 'C-10-0'
+                                                //     ],
+                                                //     Teen: [],
+                                                //     possibilityCard1: [],
+                                                //     RemainCard: [ 'C-4-0' ]
+                                                //   }
+                                                if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length == 1
+                                                    && RemainCard.RemainCard != undefined && RemainCard.possibilityCard1.length == 0
+                                                    && RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length >= 1
+                                                ) {
+                                                    Isdecalre = true
                                                 }
 
-                                                //cancel Schedule job
-                                                commandAcions.clearJob(tableInfo.jobId);
+                                                if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length > 0) {
+                                                    logger.info("RemainCard  RemainCard  ", RemainCard.RemainCard)
+                                                    RemainCard.RemainCard.sort((e, f) => {
+                                                        return parseInt(f.split("-")[1]) - parseInt(e.split("-")[1])
+                                                    })
+                                                    //randomIndex = Math.floor(Math.random() * RemainCard.RemainCard.length);
+                                                    throwCard = RemainCard.RemainCard[0];
 
-                                                const upWh = {
-                                                    _id: MongoID(tableInfo._id.toString()),
-                                                    'playerInfo.seatIndex': Number(playerIndex),
-                                                };
+                                                } else if (RemainCard.possibilityCard1 != undefined && RemainCard.possibilityCard1.length > 0) {
+                                                    logger.info("RemainCard  possibilityCard1  ", RemainCard.possibilityCard1)
 
-                                                const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                                                    new: true,
-                                                });
+                                                    RemainCard.possibilityCard1 = _.flatten(RemainCard.possibilityCard1)
 
-                                                logger.info("final discard table =>", tb);
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.possibilityCard1.length);
+                                                    throwCard = RemainCard.possibilityCard1[randomIndex];
 
-                                                let responsee = {
-                                                    playerId: playerInfo._id,
-                                                    disCard: disCard,
-                                                };
+                                                } else if (RemainCard.Teen != undefined && RemainCard.Teen.length > 0) {
+                                                    logger.info("Teen  sequestion  ")
 
 
-                                                commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.Teen[0].length);
+                                                    throwCard = RemainCard.Teen[randomIndex];
+                                                } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0) {
+                                                    logger.info("ImpureSeqs  sequestion  ")
 
-                                                
+
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.ImpureSeqs[0].length);
+                                                    throwCard = RemainCard.ImpureSeqs[randomIndex];
+                                                } else if (RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length > 0) {
+
+                                                    logger.info("pureSeqs  sequestion  ")
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.pureSeqs[0].length);
+                                                    throwCard = RemainCard.pureSeqs[randomIndex];
+                                                } else {
+                                                    logger.info("else :::::::::::::::::: ")
+                                                    randomIndex = Math.floor(Math.random() * playerCards.length);
+                                                    throwCard = playerCards[randomIndex];
+                                                }
+                                                logger.info("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
+                                                // let selectDiscardCard = convertCardPairAndFollowers(playerCards);
+
+                                                // logger.info('selectDiscardCard => ', selectDiscardCard);
+                                                // logger.info('select Discard followers Card => ', selectDiscardCard.followers + ' select Discard followers Card => ' + selectDiscardCard.pair);
+
+                                                // const isWinner = checkPairAndFollowers(playerCards);
+                                                // console.info('isWinner => ', isWinner);
+
+                                                // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
+                                                logger.info('DIS throwCard => ', throwCard);
+                                                logger.info('DIS Isdecalre => ', Isdecalre);
+
+                                                if (Isdecalre) {
+                                                    logger.info(tableInfo.gamePlayType)
+                                                    switch (tableInfo.gamePlayType) {
+                                                        case CONST.GAME_TYPE.POINT_RUMMY:
+                                                            await gamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                            break;
+
+                                                        case CONST.GAME_TYPE.POOL_RUMMY:
+                                                            await poolGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                            break;
+
+                                                        case CONST.GAME_TYPE.DEAL_RUMMY:
+                                                            await dealGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                            break;
+                                                    }
+
+                                                } else {
+                                                    let droppedCard = throwCard//requestData.cardName;
+                                                    let playerInfo = tableInfo.playerInfo[playerIndex];
+                                                    let playersCards = playerInfo.cards;
+
+                                                    const droppedCardIndex = playersCards.indexOf(droppedCard);
+                                                    const disCard = playersCards[droppedCardIndex];
+
+                                                    playerInfo.cards.splice(droppedCardIndex, 1);
+
+                                                    //remove picCard
+                                                    playerInfo.pickedCard = '';
+                                                    tableInfo.openDeck.push(disCard);
+
+                                                    let updateData = {
+                                                        $set: {},
+                                                        $inc: {},
+                                                    };
+
+                                                    if (playerInfo.playerStatus === 'PLAYING') {
+                                                        updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
+                                                        updateData.$set['playerInfo.$.pickedCard'] = '';
+                                                        updateData.$set['openDeck'] = tableInfo.openDeck;
+                                                    }
+
+                                                    //cancel Schedule job
+                                                    commandAcions.clearJob(tableInfo.jobId);
+
+                                                    const upWh = {
+                                                        _id: MongoID(tableInfo._id.toString()),
+                                                        'playerInfo.seatIndex': Number(playerIndex),
+                                                    };
+
+                                                    const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+                                                        new: true,
+                                                    });
+
+                                                    logger.info("final discard table =>", tb);
+
+                                                    let responsee = {
+                                                        playerId: playerInfo._id,
+                                                        disCard: disCard,
+                                                    };
+
+
+                                                    commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+
+
                                                     let re = await roundStartActions.nextUserTurnstart(tb);
-                                            }
+                                                }
+                                            })
                                         })
-                                    })
-                                } else {
-                                    logger.info('<= Player Not Found => ');
+                                    } else {
+                                        logger.info('<= Player Not Found => ');
 
+                                    }
+                                } catch (error) {
+                                    logger.error("Discard or Declare event of BOT", error);
                                 }
-                            } catch (error) {
-                                logger.error("Discard or Declare event of BOT", error);
-                            }
-                        })
+                            })
 
+                        })
                     })
-                })
-            }else {
+            } else {
                 logger.info('11111Player not found with seatIndex: ', tableInfo.currentPlayerTurnIndex);
             }
-        }else {
+        } else {
             logger.info('22222Player not found with seatIndex: ', tableInfo.currentPlayerTurnIndex);
         }
     } catch (error) {
@@ -777,40 +777,40 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
 }
 
-PickCardcloseDeck_or_open_deck = (cards,wildCard,opendeckcard,closecard,callback) => {
+PickCardcloseDeck_or_open_deck = (cards, wildCard, opendeckcard, closecard, callback) => {
     let playerCards = cards
-    console.log("tableInfo ", wildCard)
-    console.log("opendeckcard ", opendeckcard)
-    console.log("closecard ", closecard)
+    logger.info("tableInfo ", wildCard)
+    logger.info("opendeckcard ", opendeckcard)
+    logger.info("closecard ", closecard)
 
 
-    if(opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J"){
+    if (opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J") {
         return callback("open");
     }
 
-    if(closecard.split("-")[1] == wildCard.split("-")[1] || closecard.split("-")[0] == "J"){
+    if (closecard.split("-")[1] == wildCard.split("-")[1] || closecard.split("-")[0] == "J") {
         return callback("close");
     }
 
-    OpenDeckcardCheckUseOrnot(cards.slice(0,cards.length),wildCard,opendeckcard,(type)=>{
+    OpenDeckcardCheckUseOrnot(cards.slice(0, cards.length), wildCard, opendeckcard, (type) => {
         return callback(type)
-    })  
+    })
 
-            
+
 }
 
-OpenDeckcardCheckUseOrnot = (cards,wildCard,opendeckcard,callback) =>{
+OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
     cards.push(opendeckcard)
 
     mycardGroup(cards, parseInt(wildCard.split("-")[1]), async (cardjson) => {
- 
 
-        console.log("cardjson ", cardjson)
+
+        logger.info("cardjson ", cardjson)
         RemainCardTounusecardThrow(cardjson, async (RemainCard) => {
 
 
-            console.log("OpenDeckcardCheckUseOrnot RemainCard", RemainCard)
-            console.log("OpenDeckcardCheckUseOrnot opendeckcard", opendeckcard)
+            logger.info("OpenDeckcardCheckUseOrnot RemainCard", RemainCard)
+            logger.info("OpenDeckcardCheckUseOrnot opendeckcard", opendeckcard)
 
 
             // pureSeqs: MycardSet.pure,
@@ -821,12 +821,12 @@ OpenDeckcardCheckUseOrnot = (cards,wildCard,opendeckcard,callback) =>{
 
 
             if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length > 0 && RemainCard.RemainCard.indexOf(opendeckcard) != -1) {
-                    return callback("close");
+                return callback("close");
             } else if (RemainCard.possibilityCard1 != undefined && RemainCard.possibilityCard1.length > 0 && RemainCard.possibilityCard1.indexOf(opendeckcard) != -1) {
-                    return callback("open");
+                return callback("open");
             } else if (RemainCard.Teen != undefined && RemainCard.Teen.length > 0 && RemainCard.Teen.indexOf(opendeckcard) != -1) {
                 return callback("open");
-            } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0 && RemainCard.ImpureSeqs.indexOf(opendeckcard) != -1 ) {
+            } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0 && RemainCard.ImpureSeqs.indexOf(opendeckcard) != -1) {
                 return callback("open");
             } else if (RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length > 0 && RemainCard.pureSeqs.indexOf(opendeckcard) != -1) {
 
@@ -834,7 +834,7 @@ OpenDeckcardCheckUseOrnot = (cards,wildCard,opendeckcard,callback) =>{
             } else {
                 return callback("close");
             }
-            
+
         })
     })
 }
@@ -872,26 +872,26 @@ const checkCardMatched = (card, checkCard) => {
         cardType.push(wordsC[0]);
         checkCardNumber.push(parseInt(wordsC[1]));
 
-        console.log("checkFollowersSequence Cards", card);
-        console.log("check Card Number Card--->", checkCardNumber);
-        console.log("cardNumber Value==>", cardNumber);
+        logger.info("checkFollowersSequence Cards", card);
+        logger.info("check Card Number Card--->", checkCardNumber);
+        logger.info("cardNumber Value==>", cardNumber);
 
         // check card suit
         for (let i = 0; i < cardNumber.length; i++) {
-            // console.log("Card check", cardNumber[i] + "|||" + checkCardNumber);
+            // logger.info("Card check", cardNumber[i] + "|||" + checkCardNumber);
             if (checkCardNumber[0] === cardNumber[i]) {
-                console.log("Card Matched ", cardNumber[i] + "|*****************|" + checkCardNumber);
+                logger.info("Card Matched ", cardNumber[i] + "|*****************|" + checkCardNumber);
                 status = true;
-                console.log("<===== Card Matched ======>");
+                logger.info("<===== Card Matched ======>");
             }
 
         }
 
         if (status == true) {
-            console.log("Card Matched or 1 Difference");
+            logger.info("Card Matched or 1 Difference");
         }
         else {
-            console.log("Card Not Matched")
+            logger.info("Card Not Matched")
         }
         return status;
 
@@ -911,14 +911,14 @@ const checkCardFoundFollower = (card, checkCard) => {
 
         for (i = 0; i < card.length; i++) {
             const words = card[i].split('-');
-            //console.log(words);
+            //logger.info(words);
             cardType.push(words[0]);
-            //console.log("String Value==>", cardType);
+            //logger.info("String Value==>", cardType);
             cardNumber.push(parseInt(words[1]));
-            //console.log("Integer Value==>",cardNumber);
+            //logger.info("Integer Value==>",cardNumber);
         }
 
-        console.log("checkFollowersSequence Cards", card);
+        logger.info("checkFollowersSequence Cards", card);
 
         if (status == false) {
             for (let i = 0; i < cardNumber.length - 1; i++) {
@@ -932,10 +932,10 @@ const checkCardFoundFollower = (card, checkCard) => {
 
         }
         if (status == true) {
-            console.log("Followers Ready")
+            logger.info("Followers Ready")
         }
         else {
-            console.log("Followers NOT Ready")
+            logger.info("Followers NOT Ready")
         }
         return status;
     } catch (error) {
@@ -957,13 +957,13 @@ const convertCardPairAndFollowers = (cards) => {
 
         for (i = 0; i < cards.length; i++) {
             const words = cards[i].split('-');
-            //console.log(words);
+            //logger.info(words);
             cardType.push(words[0]);
-            //console.log("String Value==>", cardType);
+            //logger.info("String Value==>", cardType);
             cardNumber.push(parseInt(words[1]));
-            //console.log("Integer Value==>",cardNumber);
+            //logger.info("Integer Value==>",cardNumber);
         }
-        console.log("checkFollowersSequence Cards", cards);
+        logger.info("checkFollowersSequence Cards", cards);
 
         dwd = dwd.concat(cardNumber)
         dwd.sort(function (a, b) { return a - b });
@@ -1015,13 +1015,13 @@ const checkPairAndFollowers = (card) => {
 
     for (i = 0; i < card.length; i++) {
         const words = card[i].split('-');
-        //console.log(words);
+        //logger.info(words);
         cardType.push(words[0]);
-        //console.log("String Value==>", cardType);
+        //logger.info("String Value==>", cardType);
         cardNumber.push(parseInt(words[1]));
-        //console.log("Integer Value==>",cardNumber);
+        //logger.info("Integer Value==>",cardNumber);
     }
-    console.log("checkFollowersSequence Cards", card);
+    logger.info("checkFollowersSequence Cards", card);
 
     dwd = dwd.concat(cardNumber)
     dwd.sort(function (a, b) { return a - b });
@@ -1075,14 +1075,14 @@ const checkPairAndFollowers = (card) => {
 
     for (let i = 0; i < pair.length - 1; i++) {
         let dif = pair[i] - pair[i + 1];
-        // console.log("dif =>", dif)
+        // logger.info("dif =>", dif)
         if (dif == 0) {
-            // console.log("Check Seqence Value Of True => " + dif)
+            // logger.info("Check Seqence Value Of True => " + dif)
             status = true;
         }
         else {
             // allCards = [...gcard.impure, ...gcard.set, ...gcard.dwd].flat(Infinity);
-            // console.log("Check Seqence Value Of False=>" + dif)
+            // logger.info("Check Seqence Value Of False=>" + dif)
             status = false;
             break;
         }
@@ -1096,7 +1096,7 @@ const checkPairAndFollowers = (card) => {
                     followers[i] = followers[i] + 10
                 }
             }
-            console.log("after adding 10+ -->");
+            logger.info("after adding 10+ -->");
 
             for (let i = 0; i < followers.length - 1; i++) {
 
@@ -1122,10 +1122,10 @@ const checkPairAndFollowers = (card) => {
     }
 
     if (status) {
-        console.log("Winner Ready")
+        logger.info("Winner Ready")
     }
     else {
-        console.log("Winner NOT Ready")
+        logger.info("Winner NOT Ready")
     }
     return {
         ...convertCardPairAndFollowers(card),
@@ -1277,10 +1277,10 @@ const checkWinCard = (deck, wildCard) => {
 
 const findIndexesTeen = (cards, joker) => {
     let cardCount = {};
-    console.log("CARDS :::::::::", cards)
+    logger.info("CARDS :::::::::", cards)
 
     let jokers = cards.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker);
-    console.log("jokers.length", jokers)
+    logger.info("jokers.length", jokers)
     cards = _.difference(cards, jokers)
 
     for (const card of cards) {
@@ -1291,17 +1291,17 @@ const findIndexesTeen = (cards, joker) => {
             cardCount[`0${index}`] = [card];
         }
     }
-    console.log("cardCount *-*-*-*-* ", cardCount)
+    logger.info("cardCount *-*-*-*-* ", cardCount)
 
     let sortedArray = Object.entries(cardCount);
     sortedArray.sort((a, b) => b[1].length - a[1].length);
     // let sortedObject = {};
     for (let [key, value] of sortedArray) {
-        // console.log(key, " ", value)
+        // logger.info(key, " ", value)
         cardCount[key] = value;
     }
 
-    // console.log("sortedObject 555555555555555555555555555555555555555", cardCount)
+    // logger.info("sortedObject 555555555555555555555555555555555555555", cardCount)
 
 
     if (jokers.length > 0) {
@@ -1321,13 +1321,13 @@ const findIndexesTeen = (cards, joker) => {
     }
     let repeatedIndexes = Object.keys(cardCount).filter(index => cardCount[index].length >= 3);
 
-    // console.log(" repeat++++++++++edIndexes ........... ", repeatedIndexes)
+    // logger.info(" repeat++++++++++edIndexes ........... ", repeatedIndexes)
 
 
     if (repeatedIndexes.length > 0) {
         repeatedIndexes = repeatedIndexes.map(index => cardCount[index]);
     }
-    // console.log(" repeat edIndexes ........... ", repeatedIndexes)
+    // logger.info(" repeat edIndexes ........... ", repeatedIndexes)
     return repeatedIndexes;
 }
 
@@ -1346,7 +1346,7 @@ const findPureSequences = (cards) => {
         return rankA - rankB; // Then by rank
     });
 
-    // console.log("CARDS :::::", cards)
+    // logger.info("CARDS :::::", cards)
     let pureSequences = [];
     let currentSequence = [];
     // Iterate through the sorted cards
@@ -1355,7 +1355,7 @@ const findPureSequences = (cards) => {
         const currentSuit = currentCard.split('-')[0];
         const currentRank = parseInt(currentCard.split('-')[1]);
 
-        // console.log("SUIT ", currentSuit, "+++", currentRank, "[][][][][][][]", currentSequence[currentSequence.length - 1])
+        // logger.info("SUIT ", currentSuit, "+++", currentRank, "[][][][][][][]", currentSequence[currentSequence.length - 1])
         // If current card has the same suit as the previous one and is consecutive in rank
         if (currentSequence.length === 0 || currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit &&
             (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
@@ -1367,17 +1367,17 @@ const findPureSequences = (cards) => {
             }
             currentSequence = [currentCard];
         }
-        // console.log("currentSequence /*/*", currentSequence)
+        // logger.info("currentSequence /*/*", currentSequence)
     }
-    // console.log("currentSequence ***********************************", currentSequence)
+    // logger.info("currentSequence ***********************************", currentSequence)
     // Check the last sequence
     if (currentSequence.length >= 2) {
         pureSequences.push(currentSequence);
     }
     let remainCard = _.difference(cards, _.flatten(pureSequences))
-    // console.log("remainCard", remainCard);
+    // logger.info("remainCard", remainCard);
     let getAce = remainCard.filter(item => parseInt(item.split("-")[1]) == 1 && item.split("-")[0] != "J")
-    // console.log("GET ACE ===== ?", getAce)
+    // logger.info("GET ACE ===== ?", getAce)
 
 
     for (let i = 0; i < getAce.length; i++) {
@@ -1394,7 +1394,7 @@ const findPureSequences = (cards) => {
 
     pureSequences = pureSequences.filter(subArray => subArray.length >= 3);
 
-    // console.log("pureSequences =====", pureSequences)
+    // logger.info("pureSequences =====", pureSequences)
     return pureSequences;
 }
 
@@ -1411,18 +1411,19 @@ const findImpureSequences = (cards, joker) => {
         return suitA.localeCompare(suitB); // Then by suit
     });
 
-    // console.log("AFTER SORTING CARD", cards)
+    // logger.info("AFTER SORTING CARD", cards)
     let impureSequences = [];
 
 
     let currentSequence = [];
     // Iterate through the sorted cards
     let jokers = cards.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker);
-    // console.log("jokers.length",jokers)
+    // logger.info("jokers.length",jokers)
 
     cards = _.difference(cards, jokers)
     for (let i = 0; i < cards.length; i++) {
         const currentCard = cards[i];
+        const currentSuit = currentCard.split('-')[0];
         const currentRank = parseInt(currentCard.split('-')[1]);
 
         let InCurrentSequenceJoker = currentSequence.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker).length == 1
@@ -1430,20 +1431,20 @@ const findImpureSequences = (cards, joker) => {
         if (currentSequence.length === 0) {
             currentSequence.push(currentCard);
 
-        } else if ((parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
+        } else if (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
             currentSequence.push(currentCard);
-        } else if ((jokers.length > 0 && !InCurrentSequenceJoker && (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 2))) {
-            // console.log("HERE +++++++++++++++++++",cards[i])
+        } else if ((jokers.length > 0 && !InCurrentSequenceJoker && (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 2))) {
+            // logger.info("HERE +++++++++++++++++++",cards[i])
             // let result = currentSequence.some(element => element.startsWith("J") || element.split('-')[1] === joker);
             // if (!result) {
 
             currentSequence.push(jokers[0]);
-            // console.log("INDEX 333333333333", jokers[0])
+            // logger.info("INDEX 333333333333", jokers[0])
             jokers.splice(jokers.indexOf(jokers[0]), 1);
-            // console.log("Jokers ", jokers)
+            // logger.info("Jokers ", jokers)
             // }
             currentSequence.push(currentCard)
-            // console.log("currentSequence 9888888888889989898989898",currentSequence);
+            // logger.info("currentSequence 9888888888889989898989898",currentSequence);
 
         } else {
             // If the sequence breaks and it's not a pure sequence, add it to impure sequences
@@ -1452,14 +1453,14 @@ const findImpureSequences = (cards, joker) => {
             }
             currentSequence = [currentCard];
         }
-        // console.log("currentSequence :::: ", currentSequence)
+        // logger.info("currentSequence :::: ", currentSequence)
     }
-    // console.log("JOKERSSSS", jokers)
+    // logger.info("JOKERSSSS", jokers)
     // Check the last sequence
     if (currentSequence.length >= 2) {
         impureSequences.push(currentSequence);
     }
-    // console.log("impureSequences",impureSequences)
+    // logger.info("impureSequences",impureSequences)
     // Iterate through impure sequences to add jokers if available
     for (let i = 0; i < impureSequences.length; i++) {
         const sequence = impureSequences[i];
@@ -1471,36 +1472,36 @@ const findImpureSequences = (cards, joker) => {
                 break;
             }
         }
-        // console.log("sequence",sequence)
+        // logger.info("sequence",sequence)
     }
-    // console.log("impureSequences 786",impureSequences)
+    // logger.info("impureSequences 786",impureSequences)
     impureSequences = impureSequences.filter(subArray => subArray.length >= 3);
 
     return impureSequences;
 }
 
 const mycardGroup = async (myCard, wildcard, cb) => {
-    console.log("Pure sequences:");
+    logger.info("Pure sequences:");
     const pureSeqs = findPureSequences(myCard);
-    console.log("Pure sequences:", pureSeqs);
+    logger.info("Pure sequences:", pureSeqs);
 
     let RemainCard = _.difference(myCard, _.flatten(pureSeqs))
-    console.log("RemainCard ==============> ", RemainCard)
+    logger.info("RemainCard ==============> ", RemainCard)
 
     // Example usage:
     const impureSequences = findImpureSequences(RemainCard, wildcard);
-    console.log("impureSequences *-*-*-*-*-*-*", impureSequences)
+    logger.info("impureSequences *-*-*-*-*-*-*", impureSequences)
 
     RemainCard = _.difference(RemainCard, _.flatten(impureSequences))
-    console.log("RemainCard", RemainCard);
+    logger.info("RemainCard", RemainCard);
 
     const Teen = findIndexesTeen(RemainCard, wildcard);
-    console.log("TEEN", Teen);
+    logger.info("TEEN", Teen);
     RemainCard = _.difference(RemainCard, _.flatten(Teen))
-    console.log("RemainCard", RemainCard);
+    logger.info("RemainCard", RemainCard);
 
-    console.log("*********************************************")
-    console.log("MYCARD **** ", myCard)
+    logger.info("*********************************************")
+    logger.info("MYCARD **** ", myCard)
     let JSON = {
         pure: pureSeqs,
         impure: impureSequences,
@@ -1508,8 +1509,8 @@ const mycardGroup = async (myCard, wildcard, cb) => {
         dwd: RemainCard
     }
 
-    console.log("JSON +++ ", JSON)
-    console.log("*********************************************")
+    logger.info("JSON +++ ", JSON)
+    logger.info("*********************************************")
 
     return cb(JSON)
 
@@ -1517,12 +1518,12 @@ const mycardGroup = async (myCard, wildcard, cb) => {
 
 const RemainCardTounusecardThrow = async (MycardSet, callback) => {
 
-    console.log("MycardSet ", MycardSet)
+    logger.info("MycardSet ", MycardSet)
 
     UnusedJoker(MycardSet.dwd, 13, MycardSet.impure, MycardSet.set, (unusedJokercards) => {
 
 
-        console.log("unusedJoker *-*-*-*-*-*-* ", unusedJokercards)
+        logger.info("unusedJoker *-*-*-*-*-*-* ", unusedJokercards)
 
         possibilityCard(unusedJokercards.RemainCard, (possibiltyCard1) => {
 
@@ -1530,9 +1531,9 @@ const RemainCardTounusecardThrow = async (MycardSet, callback) => {
 
             RemainCard = _.difference(unusedJokercards.RemainCard, _.flatten(possibiltyCard1))
 
-            console.log("unusedJokercards.impureSequences ", unusedJokercards)
-            console.log("unusedJokercards.impureSequences ", unusedJokercards.impureSequences)
-            console.log("unusedJokercards.impureSequences ", unusedJokercards.Teen)
+            logger.info("unusedJokercards.impureSequences ", unusedJokercards)
+            logger.info("unusedJokercards.impureSequences ", unusedJokercards.impureSequences)
+            logger.info("unusedJokercards.impureSequences ", unusedJokercards.Teen)
 
             let JSON = {
                 pureSeqs: _.flatten(MycardSet.pure),
@@ -1542,7 +1543,7 @@ const RemainCardTounusecardThrow = async (MycardSet, callback) => {
                 RemainCard: _.flatten(RemainCard)
             }
 
-            console.log("JSON :::::::::::::::::", JSON)
+            logger.info("JSON :::::::::::::::::", JSON)
 
             return callback(JSON)
         })
@@ -1551,7 +1552,7 @@ const RemainCardTounusecardThrow = async (MycardSet, callback) => {
 
 const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) => {
     let remainjoker = RemainCard.filter(item => (item.split("-")[0] == "J") || (parseInt(item.split("-")[1]) === joker))
-    // console.log("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
+    // logger.info("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
 
     if (remainjoker.length > 0 && (impureSequences.length > 0 || Teen.length > 0)) {
 
@@ -1564,7 +1565,7 @@ const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) =
                         impureSequences[i].push(remainjoker[0]);
                         RemainCard.splice(RemainCard.indexOf(remainjoker[0]), 1)
                         remainjoker.splice(remainjoker.indexOf(remainjoker[0]), 1);
-                        
+
                         if (remainjoker.length == 0) {
                             break;
                         }
@@ -1579,7 +1580,7 @@ const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) =
                         Teen[i].push(remainjoker[0]);
                         RemainCard.splice(RemainCard.indexOf(remainjoker[0]), 1)
                         remainjoker.splice(remainjoker.indexOf(remainjoker[0]), 1);
-                        
+
                         if (remainjoker.length == 0) {
                             break;
                         }
@@ -1596,7 +1597,7 @@ const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) =
 }
 
 const possibilityCard = async (cards, cb) => {
-    console.log("possibilityCard cards ", cards)
+    logger.info("possibilityCard cards ", cards)
 
     cards.sort((a, b) => {
         const suitA = a.split('-')[0];
@@ -1609,7 +1610,7 @@ const possibilityCard = async (cards, cb) => {
         return suitA.localeCompare(suitB); // Then by suit
     });
 
-    // console.log("AFTER SORTING CARD 8585", cards)
+    // logger.info("AFTER SORTING CARD 8585", cards)
 
     let impureSequences = [];
     let currentSequence = [];
@@ -1629,10 +1630,10 @@ const possibilityCard = async (cards, cb) => {
     if (repeatedIndexes.length > 0) {
         repeatedIndexes = repeatedIndexes.map(index => cardCount[index]);
     }
-    // console.log("repeatedIndexes  *********************** 10", repeatedIndexes);
+    // logger.info("repeatedIndexes  *********************** 10", repeatedIndexes);
 
     let cards2 = _.difference(cards, _.flatten(repeatedIndexes))
-    // console.log("CARDS 222222222222222222222222222222 ", cards2)
+    // logger.info("CARDS 222222222222222222222222222222 ", cards2)
 
     for (let i = 0; i < cards2.length; i++) {
         const currentCard = cards2[i];
@@ -1650,9 +1651,9 @@ const possibilityCard = async (cards, cb) => {
     if (currentSequence.length >= 2) {
         impureSequences.push(currentSequence);
     }
-    // console.log("88888888888888888888888888888888888888888", impureSequences)
+    // logger.info("88888888888888888888888888888888888888888", impureSequences)
     let cards1 = _.difference(cards2, _.flatten(impureSequences))
-    // console.log("cards 11111111111", cards1)
+    // logger.info("cards 11111111111", cards1)
 
     let currentSequence2 = []
     for (let i = 0; i < cards1.length; i++) {
@@ -1672,23 +1673,23 @@ const possibilityCard = async (cards, cb) => {
     if (currentSequence2.length >= 2) {
         impureSequences.push(currentSequence2);
     }
-    // console.log("999999999999999999999999999999999999999999999999", impureSequences)
+    // logger.info("999999999999999999999999999999999999999999999999", impureSequences)
 
-    // console.log("impureseq 858585", impureSequences)
-
-
+    // logger.info("impureseq 858585", impureSequences)
 
 
 
 
-    // console.log(" repeatedIndexes :::::::::::::::::: ", repeatedIndexes)
+
+
+    // logger.info(" repeatedIndexes :::::::::::::::::: ", repeatedIndexes)
     if (repeatedIndexes.length > 0) {
         repeatedIndexes.forEach(element => {
             impureSequences.push(element);
         });
     }
 
-    // console.log("impureSequences :::::::::::: ", impureSequences)
+    // logger.info("impureSequences :::::::::::: ", impureSequences)
     return cb(impureSequences)
 }
 
