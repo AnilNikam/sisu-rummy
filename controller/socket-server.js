@@ -22,6 +22,8 @@ const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
 const { checkReferral } = require('../helper/signups/appStart');
 
+const walletActions = require('../helper/common-function/walletTrackTransaction');
+
 const myIo = {};
 const users = new Map();
 const socketsers = new Map();
@@ -567,6 +569,15 @@ myIo.init = function (server) {
               gamePlayActions.getWalletDetails(payload.data.playerId, socket);
             } catch (error) {
               logger.info('socketServer.js PLAYER_BALANCE error => ', error);
+            }
+            break;
+          }
+
+          case CONST.MYWALLET: {
+            try {
+              walletActions.getWalletDetailsNew(payload.data.playerId, socket);
+            } catch (error) {
+              logger.info('socketServer.js MYWALLET error => ', error);
             }
             break;
           }

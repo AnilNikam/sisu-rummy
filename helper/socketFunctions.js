@@ -6,9 +6,7 @@ const { createClient } = require('redis');
 
 module.exports.sendEvent = (socket, eventName, data = {}, flag, msg, rest = {}) => {
   try {
-    console.log("Send L::::::::::::::::::::::::::",eventName)
-    console.log("Send L::::::::::::::::::::::::::",data)
-
+ 
     // eslint-disable-next-line no-param-reassign
     flag = typeof flag === 'undefined' ? true : false;
     // eslint-disable-next-line no-param-reassign

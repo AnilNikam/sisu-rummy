@@ -122,7 +122,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
     uniqueId: '',
     loginType: data.loginType,
     avatar: data.avatar,
-    chips: 20000,
+    chips: 0,
     winningChips: 0,
     flags: {
       isOnline: 1, //is Online

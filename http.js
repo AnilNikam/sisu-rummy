@@ -12,7 +12,7 @@ const path = require('path');
 const cors = require('cors');
 
 // fs.unlinkSync("./log_file.log");
-
+GAMELOGICCONFIG = module.exports = require('./gamelogic.json')
 require('./database/mongoDbConnection');
 
 const modelsPath = './models';

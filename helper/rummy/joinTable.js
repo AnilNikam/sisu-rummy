@@ -35,7 +35,7 @@ module.exports.joinTable = async (requestData, socket) => {
     let userInfo = await Users.findOne(condition, {}).lean();
 
     let gameChips = requestData.entryFee * 80;
-
+    
     if (Number(userInfo.chips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,

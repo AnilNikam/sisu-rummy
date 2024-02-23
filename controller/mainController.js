@@ -798,6 +798,7 @@ async function sendOTP(payload) {
       },
     });
     console.log("response ", response)
+    
     res.status(200).json(response.data);
 
     if (payload.email) {

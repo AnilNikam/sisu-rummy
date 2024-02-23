@@ -49,7 +49,7 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
   }
 };
 
-
+//withdrawableChips 
 module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) => {
   let tbInfo = tblInfo;
   try {
@@ -67,7 +67,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
 
     let setInfo = {
       $inc: {
-        winningChips:-deductChips
+        withdrawableChips:deductChips
       },
     };
 
@@ -77,7 +77,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
     let tbl = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
     logger.info('\n Dedudct Wallet up Reps :::: ', tbl);
 
-    let totalRemaningAmount = Number(tbl.winningChips);
+    let totalRemaningAmount = Number(tbl.withdrawableChips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
     if (typeof tType !== 'undefined') {
@@ -89,6 +89,11 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
         transAmount: deductChips,
         chips: tbl.chips,
         winningChips: tbl.winningChips,
+        bonusChips:  tbl.bonusChips,
+        referralChips: tbl.referralChips, // referarl Chips
+        unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
+        lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
+        withdrawableChips: tbl.withdrawableChips,
         totalBucket: Number(totalRemaningAmount),
         gameId:  '',
         gameType:  '', //Game Type
@@ -173,8 +178,77 @@ module.exports.addWallet = async (id, addCoins, tType, t, tabInfo) => {
   }
 };
 
+//Winning Chips 
+module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, tabInfo) => {
+  try {
+    logger.info('\n add Wallet : call -->>>', id, addCoins, t);
+    const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
+    logger.info('Wh  =  ==  ==>', wh);
 
+    if (typeof wh === 'undefined' || typeof wh._id === 'undefined' || wh._id === null || typeof tType === 'undefined') {
+      return false;
+    }
+    const addedCoins = Number(addCoins.toFixed(2));
 
+    const userInfo = await GameUser.findOne(wh, {}).lean();
+    logger.info('Add Wallet userInfo ::=> ', userInfo);
+    if (userInfo === null) {
+      return false;
+    }
+
+    let setInfo = {
+      $inc: {
+        winningChips: addedCoins
+      },
+    };
+
+    logger.info('\n Add* Wallet setInfo :: ==>', setInfo);
+    logger.info('\n Add* Wallet addedCoins :: ==>', addedCoins);
+   
+    let tbl = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
+    logger.info('\n Add Wallet up Reps :::: ', tbl);
+
+    let totalRemaningAmount = Number(tbl.winningChips);
+    logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
+
+    if (typeof tType !== 'undefined') {
+      logger.info('\n AddWallet tType :: ', tType);
+
+      let walletTrack = {
+        // id: userInfo._id,
+        uniqueId: tbl.uniqueId,
+        userId: tbl._id,
+        transType: tType,
+        transTypeText: t,
+        transAmount: addedCoins,
+        chips: tbl.chips,
+        winningChips: tbl.winningChips,
+        bonusChips:  tbl.bonusChips,
+        referralChips: tbl.referralChips, // referarl Chips
+        unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
+        lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
+        withdrawableChips: tbl.withdrawableChips,
+        totalBucket: Number(totalRemaningAmount),
+        gameId: '',
+        gameType:  '', //Game Type
+        maxSeat:  0, //Maxumum Player.
+        betValue: 0,
+        tableId: '',
+      };
+      await this.trackUserWallet(walletTrack);
+    }
+    console.log("tbl.sckId ",tbl.sckId)
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, {chips:tbl.chips});
+
+    return totalRemaningAmount;
+  } catch (e) {
+    logger.error('walletTrackTransaction.js addWallet error =>', e);
+    return 0;
+  }
+};
+
+//Depotit Chips 
 module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
@@ -217,8 +291,83 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
         transType: tType,
         transTypeText: t,
         transAmount: addedCoins,
-        chips: userInfo.chips,
-        winningChips: userInfo.winningChips,
+        chips: tbl.chips,
+        winningChips: tbl.winningChips,
+        bonusChips:  tbl.bonusChips,
+        referralChips: tbl.referralChips, // referarl Chips
+        unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
+        lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
+        withdrawableChips: tbl.withdrawableChips,
+        totalBucket: Number(totalRemaningAmount),
+        gameId: '',
+        gameType:  '', //Game Type
+        maxSeat:  0, //Maxumum Player.
+        betValue: 0,
+        tableId: '',
+      };
+      await this.trackUserWallet(walletTrack);
+    }
+    console.log("tbl.sckId ",tbl.sckId)
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, {chips:tbl.chips});
+
+    return totalRemaningAmount;
+  } catch (e) {
+    logger.error('walletTrackTransaction.js addWallet error =>', e);
+    return 0;
+  }
+};
+
+//Sinup Bonus & Deposit Bonus 
+module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t) => {
+  try {
+    logger.info('\n add Wallet : call -->>>', id, addCoins, t);
+    const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
+    logger.info('Wh  =  ==  ==>', wh);
+
+    if (typeof wh === 'undefined' || typeof wh._id === 'undefined' || wh._id === null || typeof tType === 'undefined') {
+      return false;
+    }
+    const addedCoins = Number(addCoins.toFixed(2));
+
+    const userInfo = await GameUser.findOne(wh, {}).lean();
+    logger.info('Add Wallet userInfo ::=> ', userInfo);
+    if (userInfo === null) {
+      return false;
+    }
+
+    let setInfo = {
+      $inc: {
+        bonusChips: addedCoins
+      },
+    };
+
+    logger.info('\n Add* Wallet setInfo :: ==>', setInfo);
+    logger.info('\n Add* Wallet addedCoins :: ==>', addedCoins);
+   
+    let tbl = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
+    logger.info('\n Add Wallet up Reps :::: ', tbl);
+
+    let totalRemaningAmount = Number(tbl.chips);
+    logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
+
+    if (typeof tType !== 'undefined') {
+      logger.info('\n AddWallet tType :: ', tType);
+
+      let walletTrack = {
+        // id: userInfo._id,
+        uniqueId: tbl.uniqueId,
+        userId: tbl._id,
+        transType: tType,
+        transTypeText: t,
+        transAmount: addedCoins,
+        chips: tbl.chips,
+        winningChips: tbl.winningChips,
+        bonusChips:  tbl.bonusChips,
+        referralChips: tbl.referralChips, // referarl Chips
+        unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
+        lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
+        withdrawableChips: tbl.withdrawableChips,
         totalBucket: Number(totalRemaningAmount),
         gameId: '',
         gameType:  '', //Game Type
@@ -280,6 +429,39 @@ module.exports.getWalletDetails = async (obj, client) => {
     return response;
   } catch (e) {
     logger.error('walletTrackTransaction.js getWalletDetails error => ', e);
+    return false;
+  }
+};
+
+
+module.exports.getWalletDetailsNew = async (obj, client) => {
+  try {
+    logger.info('\n MYWALLET get Wallet Details ::', obj);
+
+    let wh = { _id: obj };
+
+    let walletDetails = await GameUser.findOne(wh, {}).lean();
+    logger.info('MYWALLET getWalletDetails walletDetails : ', walletDetails);
+
+    //"wb":WinningsBalance ||    "db": DepositBalance ||tw: TotalWinningBalance
+    let response;
+    if (walletDetails !== null) {
+      response = {
+        tb:(walletDetails.chips.toFixed(2) + walletDetails.winningChips.toFixed(2) + walletDetails.bonusChips.toFixed(2) + walletDetails.referralChips.toFixed(2) + walletDetails.withdrawableChips.toFixed(2) ) ,
+        mb: Number(walletDetails.chips.toFixed(2)),
+        sb_db:Number(walletDetails.bonusChips.toFixed(2)), 
+        wb: walletDetails.winningChips.toFixed(2),
+        wc: (walletDetails.withdrawableChips.toFixed(2)),
+      };
+      logger.info('get MYWALLET Wallet Details Response : ', response);
+      commandAcions.sendDirectEvent(client.id, CONST.MYWALLET, response);
+    } else {
+      logger.info('At MYWALLET walletTrackTransaction.js:182 getWalletDetails => ', JSON.stringify(obj));
+      commandAcions.sendDirectEvent(client.id, CONST.MYWALLET, {}, false, 'user data not found');
+    }
+    return response;
+  } catch (e) {
+    logger.error('MYWALLET walletTrackTransaction.js getWalletDetails error => ', e);
     return false;
   }
 };

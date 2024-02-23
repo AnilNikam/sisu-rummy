@@ -95,6 +95,8 @@ httpApp.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+GAMELOGICCONFIG = module.exports = require('./gamelogic.json')
+
 httpApp.use(express.static(path.join(__dirname, 'public')));
 httpApp.use('/reports', express.static(path.join(__dirname, 'reports')));
 

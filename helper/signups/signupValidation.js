@@ -11,6 +11,8 @@ const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
 const axios = require('axios');
 const commonHelper = require('../commonHelper');
+const walletActions = require('../../helper/common-function/walletTrackTransaction');
+
 const checkMobileNumber = async (requestData, socket) => {
   logger.info(' Signup validation Request Data ->', requestData);
   logger.info(' requestData.mobileNumber.length Data ->', requestData.mobileNumber.length);
@@ -222,6 +224,8 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
+        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
+
         await userSesssionSet(userData, socket);
 
         let response = await filterBeforeSendSPEvent(userData);
@@ -272,6 +276,9 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
+        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
+
+        
         await userSesssionSet(userData, socket);
 
         let response = await filterBeforeSendSPEvent(userData);

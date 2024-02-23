@@ -81,8 +81,9 @@ router.get('/login1222', async (req, res) => {
 
 
 router.get('/responce', async (req, res) => {
-  console.log("sdddddddddddddddddddddd",req)
+  
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req);
+  console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG.DEPOSIT_BONUS_PER)
   res.send("ok")
 });
 
@@ -104,6 +105,13 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
       if(PaymentIndata && PaymentIndata.userId && req.body.Status == "Success"){ 
         
         await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+
+        //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
+        if(Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000){
+          const depositbonus = ((Number(req.body.Amount) * 5)/100)
+
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+        }
       }else{
         console.log("PaymentIndata ",PaymentIndata)
         console.log("req.body Faild  ",req.body)
@@ -127,7 +135,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       console.log("PaymentOutdata ",PaymentOutdata)
       if(PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1){ 
         
-        await walletActions.deductWalletPayOut(PaymentOutdata.userId, Number(req.body.Data.Amount), 'Debit', 'PayOut');
+        await walletActions.deductWalletPayOut(PaymentOutdata.userId,-Number(req.body.Data.Amount), 'Debit', 'PayOut');
       }else{
         console.log("PaymentOutdata ",PaymentOutdata)
         console.log("req.body Faild  ",req.body)
