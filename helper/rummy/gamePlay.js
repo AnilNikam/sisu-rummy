@@ -17,9 +17,6 @@ const { getPlayingUserInRound } = require('../common-function/manageUserFunction
 const { pushPlayerScoreToPlayerScoreBoard } = require('../common-function/cardFunction');
 const { ifSocketDefine, shuffle } = require('../helperFunction');
 
-
-
-
 module.exports.pickCard = async (requestData, client) => {
   try {
     if (!ifSocketDefine(requestData, client, CONST.PICK_CARD)) {
@@ -54,6 +51,17 @@ module.exports.pickCard = async (requestData, client) => {
       commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "It's not your turn!");
       return false;
     }
+
+    //not picked a wild or joker card
+    let checkCardJoker = tableInfo.openDeck.pop()
+    const words = checkCardJoker.split('-');
+
+    if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) {
+      delete client.pickCard;
+      commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");
+      return false;
+    }
+
 
     let updateData = {
       $set: {},
@@ -243,8 +251,8 @@ module.exports.disCard = async (requestData, client) => {
 
 module.exports.cardGroup = async (requestData, client) => {
   try {
-    
-    console.log("cardGroup :::::::::::::::::::::::::::::::::",requestData)
+
+    console.log("cardGroup :::::::::::::::::::::::::::::::::", requestData)
 
     if (!ifSocketDefine(requestData, client, CONST.CARD_GROUP)) {
       return false;
@@ -300,7 +308,7 @@ module.exports.cardGroup = async (requestData, client) => {
 };
 /*
 isbot
-
+ 
 */
 module.exports.declare = async (requestData, client) => {
   try {
@@ -341,7 +349,7 @@ module.exports.declare = async (requestData, client) => {
 
     // eslint-disable-next-line no-unused-vars
     const playerInGame = await getPlayingUserInRound(tableInfo.playerInfo);
-    
+
     let droppedCard = requestData.cardName;
     let playerDetails = tableInfo.playerInfo[client.seatIndex];
     let playersCards = playerDetails.cards;
@@ -380,8 +388,8 @@ module.exports.declare = async (requestData, client) => {
 
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
-    console.log("playerInGame ",playerInGame)
-    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]),tb._id.toString())
+    console.log("playerInGame ", playerInGame)
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 
@@ -742,8 +750,8 @@ module.exports.playerDrop = async (requestData, client) => {
     // eslint-disable-next-line no-unused-vars
     const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
 
-    console.log("playerInGame ",playerInGame)
-    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]),client.tbid.toString())
+    console.log("playerInGame ", playerInGame)
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
 
 
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
