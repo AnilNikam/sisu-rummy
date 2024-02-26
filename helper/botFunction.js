@@ -630,6 +630,8 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                 if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length == 1
                                                     && RemainCard.RemainCard != undefined && RemainCard.possibilityCard1.length == 0
                                                     && RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length >= 1
+                                                    && RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length >= 1
+
                                                 ) {
                                                     Isdecalre = true
                                                 }
