@@ -531,9 +531,10 @@ module.exports.getWalletDetailsNew = async (obj, client) => {
 
     //"wb":WinningsBalance ||    "db": DepositBalance ||tw: TotalWinningBalance
     let response;
+    console.log(" walletDetails.bonusChips ",walletDetails)
     if (walletDetails !== null) {
       response = {
-        tb: (walletDetails.chips.toFixed(2) + walletDetails.winningChips.toFixed(2) + walletDetails.bonusChips.toFixed(2) + walletDetails.referralChips.toFixed(2) + walletDetails.withdrawableChips.toFixed(2)),
+        tb: Number(walletDetails.chips + walletDetails.winningChips + walletDetails.bonusChips + walletDetails.referralChips+ walletDetails.withdrawableChips).toFixed(2),
         mb: Number(walletDetails.chips.toFixed(2)),
         sb_db: Number(walletDetails.bonusChips.toFixed(2)),
         wb: walletDetails.winningChips.toFixed(2),
