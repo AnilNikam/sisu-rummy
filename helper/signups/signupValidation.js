@@ -452,6 +452,77 @@ const OKYCverifyRequest = async (requestBody, socket) => {
 };
 
 
+/**
+ * @description OKYCPanverifyRequest
+ * @param {Object} {playerId:"",pancard : "" ,Pancardname:"",pancardfrontimages:"",pancardbackimages:"" }
+ * @returns {Object}{ status:0/1, message: '', data: Response }
+ * 
+ *  pancard:{ type: String, default: '' },
+    pancardname:{ type: String, default: '' },
+    pancardverified:{ type: Boolean, default: false },
+    panInfo:{},
+    pancardfrontimages:{ type: String, default: '' },
+    pancardbackimages:{ type: String, default: '' },  
+
+ */
+const OKYCPanverifyRequest = async (requestBody, socket) => {
+  try {
+
+
+    var body = {
+      
+      "mode": "sync",
+      "data": {
+          "customer_pan_number": requestBody.pancard,
+          "pan_holder_name":requestBody.pancardname,
+          "consent": "Y", 
+          "consent_text": "I consent to this information being shared with zoop.one"
+      }
+    }
+
+    const response = await axios.post('https://test.zoop.one/api/v1/in/identity/pan/lite', body, {
+      'headers':  {
+        "app-id": "63b6927ed78829001d9aa71c",
+        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "org-id": "60800ca35ed0c7001cad2605",
+        "Content-Type": "application/json"
+      }
+    });
+    console.log("response.data ::::::::::::",response.data)
+    if (response.data.success) {
+      await otpAdharkyc.updateOne(
+        {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+        },
+        {
+          $set: {
+            pancardverified: true,
+            panInfo:response.data.result
+          },
+        },
+        {}
+      );
+
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
+      return false;
+    } else {
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: response.data.response_code, statusText: response.data.response_message });
+    }
+} catch (error) {
+ console.log('mainController.js OKYCRequest error=> ', error);
+ 
+  if (error.response)
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+    else {
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+
+    }
+
+}
+};
+
+
+
 module.exports = {
   checkMobileNumber,
   checkReferalOrCouponCode,
@@ -462,4 +533,5 @@ module.exports = {
   registerUser,
   OKYCRequest,
   OKYCverifyRequest,
+  OKYCPanverifyRequest
 };
