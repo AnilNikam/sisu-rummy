@@ -57,6 +57,15 @@ myIo.init = function (server) {
 
           case CONST.VERIFY_KYC_ADHARA_NUMBER: {
             try {
+              await signupActions.OKYCPanverifyRequest(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js CHECK_KYC_ADHARA_NUMBER Number User error => ', error);
+            }
+            break;
+          }
+
+          case CONST.VERIFY_KYC_PAN_CARD: {
+            try {
               await signupActions.OKYCverifyRequest(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js CHECK_KYC_ADHARA_NUMBER Number User error => ', error);
