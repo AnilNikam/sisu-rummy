@@ -63,7 +63,7 @@ myIo.init = function (server) {
             }
             break;
           }
-          
+
           case CONST.CHECK_MOBILE_NUMBER: {
             try {
               await signupActions.checkMobileNumber(payload.data, socket);
@@ -75,7 +75,7 @@ myIo.init = function (server) {
 
           case CONST.REGISTER_USER: {
             try {
-              console.log("payload.data ",payload.data)
+              console.log("payload.data ", payload.data)
               await registerUser(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js Register User Table error => ', error);
@@ -93,6 +93,7 @@ myIo.init = function (server) {
             break;
           }
 
+
           case CONST.VERIFY_OTP: {
             try {
               const result = await mainCtrl.verifyOTP(payload.data);
@@ -100,6 +101,8 @@ myIo.init = function (server) {
                 sendEvent(socket, CONST.VERIFY_OTP, result.data);
                 if (payload.data.otpType === 'VERIFY_NUMBER_FOR_LOGIN') {
                   await signupActions.userLogin(payload.data, socket);
+                } else if (payload.data.otpType === 'EDIT_MOBILE_NUMBER') {
+                  await signupActions.updateMobileNumber(payload.data, socket);
                 }
               } else {
                 sendEvent(socket, CONST.VERIFY_OTP, { verified: false });
@@ -646,8 +649,8 @@ myIo.init = function (server) {
           }
           case CONST.PAY_IN: {
             try {
-              console.log("PAY_IN ",payload.data)
-              await initiatePayment(payload.data,socket)
+              console.log("PAY_IN ", payload.data)
+              await initiatePayment(payload.data, socket)
             } catch (error) {
               logger.error("Error in pay in ->", error)
             }
@@ -656,8 +659,8 @@ myIo.init = function (server) {
 
           case CONST.CREATE_PAY_OUT: {
             try {
-             await PayOutTransfer(payload.data,socket)
-              
+              await PayOutTransfer(payload.data, socket)
+
             } catch (error) {
               logger.error("Error in pay out ->", error)
             }

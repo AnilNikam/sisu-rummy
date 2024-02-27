@@ -45,8 +45,16 @@ module.exports.getBetList = async (requestData, socket) => {
       },
     ]);
 
+
+    const parsedListInfo = listInfo.map(item => ({
+      _id: item._id,
+      entryFee: parseFloat(item.entryFee.toString()),
+      gamePlayType: item.gamePlayType,
+      maxSeat: item.maxSeat
+    }));
+
     let response = {
-      List: listInfo,
+      List: parsedListInfo,
     };
 
     socket.uid = requestData.playerId;

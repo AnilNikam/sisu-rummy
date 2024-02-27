@@ -7,7 +7,7 @@ const BetListSchema = new Schema(
   {
     gamePlayType: { type: String, required: true, default: 'pointrummy' },
     tableName: { type: String, default: '' },
-    entryFee: { type: Number },//bet
+    entryFee: { type: String },//bet
     commission: { type: Number, default: 10 },
     maxSeat: { type: Number, default: 6 },
     status: { type: String, default: 'Active' },

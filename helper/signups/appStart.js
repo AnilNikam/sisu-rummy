@@ -12,25 +12,25 @@ const { tryEach } = require('async');
 
 module.exports.appLunchDetails = async (requestData, client) => {
   try {
-
+    // logger.info("appLunchDetails =>", requestData);
     let { playerId /*mobileNumber, deviceId, loginType, email*/ } = requestData;
     let query = { _id: playerId.toString() };
-    let result = await GameUser.findOne(query, {});
+    let result = await GameUser.findOne(query, {}).lean();
+    // logger.info('Guest Final response result', result);
 
     if (result) {
-      await this.userSesssionSet(result, client);
+      //when redis set then uncomment the section
+      // await this.userSesssionSet(result, client);
 
       let response = await this.filterBeforeSendSPEvent(result);
+      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
 
-
-      
-      const dataUpdate = await GameUser.findOneAndUpdate({ _id: MongoID(playerId.toString()) }, {$set:{sckId:client.id}}, {
+      const dataUpdate = await GameUser.findOneAndUpdate({ _id: MongoID(playerId.toString()) }, { $set: { sckId: client.id } }, {
         new: true,
       });
-      console.log("dataUpdate ",dataUpdate)
-      //logger.info('Guest Final response Dashboard', response);
-      commandAcions.sendEvent(client, CONST.DASHBOARD, response);
-      if (requestData.referralCode != "") {
+      // logger.info('update socket Id ', dataUpdate);
+
+      if (requestData.referralCode) {
         await this.referralReward(requestData.referralCode, response)
       }
     } else {
@@ -40,7 +40,7 @@ module.exports.appLunchDetails = async (requestData, client) => {
 
     return true;
   } catch (error) {
-    logger.error("Check APp launch Deatils", error)
+    logger.error("Check APP launch Deatils", error)
   }
 };
 
@@ -79,7 +79,6 @@ module.exports.referralReward = async (referralCode, userData) => {
     // }
     return true;
   } else {
-
     return false;
   }
 };

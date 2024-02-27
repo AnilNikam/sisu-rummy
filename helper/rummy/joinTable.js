@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Decimal128 } = require('mongodb');
 const MongoID = mongoose.Types.ObjectId;
 const BetLists = mongoose.model('betLists');
 const Users = mongoose.model('users');
@@ -13,6 +14,10 @@ const { sendEvent, sendDirectEvent, AddTime, setDelay, clearJob } = require('../
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
+    logger.info("requestData joinTable", requestData)
+    const entryFee = requestData.entryFee.toString()
+    logger.info("requestData joinTable entryFee", typeof entryFee, entryFee)
+
     if (typeof socket.uid === 'undefined') {
       sendEvent(socket, CONST.JOIN_TABLE, requestData, {
         flag: false,
@@ -26,16 +31,19 @@ module.exports.joinTable = async (requestData, socket) => {
     socket.JT = true;
 
     let query = {
-      entryFee: requestData.entryFee,
-      maxSeat: requestData.maxSeat
+      entryFee: entryFee,
+      maxSeat: parseInt(requestData.maxSeat)
     };
 
-    const betInfo = await BetLists.findOne(query, {}).lean();
+    const betInfo = await BetLists.findOne(query).lean();
+    logger.info("betInfo =>", betInfo);
+
     let condition = { _id: MongoID(socket.uid) };
     let userInfo = await Users.findOne(condition, {}).lean();
 
-    let gameChips = requestData.entryFee * 80;
-    
+    let gameChips = parseFloat(requestData.entryFee) * 80;
+    logger.info("gameChips", gameChips)
+
     if (Number(userInfo.chips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,
@@ -47,7 +55,7 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let wh = { 'playerInfo._id': MongoID(socket.uid) };
     let tableInfo = await PlayingTables.findOne(wh, {}).lean();
-    logger.info('table Info ->', tableInfo);
+    logger.info('join table Info ->', tableInfo);
 
     if (tableInfo) {
       sendDirectEvent(socket.id, CONST.ALREADY_PLAYER_AXIST, requestData, {
@@ -196,7 +204,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       playerId: userInfo._id,
       name: userInfo.name,
       username: userInfo.username,
-      avatar: userInfo.avatar ||  "1",
+      avatar: userInfo.avatar || "1",
       chips: totalWallet,
       gameChips: playerGameChips,
       playerStatus: '',

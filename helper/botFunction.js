@@ -472,10 +472,6 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                                     }
 
-                                    /////////////////////////////////////////////////////////////////
-
-
-
                                     let response = {
                                         pickedCard: pickedCard,
                                         playerId: playerId,

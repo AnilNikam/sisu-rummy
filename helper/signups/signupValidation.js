@@ -203,6 +203,36 @@ const resendOTP = async (requestData_, socket) => {
   return true;
 };
 
+const updateMobileNumber = async (requestData, socket) => {
+  if (requestData.mobileNumber.length !== 10) {
+    commandAcions.sendEvent(socket, CONST.LOGIN, requestData, false, 'Please check mobile Number!');
+    return false;
+  }
+
+  let wh = {
+    mobileNumber: requestData.mobileNumber,
+  };
+
+  let resp = await Users.findOne(wh, {});
+  logger.info('LOGIN resp :', resp);
+
+  if (resp !== null) {
+
+    const updateData = {
+      $set: {
+        mobileNumber: requestData.updateMobileNumber,
+      },
+    };
+
+    const result = await Users.findOneAndUpdate(upWh, updateData, {
+      new: true,
+    });
+    commandAcions.sendEvent(socket, CONST.EDIT_MOBILE, result);
+  } else {
+    commandAcions.sendEvent(socket, CONST.EDIT_MOBILE, requestData, false, 'Mobile number not Find!');
+  }
+  return true;
+};
 /**
  * @description Register user for New Game
  * @param {Object} requestBody
@@ -278,7 +308,7 @@ const registerUser = async (requestBody, socket) => {
 
         await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
 
-        
+
         await userSesssionSet(userData, socket);
 
         let response = await filterBeforeSendSPEvent(userData);
@@ -308,29 +338,29 @@ const OKYCRequest = async (requestBody, socket) => {
       verified: false,
     }
 
-    const isverified =  await otpAdharkyc.find({userId: commonHelper.strToMongoDb(requestBody.playerId.toString())},{})
-    const findadharcard =  await otpAdharkyc.find({adharcard: requestBody.customer_aadhaar_number},{})
+    const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
+    const findadharcard = await otpAdharkyc.find({ adharcard: requestBody.customer_aadhaar_number }, {})
 
 
     console.log("isverified ", isverified)
 
 
     var task_id;
-    if(isverified.length == 0){
+    if (isverified.length == 0) {
       insertRes = await otpAdharkyc.create(okyc);
       task_id = insertRes._id.toString()
-    }else{
+    } else {
       task_id = isverified[0]._id.toString()
     }
-    console.log("findadharcard[0].userId ",findadharcard[0].userId)
-    console.log("isverified[0].userId.toString() ",isverified[0].userId.toString())
+    console.log("findadharcard[0].userId ", findadharcard[0].userId)
+    console.log("isverified[0].userId.toString() ", isverified[0].userId.toString())
 
-    if(findadharcard.length != 0 && findadharcard[0].userId.toString() != isverified[0].userId.toString()){
-      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail",status:"001", statusText:"Already Adharcad Use ...!!!" });
+    if (findadharcard.length != 0 && findadharcard[0].userId.toString() != isverified[0].userId.toString()) {
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: "001", statusText: "Already Adharcad Use ...!!!" });
 
       return false;
     }
-  
+
     console.log("task_id ", task_id)
 
     var body = {
@@ -370,11 +400,11 @@ const OKYCRequest = async (requestBody, socket) => {
     console.log("response::::::::::::::::::", response.data);
 
     if (response.data.success) {
-      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful",status: response.data.response_code, statusText: response.data.response_message });
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
       return false;
-    }else{
-      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful",status: response.data.response_code, statusText: response.data.response_message });
-      
+    } else {
+      commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
+
     }
 
 
@@ -411,14 +441,14 @@ const OKYCverifyRequest = async (requestBody, socket) => {
     }
 
     const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/verify', body, {
-      'headers':  {
+      'headers': {
         "app-id": "63b6927ed78829001d9aa71c",
         "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
       }
     });
-    console.log("response.data ::::::::::::",response.data)
+    console.log("response.data ::::::::::::", response.data)
     if (response.data.success) {
       await otpAdharkyc.updateOne(
         {
@@ -427,7 +457,7 @@ const OKYCverifyRequest = async (requestBody, socket) => {
         {
           $set: {
             verified: true,
-            userInfo:response.data.result
+            userInfo: response.data.result
           },
         },
         {}
@@ -438,17 +468,17 @@ const OKYCverifyRequest = async (requestBody, socket) => {
     } else {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: response.data.response_code, statusText: response.data.response_message });
     }
-} catch (error) {
- console.log('mainController.js OKYCRequest error=> ', error);
- 
-  if (error.response)
+  } catch (error) {
+    console.log('mainController.js OKYCRequest error=> ', error);
+
+    if (error.response)
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
     else {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
 
     }
 
-}
+  }
 };
 
 
@@ -462,4 +492,5 @@ module.exports = {
   registerUser,
   OKYCRequest,
   OKYCverifyRequest,
+  updateMobileNumber,
 };

@@ -176,17 +176,31 @@ module.exports.leaveTable = async (requestInfo, client) => {
 module.exports.manageOnUserLeave = async (tb, client) => {
   try {
     const playerInGame = await getPlayingUserInRound(tb.playerInfo);
+    logger.info("playerInGame    manageOnUserLeave", playerInGame.length)
     const list = ['RoundStated', 'CollectBoot', 'CardDealing'];
 
     if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex === client.seatIndex) {
       if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
-        let wh = { _id: MongoID(tb._id).toString(), isBot: true }
+
+        let wh = {
+          _id: MongoID(tb._id.toString()),
+          'playerInfo.isBot': true,
+        };
+
+        // const res = await PlayingTables.findOne(whr, {}).lean();
+        // logger.info("for bot details  ==> res", res)
+
+
+        // let wh = { _id: MongoID(tb._id).toString(), isBot: true }
+        // 'playerInfo._id': MongoID(client.uid.toString()),
+
+        logger.info("check bot details remove ==>", wh)
 
         let updateData = {
           $set: {
-            'playerInfo.$': { isBot: true },
+            'playerInfo.$': {},
           },
           $inc: {
             activePlayer: -1,
@@ -198,7 +212,12 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         });
         logger.info("remove robot tbInfo", tbInfo)
 
-
+        if (tbInfo.activePlayer === 0) {
+          let wh = {
+            _id: MongoID(tbInfo._id.toString()),
+          };
+          await PlayingTables.deleteOne(wh);
+        }
         await roundStartActions.nextUserTurnstart(tb);
       }
     } else if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex !== client.seatIndex) {
