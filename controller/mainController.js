@@ -768,7 +768,7 @@ async function sendOTP(payload) {
     const accountSid = process.env.SID;
     const apiKey = process.env.SMS_API;
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000);
+    const otpCode = Math.floor(10000 + Math.random() * 90000);
 
     const otpData = new OtpMobile({
       mobileNumber: payload.mobileNumber,
@@ -785,26 +785,41 @@ async function sendOTP(payload) {
     // const { to, type, sender, body, callback, template_id } = payload;
     // const apiKey = 'Aa3320ee6c6a0a33529f0680107521673';
 
-    const response = await axios.post(`https://api.kaleyra.io/v1/${accountSid}/messages`, {
-      to: CONST.COUNTRY_CODE + payload.mobileNumber,
-      type: 'OTP',
-      sender: 'WWROTP',
-      body: `Thank you for connecting with Rummy Legit .Your OTP is: ${otpCode}`,
+    const toNumber = CONST.COUNTRY_CODE + payload.mobileNumber; // Replace with the recipient's phone number
+    const senderId = "LGTPLY"; // Replace with your sender ID
+    const messageBody = `Hi, User! RummyLegit welcomes you! Your OTP for registration is ${otpCode}`;
+    const templateId = "1107170892964345957";
 
-    }, {
+
+    const formData = new URLSearchParams();
+    formData.append('to', toNumber);
+    formData.append('type', 'OTP');
+    formData.append('sender', senderId);
+    formData.append('body', messageBody);
+    formData.append('template_id',templateId);
+    
+    console.log("formData ",formData)
+    console.log("apiKey ",apiKey)
+    console.log("accountSid ",accountSid)
+
+   
+    const response = await axios.post(`https://api.kaleyra.io/v1/${accountSid}/messages`, formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'api-key': apiKey,
       },
     });
-    console.log("response ", response)
+    console.log("response ", response.data)
     
-    res.status(200).json(response.data);
+    if( response.data.data != undefined && response.data.data.message_id != undefined){
+      console.log("Suceesss ::::::::::::::::::::")
+    }else{
+      console.log("errr ::::::::::::::::::::")
 
-    if (payload.email) {
-      // mailer(payload.email, otpCode)
     }
+   
   } catch (error) {
+    console.log("Error ::::::::::::::::",error)
     logger.error('mainController.js sendOTP error=> ', error, payload);
   }
 }
@@ -831,27 +846,29 @@ async function verifyOTP(payload) {
 
       return { status: true, message: 'OTP Verified', data: response.data };
     } else {
-      const key = 12345;
+      return { status: false, message: 'OTP Not Verified' };
 
-      const query = {
-        mobileNumber: payload.mobileNumber,
-      };
+      // const key = 12345;
 
-      //logger.info('Check Validation ->', parseInt(payload.otp) === key);
-      if (parseInt(payload.otp) === key) {
-        const response = await OtpMobile.findOneAndUpdate(
-          query,
-          {
-            verified: true,
-          },
-          { new: true }
-        );
+      // const query = {
+      //   mobileNumber: payload.mobileNumber,
+      // };
 
-        //logger.info('verify Result Otp Data => ', response);
-        return { status: true, message: 'OTP Verified', data: response };
-      } else {
-        return { status: false, message: 'OTP Not Verified' };
-      }
+      // //logger.info('Check Validation ->', parseInt(payload.otp) === key);
+      // if (parseInt(payload.otp) === key) {
+      //   const response = await OtpMobile.findOneAndUpdate(
+      //     query,
+      //     {
+      //       verified: true,
+      //     },
+      //     { new: true }
+      //   );
+
+      //   //logger.info('verify Result Otp Data => ', response);
+      //   return { status: true, message: 'OTP Verified', data: response };
+      // } else {
+        
+      // }
     }
   } catch (error) {
     logger.info('mainController.js verifyOTP error => ', error);

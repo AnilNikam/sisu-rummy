@@ -7,6 +7,7 @@ const collectionName = 'otpAdharkyc';
 const KycSchema = new Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: GameUser },
+    userName: { type: String, default: ''},
     adharcard: { type: String, default: '' },
     verified: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
@@ -20,6 +21,8 @@ const KycSchema = new Schema(
     panInfo:{},
     pancardfrontimages:{ type: String, default: '' },
     pancardbackimages:{ type: String, default: '' },  
+    adminremark:{ type: String, default: '' },  
+    adminremarkcd:{ type: Date, default: '-' },
   },
   { versionKey: false },
   { timestamps: true }

@@ -258,8 +258,20 @@ router.put('/deductMoney', async (req, res) => {
 */
 router.get('/kycInfoList', async (req, res) => {
     try {
-        console.log("kycInfo ", req.body)
-        const kycInfoList = await otpAdharkyc.find({})
+        console.log("kycInfo ", req.query)
+        let wh = {} 
+
+        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pending"){
+            wh = {$or:[{verified:false},{Pancardverified:false}],adharcard:"",Pancard:""}
+        }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
+            wh = {verified:true,Pancardverified:true}
+        }else{
+            wh = {$or:[{verified:false,adharcard:{$ne:""}},{Pancardverified:false,Pancard:{$ne:""}}]}
+        }    
+
+        console.log("wh ::::::::",wh)
+        const kycInfoList = await otpAdharkyc.find(wh,{})
+
         console.log("kycInfoList ",kycInfoList)
         logger.info('admin/dahboard.js post dahboard  error => ',kycInfoList);
 
@@ -273,6 +285,44 @@ router.get('/kycInfoList', async (req, res) => {
 });
 
 
+
+/**
+* @api {post} /admin/KycUpdate
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/KycUpdate', async (req, res) => {
+    try {
+
+        console.log("req ", req.body)
+        //currently send rendom number and generate 
+        let response = {
+            $set: {
+                adminremark: req.body.adminremark,
+                adminremarkcd:new Date()
+            }
+        }
+
+        console.log("response ", response)
+
+        console.log("response ", req.body)
+
+
+        const userInfo = await otpAdharkyc.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
+
+        logger.info('admin/KycUpdate.js post KycUpdate  error => ', userInfo);
+
+        res.json({ status: "ok" });
+    } catch (error) {
+        logger.error('admin/KycUpdate.js postKycUpdate error => ', error);
+        //res.send("error");
+
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
 
 async function createPhoneNumber() {
     const countryCode = "91";
