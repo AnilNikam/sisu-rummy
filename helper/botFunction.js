@@ -36,6 +36,7 @@ async function findRoom(tableInfo, betInfo) {
 
         let user_wh = {
             isBot: true,
+            isfree: true,
             "_id": { $nin: RobotPlayer }
         }
 
@@ -49,6 +50,8 @@ async function findRoom(tableInfo, betInfo) {
             logger.info("JoinRobot ROBOT Not Found  : ")
             return false
         }
+
+        await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
 
         await joinTable.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString() });
 

@@ -22,6 +22,18 @@ module.exports.appLunchDetails = async (requestData, client) => {
       //when redis set then uncomment the section
       // await this.userSesssionSet(result, client);
 
+      //first check a user socketId is enable or not 
+      let checkSckId = await GameUser.findOne({
+        $or: [
+          { _id: playerId.toString() },
+          { sckId: { $exists: true } }
+        ]
+      })
+
+      logger.info('Guest Final response checkSckId', checkSckId);
+      logger.info('client checkSckId', client);
+
+
       let response = await this.filterBeforeSendSPEvent(result);
       commandAcions.sendEvent(client, CONST.DASHBOARD, response);
 

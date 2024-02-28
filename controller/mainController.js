@@ -193,18 +193,23 @@ async function playerDetails(requestBody) {
     const user = await Users.findOne({ _id: commonHelper.strToMongoDb(playerId) }).lean();
     //logger.info('mainController.js playerDetails => ', user);
 
-    const isverified =  await otpAdharkyc.findOne(
+    const isverified = await otpAdharkyc.findOne(
       {
         userId: commonHelper.strToMongoDb(playerId),
         verified: true,
       },
       {
-          verified: 1
+        verified: 1,
+        adharcard: 1
+
       }
     );
 
-    console.log("isverified ",isverified)
-      user.verified = isverified ? isverified.verified : false
+    console.log("isverified ", isverified)
+    user.verified = isverified ? isverified.verified : false
+    user.aadharcardnumber = isverified ? isverified.adharcard : ""
+
+
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
@@ -471,10 +476,10 @@ async function adminLogin(requestBody) {
     const data = await Admin.findOne({ email }).lean();
     if (data !== null) {
       const passwordMatch = await bcrypt.compare(password, data.password);
-      
+
       console.log('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
 
-     
+
       if (passwordMatch) {
         const token = await commonHelper.sign(data);
         data.token = token;
@@ -796,13 +801,13 @@ async function sendOTP(payload) {
     formData.append('type', 'OTP');
     formData.append('sender', senderId);
     formData.append('body', messageBody);
-    formData.append('template_id',templateId);
-    
-    console.log("formData ",formData)
-    console.log("apiKey ",apiKey)
-    console.log("accountSid ",accountSid)
+    formData.append('template_id', templateId);
 
-   
+    console.log("formData ", formData)
+    console.log("apiKey ", apiKey)
+    console.log("accountSid ", accountSid)
+
+
     const response = await axios.post(`https://api.kaleyra.io/v1/${accountSid}/messages`, formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -810,16 +815,16 @@ async function sendOTP(payload) {
       },
     });
     console.log("response ", response.data)
-    
-    if( response.data.data != undefined && response.data.data.message_id != undefined){
+
+    if (response.data.data != undefined && response.data.data.message_id != undefined) {
       console.log("Suceesss ::::::::::::::::::::")
-    }else{
+    } else {
       console.log("errr ::::::::::::::::::::")
 
     }
-   
+
   } catch (error) {
-    console.log("Error ::::::::::::::::",error)
+    console.log("Error ::::::::::::::::", error)
     logger.error('mainController.js sendOTP error=> ', error, payload);
   }
 }
@@ -867,7 +872,7 @@ async function verifyOTP(payload) {
       //   //logger.info('verify Result Otp Data => ', response);
       //   return { status: true, message: 'OTP Verified', data: response };
       // } else {
-        
+
       // }
     }
   } catch (error) {
@@ -914,7 +919,7 @@ async function mailer(email, otp) {
  * @returns {Object}
  */
 async function registerBetList(requestBody) {
-  console.log("requestBody ",requestBody)
+  console.log("requestBody ", requestBody)
   const { gamePlayType, entryFee, maxSeat, status, commission, tableName } = requestBody;
   logger.info('registerBetList requestBody => ', requestBody);
   try {

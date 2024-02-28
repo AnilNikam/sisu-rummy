@@ -212,6 +212,11 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         });
         logger.info("remove robot tbInfo", tbInfo)
 
+        logger.info("Leave remove robot playerInGame[0] ", playerInGame[0])
+
+
+        await Users.updateOne({ _id: MongoID(playerInGame[0].playerInfo._id.toString()) }, { $set: { "isfree": true } });
+
         if (tbInfo.activePlayer === 0) {
           let wh = {
             _id: MongoID(tbInfo._id.toString()),

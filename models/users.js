@@ -15,13 +15,13 @@ const GameUserSchema = new Schema(
     panNo: { type: String, default: '' },
     location: { type: String, default: '' },
     password: { type: String, default: '' },
-    chips: { type: Number, required: true,default:0 },       // Deposite 
-    winningChips: { type: Number, required: true,default:0 }, // Winning Chips 
-    bonusChips:{ type: Number, required: true ,default:50},  // Sp && deposite Bonus 5%
-    referralChips:{ type: Number, required: true ,default:0}, // referarl Chips
-    unlockreferralChips:{ type: Number, required: true ,default:0}, // referarl Chips unlock Chips  
-    lockreferralChips:{ type: Number, required: true ,default:0}, // referarl Chips lock Chips 
-    withdrawableChips:{ type: Number, required: true ,default:0},
+    chips: { type: Number, required: true, default: 0 },       // Deposite 
+    winningChips: { type: Number, required: true, default: 0 }, // Winning Chips 
+    bonusChips: { type: Number, required: true, default: 50 },  // Sp && deposite Bonus 5%
+    referralChips: { type: Number, required: true, default: 0 }, // referarl Chips
+    unlockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips unlock Chips  
+    lockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips lock Chips 
+    withdrawableChips: { type: Number, required: true, default: 0 },
     referralCode: { type: String },
     referredBy: { type: String },
     avatar: { type: String },
@@ -41,7 +41,9 @@ const GameUserSchema = new Schema(
     lastLoginDate: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
     modifiedAt: { type: Date, default: Date.now },
-    isBot: { type: Boolean, default: false }
+    isBot: { type: Boolean, default: false },
+    isfree: { type: Boolean, default: true }
+
   },
   { versionKey: false }
 );

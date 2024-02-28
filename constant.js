@@ -189,6 +189,7 @@ const CONST = {
   DEAL_BET_LIST: 'DBT',
   KYC: 'KYC',
   REFFERAL: 'REFFERAL',
+  WALLET_TRANSACTION_HISTORY: 'TRAN_HISTORY',
 
   // Timer
   userTurnTimer: 30,

@@ -1,10 +1,11 @@
-const { checkMobileNumber, OKYCRequest, OKYCverifyRequest, checkReferalOrCouponCode, userLogin, userSignup, verifyOTP, resendOTP, updateMobileNumber } = require('./signupValidation');
+const { checkMobileNumber, OKYCRequest, OKYCverifyRequest, checkReferalOrCouponCode, userLogin, userSignup, verifyOTP, resendOTP, updateMobileNumber, OKYCPanverifyRequest } = require('./signupValidation');
 const { appLunchDetails } = require('./appStart');
 
 module.exports = {
   checkMobileNumber: checkMobileNumber,
   OKYCRequest: OKYCRequest,
   OKYCverifyRequest: OKYCverifyRequest,
+  OKYCPanverifyRequest: OKYCPanverifyRequest,
   checkReferalOrCouponCode: checkReferalOrCouponCode,
   userLogin: userLogin,
   userSignup: userSignup,

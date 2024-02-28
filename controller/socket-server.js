@@ -507,6 +507,18 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.WALLET_TRANSACTION_HISTORY: {
+            try {
+              const res = await mainCtrl.transactionHistory(newData);
+              logger.info("Result ->", res);
+              sendEvent(socket, CONST.WALLET_TRANSACTION_HISTORY, res);
+
+            } catch (error) {
+              logger.error('socketServer.js SEND_MESSAGE_TO_TABLE => ', error);
+            }
+            break;
+          }
+
           case CONST.LEADER_BOARD: {
             try {
               const result = await mainCtrl.leaderBoard();
