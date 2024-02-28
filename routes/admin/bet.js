@@ -21,12 +21,12 @@ router.post('/', async (req, res) => {
     // console.info('requet => ', req);
     logger.info('admin/lobbies/req.body => ', req.body);
     const newData = {
-      entryFee: parseInt(req.body.entryFee),
+      entryFee: req.body.entryFee,
       gamePlayType: 'pointrummy',
       tableName: req.body.tableName,
       commission: parseInt(req.body.commission),
       maxSeat: parseInt(req.body.maxSeat),
-      tableName:req.body.tableName,
+      tableName: req.body.tableName,
       status: req.body.status,
     };
     res.json(await mainCtrl.registerBetList(newData));
@@ -87,41 +87,41 @@ router.delete('/:id', async (req, res) => {
 router.put('/', async (req, res) => {
   //logger.info('Update Bet List req.body => ', req.body);
   try {
-     const { entryFee, betListId, maxSeat, status, tableName , commission } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName, commission } = req.body;
     // const entryFeexists = await BetLists.countDocuments({ entryFee });
     // logger.info('put entryFeexists', entryFeexists);
     // if (entryFeexists > 0) {
     //   res.status(config.OK_STATUS).json({ status: 0, message: 'Entry Fee Already Exists' });
     // } else {
-      const newData = {
-        entryFee:parseInt(entryFee),
-        gamePlayType: 'pointrummy',
-        modifiedAt: Date.now(),
-        maxSeat: maxSeat,
-        status: status,
-        tableName: tableName,
-        commission:commission
-      };
-       console.log('newData => ', newData);
+    const newData = {
+      entryFee: parseInt(entryFee),
+      gamePlayType: 'pointrummy',
+      modifiedAt: Date.now(),
+      maxSeat: maxSeat,
+      status: status,
+      tableName: tableName,
+      commission: commission
+    };
+    console.log('newData => ', newData);
 
-      const condition = { _id: commonHelper.strToMongoDb(betListId) };
-      console.log('condition => ', condition);
+    const condition = { _id: commonHelper.strToMongoDb(betListId) };
+    console.log('condition => ', condition);
 
-      const responseData = await commonHelper.update(BetLists, condition, newData);
-       console.log('update response Data => ', responseData);
+    const responseData = await commonHelper.update(BetLists, condition, newData);
+    console.log('update response Data => ', responseData);
 
-      if (responseData.status === 1) {
-        res.status(config.OK_STATUS).json({
-          status: 1,
-          message: 'record Update',
-          data: responseData.data,
-        });
-      } else {
-        res.status(config.DATABASE_ERROR_STATUS).json({
-          status: 0,
-          message: 'record not Deleted',
-        });
-      }
+    if (responseData.status === 1) {
+      res.status(config.OK_STATUS).json({
+        status: 1,
+        message: 'record Update',
+        data: responseData.data,
+      });
+    } else {
+      res.status(config.DATABASE_ERROR_STATUS).json({
+        status: 0,
+        message: 'record not Deleted',
+      });
+    }
     //}
   } catch (error) {
     logger.error('admin/users.js put bet-list error => ', error);
