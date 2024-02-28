@@ -52,19 +52,6 @@ module.exports.pickCard = async (requestData, client) => {
       return false;
     }
 
-    if (requestData.deck === 'open') {
-      //not picked a wild or joker card
-      let checkCardJoker = tableInfo.openDeck.pop()
-      const words = checkCardJoker.split('-');
-
-      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) {
-        delete client.pickCard;
-        commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");
-        return false;
-      }
-    }
-    logger.info("Open deck card ->", JSON.stringify(tableInfo.openDeck))
-
     let updateData = {
       $set: {},
       $inc: {},
@@ -78,7 +65,15 @@ module.exports.pickCard = async (requestData, client) => {
       pickedCard = tableInfo.openDeck.pop();
       logger.info("pickedCard card ->", pickedCard)
 
-      playerInfo.cards.push(pickedCard.toString());
+      const words = pickedCard.split('-');
+
+      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) {
+        delete client.pickCard;
+        commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");
+        return false;
+      }
+
+      playerInfo.cards.push(pickedCard);
 
       if (playerInfo.playerStatus === 'PLAYING') {
         updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
