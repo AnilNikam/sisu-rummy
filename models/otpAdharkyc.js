@@ -22,7 +22,7 @@ const KycSchema = new Schema(
     pancardfrontimages:{ type: String, default: '' },
     pancardbackimages:{ type: String, default: '' },  
     adminremark:{ type: String, default: '' },  
-    adminremarkcd:{ type: Date, default: '-' },
+    adminremarkcd:{ type: Date, default: Date.now  },
   },
   { versionKey: false },
   { timestamps: true }
