@@ -131,7 +131,7 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
       _id: MongoID(plid),
     }).lean();
 
-    if (data.isBot) {
+    if (data && data.isBot) {
       await pic(tb, plid, tb.gamePlayType, 'close')
     }
 
