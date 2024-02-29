@@ -3,12 +3,10 @@ const _ = require("underscore");
 const PlayingTables = mongoose.model('playingTable');
 const MongoID = mongoose.Types.ObjectId;
 
-
 const commandAcions = require('../socketFunctions');
 const roundStartActions = require('./roundStart');
 const gameFinishActions = require('./gameFinish');
 const checkWinnerActions = require('./checkWinner');
-
 
 const CONST = require('../../constant');
 const logger = require('../../logger');
@@ -68,7 +66,8 @@ module.exports.pickCard = async (requestData, client) => {
 
       const words = pickedCard.split('-');
 
-      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1] && tableInfo.openDeck.length !== 1) {
+      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1] && tableInfo.wildCard !== pickedCard) {
+        logger.info("JOKER");
         delete client.pickCard;
         commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");
         return false;
@@ -307,10 +306,7 @@ module.exports.cardGroup = async (requestData, client) => {
     logger.error('gamePlay.js cardGroup error => ', e);
   }
 };
-/*
-isbot
- 
-*/
+
 module.exports.declare = async (requestData, client) => {
   try {
     logger.info('declare Request Data =>', requestData);
@@ -427,8 +423,6 @@ module.exports.declare = async (requestData, client) => {
     logger.error('gamePlay.js declare error => ', e);
   }
 };
-
-
 
 module.exports.invalidDeclare = async (table, client) => {
   try {

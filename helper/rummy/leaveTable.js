@@ -167,6 +167,13 @@ module.exports.leaveTable = async (requestInfo, client) => {
     let finaldata = await filterBeforeSendSPEvent(userDetails);
 
     sendDirectEvent(client.sck.toString(), CONST.DASHBOARD, finaldata);
+
+    // remove all the bot player when original user leave
+
+    for (let i = 0; i < array.length; i++) {
+      const element = array[i];
+
+    }
     await this.manageOnUserLeave(tbInfo, client);
   } catch (err) {
     logger.error('leaveTable.js leavetable error => ', err);
@@ -183,7 +190,6 @@ module.exports.manageOnUserLeave = async (tb, client) => {
       if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
-
         let wh = {
           _id: MongoID(tb._id.toString()),
           'playerInfo.isBot': true,

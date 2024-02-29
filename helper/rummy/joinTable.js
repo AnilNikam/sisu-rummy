@@ -172,8 +172,10 @@ module.exports.makeObjects = (length = 0) => {
 
 module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
   try {
-    logger.info("\n findEmptySeatAndUserSeat socket  -->", socket)
+    // logger.info("\n findEmptySeatAndUserSeat socket  -->", socket)
+    logger.info("\n findEmptySeatAndUserSeat socket table -->", table)
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
+    logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
 
     if (seatIndex === '-1') {
       await this.findTable(betInfo, socket);
@@ -229,6 +231,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     whereCond['playerInfo.' + seatIndex + '.seatIndex'] = { $exists: false };
 
+    logger.info("Where Condition =>", whereCond);
+
     let setPlayerInfo = {
       $set: {},
       $inc: {
@@ -239,7 +243,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     setPlayerInfo['$set']['playerInfo.' + seatIndex] = playerDetail;
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
-    //logger.info(' Table Info --->', JSON.stringify(tableInfo));
+    logger.info(' Table Info --->', JSON.stringify(tableInfo));
 
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
@@ -297,10 +301,22 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    if (tableInfo.maxSeat !== 2 && tableInfo.activePlayer <= 2) {
-      setTimeout(() => {
-        botLogic.findRoom(tableInfo)
-      }, 10000)
+    // if (tableInfo.maxSeat !== 2 && tableInfo.activePlayer <= 2) {
+    //   setTimeout(() => {
+    //     botLogic.findRoom(tableInfo)
+    //   }, 10000)
+    // }
+    if (tableInfo.activePlayer <= 2) {
+      let counter = 0;
+
+      const intervalId = setInterval(() => {
+        counter++;
+        logger.info(`Function called ${counter} times.`);
+        botLogic.findRoom(tableInfo, betInfo)
+        if (counter === 1) {
+          clearInterval(intervalId); // Stop the interval after 5 calls
+        }
+      }, 1500);
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
@@ -308,6 +324,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 };
 
 module.exports.findEmptySeat = (playerInfo) => {
+  logger.info("PlyerInfo", playerInfo)
   try {
     for (let x in playerInfo) {
       if (typeof playerInfo[x] === 'object' && playerInfo[x] !== null && typeof playerInfo[x].seatIndex === 'undefined') {

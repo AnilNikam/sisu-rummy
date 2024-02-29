@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const PlayingTable = mongoose.model('playingTable');
+const Users = mongoose.model('users');
 
 const express = require('express');
 const router = express.Router();
@@ -16,6 +17,10 @@ const logger = require('../../logger');
 */
 router.get('/DeletePlaying', async (req, res) => {
     try {
+        await Users.updateMany(
+            { "isfree": false }, // Filter to match documents where isfree is false
+            { $set: { "isfree": true } } // Update to set isfree to true
+        );
 
         await PlayingTable.deleteMany({})
 

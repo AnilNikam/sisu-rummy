@@ -25,19 +25,23 @@ async function findRoom(tableInfo, betInfo) {
 
         let RobotPlayer = []
 
-        logger.info("rummy tableInfo playerInfo =>", tableInfo.playerInfo)
+        logger.info("rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo)
 
-        tableInfo.playerInfo.forEach(e => {
-            logger.info("tableInfo.playerInfo ", e)
-            if (e.isBot == true) {
-                RobotPlayer.push(MongoID(e._id).toString())
-            }
-        })
+        let whereCond = { _id: MongoID(tableInfo._id.toString()) };
+        tableInfo = await PlayingTables.findOne(whereCond).lean();
+        logger.info("tabInfo =>", tableInfo);
+
+        // tableInfo.playerInfo.forEach(e => {
+        //     logger.info("tableInfo.playerInfo ", e)
+        //     if (e.isBot == true) {
+        //         RobotPlayer.push(MongoID(e._id).toString())
+        //     }
+        // })
 
         let user_wh = {
             isBot: true,
             isfree: true,
-            "_id": { $nin: RobotPlayer }
+            // "_id": { $nin: RobotPlayer }
         }
 
         logger.info(" JoinRobot ROBOT Not user_wh   : ", user_wh)
@@ -51,7 +55,8 @@ async function findRoom(tableInfo, betInfo) {
             return false
         }
 
-        await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
+        let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
+        logger.info("update robot isfree", up)
 
         await joinTable.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString() });
 
