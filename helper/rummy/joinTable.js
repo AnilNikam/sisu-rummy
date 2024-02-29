@@ -313,7 +313,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
         counter++;
         logger.info(`Function called ${counter} times.`);
         botLogic.findRoom(tableInfo, betInfo)
-        if (counter === 1) {
+        if (counter === 5) {
           clearInterval(intervalId); // Stop the interval after 5 calls
         }
       }, 1500);

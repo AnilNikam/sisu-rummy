@@ -293,7 +293,14 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
 
 
 
-      console.log("await ", cardjson)
+      console.log("await old ", cardjson)
+
+      if (cardjson.dwd.length > 0) {
+        cardjson.dwd = [cardjson.dwd]
+      }
+
+      console.log("await new  ", cardjson)
+
       //update user game finish status
       let updateStatus = {
         $set: {},

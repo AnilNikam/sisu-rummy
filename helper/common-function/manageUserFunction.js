@@ -14,6 +14,19 @@ module.exports.getPlayingUserInRound = async (p) => {
 
   return pl;
 };
+module.exports.getPlayingRealUserInRound = async (p) => {
+  // logger.info("\n get getPlayingUserInRound Round p :", p);
+  let pl = [];
+  if (typeof p === 'undefined' || p === null) {
+    return pl;
+  }
+
+  for (let x = 0; x < p.length; x++) {
+    if (typeof p[x] === 'object' && p[x] !== null && typeof p[x].seatIndex !== 'undefined' && p[x].isBot === false) pl.push(p[x]);
+  }
+
+  return pl;
+};
 
 module.exports.getWaitingUserInRound = async (p) => {
   // logger.info("\n get getWaitingUserInRound p :", p);

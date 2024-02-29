@@ -11,7 +11,7 @@ const CONST = require('../../constant');
 const { ifSocketDefine } = require('../helperFunction');
 const { pushPlayerScoreToPlayerScoreBoard } = require('../common-function/cardFunction');
 const { sendDirectEvent, clearJob, sendEventInTable, AddTime, setDelay } = require('../socketFunctions');
-const { getPlayingUserInTable, getPlayingUserInRound, filterBeforeSendSPEvent } = require('../common-function/manageUserFunction');
+const { getPlayingUserInTable, getPlayingUserInRound, filterBeforeSendSPEvent, getPlayingRealUserInRound } = require('../common-function/manageUserFunction');
 
 module.exports.leaveTable = async (requestInfo, client) => {
   let requestData = requestInfo;
@@ -170,10 +170,6 @@ module.exports.leaveTable = async (requestInfo, client) => {
 
     // remove all the bot player when original user leave
 
-    for (let i = 0; i < array.length; i++) {
-      const element = array[i];
-
-    }
     await this.manageOnUserLeave(tbInfo, client);
   } catch (err) {
     logger.error('leaveTable.js leavetable error => ', err);
@@ -183,11 +179,18 @@ module.exports.leaveTable = async (requestInfo, client) => {
 module.exports.manageOnUserLeave = async (tb, client) => {
   try {
     const playerInGame = await getPlayingUserInRound(tb.playerInfo);
+
+    const realPlayerInGame = await getPlayingRealUserInRound(tb.playerInfo);
     logger.info("playerInGame    manageOnUserLeave", playerInGame.length)
+    logger.info("realPlayerInGame", realPlayerInGame)
+
     const list = ['RoundStated', 'CollectBoot', 'CardDealing'];
 
     if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex === client.seatIndex) {
-      if (playerInGame.length >= 2) {
+      if (realPlayerInGame.length == 0) {
+        console.log("realPlayerInGame leaveallrobot")
+        this.leaveallrobot(tb._id)
+      } else if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
         let wh = {
@@ -247,6 +250,71 @@ module.exports.manageOnUserLeave = async (tb, client) => {
     }
   } catch (e) {
     logger.error('leaveTable.js manageOnUserLeave error : ', e);
+  }
+};
+
+module.exports.leaveallrobot = async (tbid) => {
+  try {
+    logger.info("chek all leave robot =>");
+    let tbId = tbid;
+
+    const wh1 = {
+      _id: MongoID(tbId.toString()),
+    };
+    logger.info("chek all leave robot wh1=>", wh1);
+
+    const tabInfo = await PlayingTables.findOne(wh1, {}).lean();
+    logger.info("chek all leave robot tabInfo=>", tabInfo);
+
+    //if (tabInfo.activePlayer === 1) {
+    let playerInfos = tabInfo.playerInfo;
+    for (let i = 0; i < playerInfos.length; i++) {
+      logger.info("check loop", playerInfos[i]);
+      if (typeof playerInfos[i].seatIndex !== 'undefined') {
+
+        let wh = {
+          _id: MongoID(tbId.toString()),
+          'playerInfo.isBot': true,
+        };
+
+        // const res = await PlayingTables.findOne(whr, {}).lean();
+        // logger.info("for bot details  ==> res", res)
+
+
+        // let wh = { _id: MongoID(tb._id).toString(), isBot: true }
+        // 'playerInfo._id': MongoID(client.uid.toString()),
+
+        logger.info("check bot details remove ==>", wh)
+
+        let updateData = {
+          $set: {
+            'playerInfo.$': {},
+          },
+          $inc: {
+            activePlayer: -1,
+          },
+        };
+
+        let tbInfo1 = await PlayingTables.findOneAndUpdate(wh, updateData, {
+          new: true,
+        });
+        logger.info("remove robot tbInfo1", tbInfo1)
+
+
+        await Users.updateOne({ _id: MongoID(playerInfos[i]._id.toString()) }, { $set: { "isfree": true } });
+
+        if (tbInfo1.activePlayer === 0) {
+          let wh = {
+            _id: MongoID(tbInfo1._id.toString()),
+          };
+          await PlayingTables.deleteOne(wh);
+        }
+
+      }
+    }
+    //}
+  } catch (e) {
+    logger.error('leaveTable.js leaveSingleUser error : ', e);
   }
 };
 

@@ -605,7 +605,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             let randomIndex = -1
 
                                             logger.info("cardjson ", cardjson)
-                                            RemainCardTounusecardThrow(cardjson, async (RemainCard) => {
+                                            RemainCardTounusecardThrow(cardjson, parseInt(tableInfo.wildCard.split("-")[1]), async (RemainCard) => {
 
 
                                                 logger.info("RemainCard ", RemainCard)
@@ -790,7 +790,7 @@ PickCardcloseDeck_or_open_deck = (cards, wildCard, opendeckcard, closecard, call
     logger.info("closecard ", closecard)
 
 
-    if (opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J") {
+    if (opendeckcard.split("-")[1] == wildCard.split("-")[1]) {
         return callback("open");
     }
 
@@ -812,7 +812,7 @@ OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
 
 
         logger.info("cardjson ", cardjson)
-        RemainCardTounusecardThrow(cardjson, async (RemainCard) => {
+        RemainCardTounusecardThrow(cardjson, parseInt(tableInfo.wildCard.split("-")[1]), async (RemainCard) => {
 
 
             logger.info("OpenDeckcardCheckUseOrnot RemainCard", RemainCard)
@@ -1523,11 +1523,11 @@ const mycardGroup = async (myCard, wildcard, cb) => {
 
 }
 
-const RemainCardTounusecardThrow = async (MycardSet, callback) => {
+const RemainCardTounusecardThrow = async (MycardSet, wildcard, callback) => {
 
     logger.info("MycardSet ", MycardSet)
 
-    UnusedJoker(MycardSet.dwd, 13, MycardSet.impure, MycardSet.set, (unusedJokercards) => {
+    UnusedJoker(MycardSet.dwd, wildcard, MycardSet.impure, MycardSet.set, (unusedJokercards) => {
 
 
         logger.info("unusedJoker *-*-*-*-*-*-* ", unusedJokercards)
@@ -1559,7 +1559,7 @@ const RemainCardTounusecardThrow = async (MycardSet, callback) => {
 
 const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) => {
     let remainjoker = RemainCard.filter(item => (item.split("-")[0] == "J") || (parseInt(item.split("-")[1]) === joker))
-    // logger.info("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
+    //logger.info("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
 
     if (remainjoker.length > 0 && (impureSequences.length > 0 || Teen.length > 0)) {
 
