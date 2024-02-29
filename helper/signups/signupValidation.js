@@ -314,8 +314,7 @@ const registerUser = async (requestBody, socket) => {
         let response = await filterBeforeSendSPEvent(userData);
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
 
-        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
-
+        
       }
     }
   } catch (error) {
@@ -353,7 +352,11 @@ const OKYCRequest = async (requestBody, socket) => {
       insertRes = await otpAdharkyc.create(okyc);
       task_id = insertRes._id.toString()
     } else {
+
+      await otpAdharkyc.updateOne({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) },{$set:{adharcard: requestBody.customer_aadhaar_number }})
+
       task_id = isverified[0]._id.toString()
+
     }
     console.log("findadharcard[0].userId ", findadharcard)
     console.log("isverified[0].userId.toString() ", isverified)
@@ -414,6 +417,7 @@ const OKYCRequest = async (requestBody, socket) => {
 
   } catch (error) {
     console.log('mainController.js OKYCRequest error=> ', error);
+
     if (error.response)
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
     else {
@@ -529,6 +533,8 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
         },
         {
           $set: {
+            pancard:requestBody.pancard,
+            pancardname:requestBody.pancardname,
             pancardverified: true,
             panInfo: response.data.result
           },
