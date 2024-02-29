@@ -254,7 +254,7 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
-        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
+       
 
         await userSesssionSet(userData, socket);
 
@@ -265,6 +265,7 @@ const registerUser = async (requestBody, socket) => {
         if (requestBody.referralCode != "") {
           await checkReferral({ referralCode: requestBody.referralCode, userId: userInsertInfo._id }, socket)
         }
+        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
       } else {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, requestBody, false, 'User Already Register!');
         return false;
@@ -306,13 +307,15 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
-        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
-
+        
 
         await userSesssionSet(userData, socket);
 
         let response = await filterBeforeSendSPEvent(userData);
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
+
+        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
+
       }
     }
   } catch (error) {

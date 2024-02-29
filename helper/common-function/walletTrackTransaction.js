@@ -465,7 +465,7 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t) => {
     }
     console.log("tbl.sckId ", tbl.sckId)
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips , addCoins:addCoins });
 
     return totalRemaningAmount;
   } catch (e) {
