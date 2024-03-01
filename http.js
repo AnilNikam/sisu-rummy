@@ -36,7 +36,7 @@ const redis = require('redis');
 const fileUpload = require('express-fileupload');
 
  (async () => {
-  rClient = Module.exports = (module.exports = redis.createClient(6379,RDS_HOST));
+  rClient = (module.exports = redis.createClient(6379,RDS_HOST));
    rClient.auth(RDS_PWD,function(){});
    rClient.select(1);
    // eslint-disable-next-line no-console
