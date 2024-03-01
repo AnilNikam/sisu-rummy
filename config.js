@@ -5,6 +5,8 @@ module.exports = Object.freeze({
   // DATABASE: "mongodb+srv://connect2amitu:connect2amitu@cluster0.8rti2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",//Amit account login
 
   REDIS_HOST: process.env.REDIS_HOST,
+  REDIS_PWD: process.env.REDIS_PWD,
+
   ENCRYPTION_TYPE: 'aes-256-cbc',
   ENCRYPTION_ENCODING: 'base64',
   BUFFER_ENCRYPTION: 'utf-8',
