@@ -16,7 +16,7 @@ router.get('/', function (req, res) {
 
 async function chooseServer(data, callback) {
   try {
-    let rClient = redis.createClient();
+
     logger.info('Choose server API Called <====');
     logger.info(typeof rClient);
     const server_prefix = 's1_*'; //take from config

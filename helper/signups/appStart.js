@@ -1,7 +1,6 @@
 const commandAcions = require('../socketFunctions');
 //const bcrypt = require('bcrypt');
 const CONST = require('../../constant');
-const { createClient } = require('redis');
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
@@ -248,8 +247,8 @@ module.exports.userSesssionSet = async (userData, client) => {
     };
 
     const { _id, uniqueId, mobileNumber, email } = userData;
-    let rdlClient = createClient();
-    rdlClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
+
+    rClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
 
     return true;
   } catch (e) {
