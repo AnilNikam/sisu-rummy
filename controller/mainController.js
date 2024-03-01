@@ -201,13 +201,14 @@ async function playerDetails(requestBody) {
       {
         verified: 1,
         adharcard: 1
-
       }
     );
 
     console.log("isverified ", isverified)
     user.verified = isverified ? isverified.verified : false
     user.aadharcardnumber = isverified ? isverified.adharcard : ""
+    // user.mobileVerify = isverified ? isverified.adharcard : ""
+    // user.panCardNumber = isverified ? isverified.adharcard : ""
 
 
     return user;

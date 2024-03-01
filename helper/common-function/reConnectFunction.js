@@ -14,6 +14,7 @@ const userReconnect = async (payload, socket) => {
     //logger.info('User Reconnect Payload ', payload, '\n<==== New Connected Socket id ===>', socket.id, '\n Table Id =>', socket.tbid, '\n Socket Id', socket);
 
     const rdClient = createClient();
+    logger.info('\n rdClient userReconnect -->', rdClient);
     const disconnTable = await findDisconnectTable(payload.playerId, PlayingTables);
     logger.info('\n finded disconnected  -->', disconnTable);
 

@@ -490,7 +490,7 @@ myIo.init = function (server) {
             try {
               const newData = { playerId: payload.data.playerId };
               const res = await mainCtrl.playerDetails(newData);
-              //logger.info('USER_PROFILE_DETAILS result -->', res);
+              logger.info('USER_PROFILE_DETAILS result -->', res);
 
               sendEvent(socket, CONST.USER_PROFILE_DETAILS, res);
             } catch (error) {
