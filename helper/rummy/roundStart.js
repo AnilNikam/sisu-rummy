@@ -274,32 +274,19 @@ module.exports.getUserTurnSeatIndex = async (tbInfo, prevTurn, cnt) => {
 
 
 module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
-  console.log("PlayerInfo ", PlayerInfo)
-  console.log("wildcard ", wildcard)
-  console.log("tbid ", tbid)
-
-
-
   if (PlayerInfo.length == 0) {
     return false
   }
-  var userData = PlayerInfo.splice(0, 1)
-  console.log("userData ", userData)
+
+  let userData = PlayerInfo.splice(0, 1)
+
   if (userData[0].isBot) {
 
-    console.log("cardjson ")
-
     mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
-
-
-
-      console.log("await old ", cardjson)
 
       if (cardjson.dwd.length > 0) {
         cardjson.dwd = [cardjson.dwd]
       }
-
-      console.log("await new  ", cardjson)
 
       //update user game finish status
       let updateStatus = {
@@ -319,6 +306,7 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
         new: true,
       });
 
+      logger.info("DealerRobotLogicCard table =>", table)
       this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
 
     });

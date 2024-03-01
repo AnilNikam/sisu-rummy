@@ -254,7 +254,7 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
-       
+
 
         await userSesssionSet(userData, socket);
 
@@ -307,14 +307,14 @@ const registerUser = async (requestBody, socket) => {
 
         let userData = userInsertInfo;
 
-        
+
 
         await userSesssionSet(userData, socket);
 
         let response = await filterBeforeSendSPEvent(userData);
         commandAcions.sendEvent(socket, CONST.DASHBOARD, response);
 
-        
+
       }
     }
   } catch (error) {
@@ -343,17 +343,13 @@ const OKYCRequest = async (requestBody, socket) => {
     const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
     const findadharcard = await otpAdharkyc.find({ adharcard: requestBody.customer_aadhaar_number }, {})
 
-
-    console.log("isverified ", isverified)
-
-
-    var task_id;
+    let task_id;
     if (isverified.length == 0) {
       insertRes = await otpAdharkyc.create(okyc);
       task_id = insertRes._id.toString()
     } else {
 
-      await otpAdharkyc.updateOne({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) },{$set:{adharcard: requestBody.customer_aadhaar_number }})
+      await otpAdharkyc.updateOne({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, { $set: { adharcard: requestBody.customer_aadhaar_number } })
 
       task_id = isverified[0]._id.toString()
 
@@ -369,7 +365,7 @@ const OKYCRequest = async (requestBody, socket) => {
 
     console.log("task_id ", task_id)
 
-    var body = {
+    let body = {
       "data": {
         "customer_aadhaar_number": requestBody.customer_aadhaar_number,
         "consent": "Y",
@@ -378,7 +374,7 @@ const OKYCRequest = async (requestBody, socket) => {
       "task_id": task_id
     }
 
-    // var options = {
+    // let options = {
     //   'method': 'POST',
     //   'url': 'https://test.zoop.one/in/identity/okyc/otp/request',
     //   'headers': {
@@ -437,7 +433,7 @@ const OKYCverifyRequest = async (requestBody, socket) => {
   try {
 
 
-    var body = {
+    let body = {
       "data": {
         "request_id": requestBody.request_id,
         "otp": requestBody.otp,
@@ -506,7 +502,7 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
   try {
 
 
-    var body = {
+    let body = {
 
       "mode": "sync",
       "data": {
@@ -533,8 +529,8 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
         },
         {
           $set: {
-            pancard:requestBody.pancard,
-            pancardname:requestBody.pancardname,
+            pancard: requestBody.pancard,
+            pancardname: requestBody.pancardname,
             pancardverified: true,
             panInfo: response.data.result
           },

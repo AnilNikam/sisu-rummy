@@ -168,44 +168,44 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
 router.post('/BotAdd', async (req, res) => {
   try {
 
-      console.log("req ", req.body)
-      //currently send rendom number and generate 
-      let number = await createPhoneNumber()
-      let response = {
-          mobileNumber: Number(number),
-          deviceId: `${number}`,
-          isVIP: 0,
-          country: req.body.country,
-          username: req.body.name,
-          isBot: true,
-          avatar: req.body.profileUrl,
-          status:req.body.status,
-          loginType:"Guest",
-          name:req.body.name,
-          chips:150000,
-          winningChips:0
+    console.log("req ", req.body)
+    //currently send rendom number and generate 
+    let number = await createPhoneNumber()
+    let response = {
+      mobileNumber: Number(number),
+      deviceId: `${number}`,
+      isVIP: 0,
+      country: req.body.country,
+      username: req.body.name,
+      isBot: true,
+      avatar: req.body.profileUrl,
+      status: req.body.status,
+      loginType: "Guest",
+      name: req.body.name,
+      chips: 150000,
+      winningChips: 0
 
-      }
+    }
 
 
-      console.log("response ", response)
-      // let RecentUser = await registerUser(response)
-      //let RecentUser = await registerUser(response)
+    console.log("response ", response)
+    // let RecentUser = await registerUser(response)
+    //let RecentUser = await registerUser(response)
 
-      const user = new Users(response);
-      const RecentUser = await user.save();
+    const user = new Users(response);
+    const RecentUser = await user.save();
 
-      logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
-      if (RecentUser.username != undefined) {
-          res.json({ status: 1,message:"" });
-      } else {
-          res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
-      }
+    logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+    if (RecentUser.username != undefined) {
+      res.json({ status: 1, message: "" });
+    } else {
+      res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
+    }
   } catch (error) {
-      logger.error('admin/dahboard.js post bet-list error => ', error);
-      //res.send("error");
+    logger.error('admin/dahboard.js post bet-list error => ', error);
+    //res.send("error");
 
-      res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
+    res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
   }
 });
 
@@ -222,12 +222,12 @@ router.post('/BotAdd', async (req, res) => {
 var multer = require('multer')
 var storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
-     
-      cb(null, 'public/upload/AdharCard')
+
+    cb(null, 'public/upload/AdharCard')
   },
   filename: function (req, file, cb) {
-   
-      cb(null, Date.now() + '.jpg') //Appending .jpg
+
+    cb(null, Date.now() + '.jpg') //Appending .jpg
   }
 });
 var upload = multer({ storage: storage1 })
@@ -235,35 +235,35 @@ var upload = multer({ storage: storage1 })
 router.post('/AdharcardUpload', upload.single('image'), async (req, res) => {
   try {
 
-      console.log("(req.file ::::::::::::::::", req.file)
+    console.log("(req.file ::::::::::::::::", req.file)
 
 
-      if (req.file != undefined && req.file.path != undefined && req.file.path != '' && req.file.path != null) {
+    if (req.file != undefined && req.file.path != undefined && req.file.path != '' && req.file.path != null) {
 
-          res.json({ flag: true, path: req.file.path.substr(7) });
-      } else {
-          res.json({ flag: false, path: "" });
-      }
+      res.json({ flag: true, path: req.file.path.substr(7) });
+    } else {
+      res.json({ flag: false, path: "" });
+    }
 
-      logger.info('admin/dahboard.js post dahboard  inf o::: => ');
+    logger.info('admin/dahboard.js post dahboard  inf o::: => ');
 
   } catch (error) {
-      logger.error('admin/dahboard.js post bet-list error => ', error);
-      //res.send("error");
+    logger.error('admin/dahboard.js post bet-list error => ', error);
+    //res.send("error");
 
-      res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    res.status(config.INTERNAL_SERVER_ERROR).json(error);
   }
 });
 
 
 var storage2 = multer.diskStorage({
   destination: function (req, file, cb) {
-     
-      cb(null, 'public/upload/PanCard')
+
+    cb(null, 'public/upload/PanCard')
   },
   filename: function (req, file, cb) {
-   
-      cb(null, Date.now() + '.jpg') //Appending .jpg
+
+    cb(null, Date.now() + '.jpg') //Appending .jpg
   }
 });
 var upload = multer({ storage: storage2 })
@@ -271,23 +271,23 @@ var upload = multer({ storage: storage2 })
 router.post('/PancardUpload', upload.single('image'), async (req, res) => {
   try {
 
-      console.log("(req.file ::::::::::::::::", req.file)
+    console.log("(req.file ::::::::::::::::", req.file)
 
 
-      if (req.file != undefined && req.file.path != undefined && req.file.path != '' && req.file.path != null) {
+    if (req.file != undefined && req.file.path != undefined && req.file.path != '' && req.file.path != null) {
 
-          res.json({ flag: true, path: req.file.path.substr(7) });
-      } else {
-          res.json({ flag: false, path: "" });
-      }
+      res.json({ flag: true, path: req.file.path.substr(7) });
+    } else {
+      res.json({ flag: false, path: "" });
+    }
 
-      logger.info('admin/dahboard.js post dahboard  inf o::: => ');
+    logger.info('admin/dahboard.js post dahboard  inf o::: => ');
 
   } catch (error) {
-      logger.error('admin/dahboard.js post bet-list error => ', error);
-      //res.send("error");
+    logger.error('admin/dahboard.js post bet-list error => ', error);
+    //res.send("error");
 
-      res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    res.status(config.INTERNAL_SERVER_ERROR).json(error);
   }
 });
 
