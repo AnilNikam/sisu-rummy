@@ -18,3 +18,4 @@ csr.pem
 reports
 *.log
 logs
+testFile.txt

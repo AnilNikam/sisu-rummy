@@ -235,11 +235,17 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         await roundStartActions.nextUserTurnstart(tb);
       }
     } else if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex !== client.seatIndex) {
-      if (playerInGame.length === 1) {
+      if (realPlayerInGame.length == 0) {
+        console.log("realPlayerInGame leaveallrobot")
+        this.leaveallrobot(tb._id)
+      } else if (playerInGame.length === 1) {
         await gameFinishActions.lastUserWinnerDeclareCall(tb);
       }
     } else if (['', 'GameStartTimer'].indexOf(tb.gameState) !== -1) {
-      if (playerInGame.length === 0 && tb.activePlayer === 0) {
+      if (realPlayerInGame.length == 0) {
+        console.log("realPlayerInGame leaveallrobot")
+        this.leaveallrobot(tb._id)
+      } else if (playerInGame.length === 0 && tb.activePlayer === 0) {
         let wh = {
           _id: MongoID(tb._id.toString()),
         };
