@@ -334,6 +334,9 @@ const registerUser = async (requestBody, socket) => {
  */
 const OKYCRequest = async (requestBody, socket) => {
   try {
+
+    //username get from request data
+
     let okyc = {
       userId: OBJECT_ID(requestBody.playerId.toString()),
       adharcard: requestBody.customer_aadhaar_number,

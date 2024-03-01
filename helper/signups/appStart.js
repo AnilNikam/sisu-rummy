@@ -23,17 +23,17 @@ module.exports.appLunchDetails = async (requestData, client) => {
       await this.userSesssionSet(result, client);
 
       //first check a user socketId is enable or not 
-      let checkSckId = await GameUser.findOne({
-        $or: [
-          { _id: playerId.toString() },
-          { sckId: { $exists: true } }
-        ]
-      })
+      // let checkSckId = await GameUser.findOne({
+      //   $or: [
+      //     { _id: MongoID(playerId).toString() },
+      //     { sckId: { $exists: true } }
+      //   ]
+      // })
 
-      logger.info('Guest Final response checkSckId', checkSckId);
-      commandAcions.sendEvent(client, CONST.EXIST_SOCKET_ID, response);
+      // logger.info('Guest Final response checkSckId', checkSckId);
+      // commandAcions.sendEvent(client, CONST.EXIST_SOCKET_ID, response);
 
-      logger.info('client checkSckId', client);
+      // logger.info('client checkSckId', client);
 
 
       let response = await this.filterBeforeSendSPEvent(result);
