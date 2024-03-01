@@ -1,5 +1,4 @@
 const server = require('https').createServer();
-const { createClient } = require('redis');
 const schedule = require('node-schedule');
 
 // eslint-disable-next-line no-undef
@@ -621,8 +620,8 @@ myIo.init = function (server) {
             try {
               const disconnectedUser = socketToUsers.get(socket.id);
               logger.info('Exit disconnected User => ', disconnectedUser);
-              const rdClient = createClient();
-              rdClient.hdel(`socket-${disconnectedUser}`, ['userId', 'socketId']);
+
+              rClient.hdel(`socket-${disconnectedUser}`, ['userId', 'socketId']);
 
               await gamePlayActions.disconnectTableHandle(socket);
             } catch (error) {

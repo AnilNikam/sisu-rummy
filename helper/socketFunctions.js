@@ -2,11 +2,10 @@ const randomString = require('randomstring');
 const schedule = require('node-schedule');
 const logger = require('../logger');
 const commonHelper = require('./commonHelper');
-const { createClient } = require('redis');
 
 module.exports.sendEvent = (socket, eventName, data = {}, flag, msg, rest = {}) => {
   try {
- 
+
     // eslint-disable-next-line no-param-reassign
     flag = typeof flag === 'undefined' ? true : false;
     // eslint-disable-next-line no-param-reassign
@@ -108,8 +107,7 @@ module.exports.GetRandomString = (len) => {
 module.exports.socketUserRedis = (obj) => {
   try {
     const { userId, sckId } = obj;
-    let rdlClient = createClient();
-    rdlClient.hmset(`socket-${userId.toString()}`, 'socketId', sckId.toString(), 'userId', userId.toString());
+    rClient.hmset(`socket-${userId.toString()}`, 'socketId', sckId.toString(), 'userId', userId.toString());
   } catch (error) {
     logger.error('socketFunction.js socketUserRedis error :--> ' + error);
   }
