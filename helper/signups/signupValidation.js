@@ -243,9 +243,21 @@ const registerUser = async (requestBody, socket) => {
     logger.info('Register User Request Body =>', requestBody);
     const { mobileNumber, loginType, deviceId /*, email */ } = requestBody;
     if (loginType === 'Mobile') {
-      let query = { mobileNumber: mobileNumber };
+      const query = { mobileNumber: mobileNumber };
       let result = await Users.findOne(query, {});
       if (!result) {
+
+        const updateData2 = {
+          $set: {
+            mobileVerify: true,
+          },
+      };
+  
+      const rse = await Users.findOneAndUpdate( { mobileNumber: mobileNumber }, updateData2, {
+          new: true,
+      });
+      logger.info('check mobile number update ', rse);
+
         let defaultData = await getUserDefaultFields(requestBody, socket);
         logger.info('registerUser defaultData : ', defaultData);
 

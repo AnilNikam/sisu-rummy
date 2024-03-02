@@ -133,6 +133,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
     location: data.location ? data.location : '',
     uniqueId: '',
     loginType: data.loginType,
+    mobileVerify:data.mobileVerify?data.mobileVerify:false,
     avatar: data.avatar,
     chips: 0,
     winningChips: 0,

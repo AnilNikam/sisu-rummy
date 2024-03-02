@@ -207,8 +207,8 @@ async function playerDetails(requestBody) {
     console.log("isverified ", isverified)
     user.verified = isverified ? isverified.verified : false
     user.aadharcardnumber = isverified ? isverified.adharcard : ""
-    // user.mobileVerify = isverified ? isverified.adharcard : ""
-    // user.panCardNumber = isverified ? isverified.adharcard : ""
+    user.mobileVerify = isverified ? user.mobileVerify : ""
+    user.panCardNumber = isverified ? isverified.adharcard : ""
 
 
     return user;
@@ -849,7 +849,11 @@ async function verifyOTP(payload) {
       const res = { verified: true };
 
       const response = await commonHelper.update(OtpMobile, { mobileNumber: mobileNumber, otpCode: otp }, res);
+      const upWh2 = {
+        mobileNumber: mobileNumber
+    };
 
+    
       return { status: true, message: 'OTP Verified', data: response.data };
     } else {
       return { status: false, message: 'OTP Not Verified' };
