@@ -136,6 +136,7 @@ module.exports.createTable = async (betInfo) => {
       maxSeat: betInfo.deal,
       betId: betInfo._id,
       entryFee: betInfo.entryFee,
+      commission: betInfo.commission,
       deal: parseInt(betInfo.deal),
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
@@ -278,6 +279,19 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
+    }
+
+    if (tableInfo.activePlayer <= 2) {
+      let counter = 0;
+
+      const intervalId = setInterval(() => {
+        counter++;
+        logger.info(`Function called ${counter} times.`);
+        botLogic.findRoom(tableInfo, betInfo)
+        if (counter === 5) {
+          clearInterval(intervalId); // Stop the interval after 5 calls
+        }
+      }, 1500);
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);

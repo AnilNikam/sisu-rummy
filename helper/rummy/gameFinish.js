@@ -156,7 +156,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     const table = await this.manageUserScore(playerInGame, tabInfo);
     logger.info('\n Final winnerDeclareCall tbInfo  ==>', table);
 
-    let amount = (table.tableAmount * CONST.commission) / 100;
+    let amount = (table.tableAmount * table.commission) / 100;
     logger.info('\n Check Amount -->', amount);
 
     table.tableAmount -= parseFloat(amount.toFixed(2));
@@ -193,18 +193,18 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
       if (tableInfo.gameTracks[i].result === CONST.WON) {
         logger.info(' Add Win COunter');
         //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-        
-        let perdecuct  = GAMELOGICCONFIG.PLAYING_WIN_PER || 5
-        let winningwallet = ((Number(winnerTrack.winningAmount)*perdecuct) /100)
+
+        let perdecuct = GAMELOGICCONFIG.PLAYING_WIN_PER || 5
+        let winningwallet = ((Number(winnerTrack.winningAmount) * perdecuct) / 100)
         let TotalwithdrawableChips = Number(winnerTrack.winningAmount) - Number(winningwallet)
 
-        
+
 
         //withdrawableChips Management Function name only 
-        await walletActions.deductWalletPayOut(tableInfo.gameTracks[i]._id,Number(TotalwithdrawableChips), 'Credit', 'Game Win',tableInfo);
-        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id,Number(winningwallet), 'Credit', 'Game Win',tableInfo);
+        await walletActions.deductWalletPayOut(tableInfo.gameTracks[i]._id, Number(TotalwithdrawableChips), 'Credit', 'Game Win', tableInfo);
+        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winningwallet), 'Credit', 'Game Win', tableInfo);
 
-        
+
       }
     }
 

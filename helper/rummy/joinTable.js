@@ -144,6 +144,7 @@ module.exports.createTable = async (betInfo) => {
     let insertobj = {
       maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
+      commission: betInfo.commission,
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
       playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
@@ -301,11 +302,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       clearJob(jobId);
       await gameStartActions.gameTimerStart(tableInfo);
     }
-    // if (tableInfo.maxSeat !== 2 && tableInfo.activePlayer <= 2) {
-    //   setTimeout(() => {
-    //     botLogic.findRoom(tableInfo)
-    //   }, 10000)
-    // }
+
+    // waiting for real player
+
+    logger.info("Table max seat =>", tableInfo.maxSeat)
+
     if (tableInfo.activePlayer <= 2) {
       let counter = 0;
 
@@ -313,8 +314,16 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
         counter++;
         logger.info(`Function called ${counter} times.`);
         botLogic.findRoom(tableInfo, betInfo)
-        if (counter === 5) {
-          clearInterval(intervalId); // Stop the interval after 5 calls
+        if (tableInfo.maxSeat === 2) {
+          logger.info("Check 1", counter)
+          if (counter === 1) {
+            clearInterval(intervalId); // Stop the interval after 2 calls
+          }
+        } else {
+          logger.info("Check 2", counter)
+          if (counter === 5) {
+            clearInterval(intervalId); // Stop the interval after 5 calls
+          }
         }
       }, 1500);
     }

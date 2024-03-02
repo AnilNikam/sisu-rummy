@@ -17,6 +17,7 @@ const PlayingTablesSchema = new Schema(
     gameTimer: { type: Object, default: {} },
     startTimer: { type: String, default: -1 },
     tableAmount: { type: Number, default: 0 },
+    commission: { type: Number, default: 10 },
     currentPlayerTurnIndex: { type: Number, default: -1 },
     tableLock: { type: Boolean, default: false },
     gameTracks: [],
