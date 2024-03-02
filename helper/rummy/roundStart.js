@@ -219,7 +219,7 @@ module.exports.userTurnExpaire = async (tbid) => {
       new: true,
     });
 
-    if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 3) {
+    if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 20) {
       this.handleTimeOut(upRes.playerInfo[upRes.currentPlayerTurnIndex], tbid);
       return;
     }
