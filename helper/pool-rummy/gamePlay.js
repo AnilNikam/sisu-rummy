@@ -5,6 +5,7 @@ const commandAcions = require('../socketFunctions');
 const { nextUserTurnstart } = require('./roundStart');
 
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
+const roundStartActions = require('./roundStart');
 const gameFinishActions = require('./gameFinish');
 const checkWinnerActions = require('./checkWinner');
 const CONST = require('../../constant');
@@ -369,8 +370,11 @@ module.exports.declare = async (requestData, client) => {
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE, response);
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
+    //BOT
+    playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
+
     logger.info("pool rummy playerInGame ", playerInGame)
-    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
+    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 
@@ -684,6 +688,12 @@ module.exports.playerDrop = async (requestData, client) => {
         gameTracks: userTrack,
       },
     };
+
+    // eslint-disable-next-line no-unused-vars
+    const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
+
+    logger.info("pool playerInGame ", playerInGame)
+    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
 
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
       new: true,

@@ -264,6 +264,7 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
     name: userData.name,
     username: userData.username,
     mobileNumber: userData.mobileNumber,
+    email: userData.email,
     avatar: userData.avatar,
     loginType: userData.loginType,
     uniqueId: userData.uniqueId,

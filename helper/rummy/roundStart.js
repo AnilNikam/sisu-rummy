@@ -127,9 +127,12 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
 
     //Assign to bot
     let plid = tb.playerInfo[tb.currentPlayerTurnIndex]._id
+
     const data = await Users.findOne({
       _id: MongoID(plid),
     }).lean();
+
+    logger.info("check pic data =>", data)
 
     if (data && data.isBot) {
       await pic(tb, plid, tb.gamePlayType, 'close')
@@ -306,11 +309,11 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
         new: true,
       });
 
-      logger.info("DealerRobotLogicCard table =>", table)
-      this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+      logger.info("rummy DealerRobotLogicCard table =>", table)
+      await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
 
     });
   } else {
-    this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+    await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
   }
 }

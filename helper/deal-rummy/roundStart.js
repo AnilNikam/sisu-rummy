@@ -282,3 +282,45 @@ module.exports.nextUserTurnstart = async (tb) => {
     logger.error('roundStart.js nextUserTurnstart error : ', e);
   }
 };
+
+module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
+  if (PlayerInfo.length == 0) {
+    return false
+  }
+
+  let userData = PlayerInfo.splice(0, 1)
+
+  if (userData[0].isBot) {
+
+    mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
+
+      if (cardjson.dwd.length > 0) {
+        cardjson.dwd = [cardjson.dwd]
+      }
+
+      //update user game finish status
+      let updateStatus = {
+        $set: {},
+
+      };
+      updateStatus.$set['playerInfo.$.gCard'] = cardjson;
+
+      const qr = {
+        _id: MongoID(tbid.toString()),
+        'playerInfo.seatIndex': Number(userData[0].seatIndex),
+      };
+      console.log("qr ", qr)
+      console.log("updateStatus ", updateStatus)
+
+      const table = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
+        new: true,
+      });
+
+      logger.info("rummy DealerRobotLogicCard table =>", table)
+      await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+
+    });
+  } else {
+    await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+  }
+}

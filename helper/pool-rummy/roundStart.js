@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const PlayingTables = mongoose.model('playingTable');
+const Users = mongoose.model('users');
 
 const logger = require('../../logger');
 const CONST = require('../../constant');
 const leaveTableAction = require('./leaveTable');
+const { pic, mycardGroup } = require('../botFunction');
+
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound, getUserTurnSeatIndex } = require('../common-function/manageUserFunction');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
@@ -112,6 +115,16 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     // logger.info("\nstartUserTurn response =>", response);
 
     sendEventInTable(tb._id.toString(), CONST.USER_TURN_START, response);
+
+    //Assign to BOT
+    let plid = tb.playerInfo[tb.currentPlayerTurnIndex]._id
+    const data = await Users.findOne({
+      _id: MongoID(plid),
+    }).lean();
+
+    if (data && data.isBot) {
+      await pic(tb, plid, tb.gamePlayType, 'close')
+    }
 
     let tbid = tb._id.toString();
 
@@ -282,3 +295,42 @@ module.exports.nextUserTurnstart = async (tb) => {
     logger.error('roundStart.js nextUserTurnstart error : ', e);
   }
 };
+
+module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
+  if (PlayerInfo.length == 0) {
+    return false
+  }
+
+  let userData = PlayerInfo.splice(0, 1)
+
+  if (userData[0].isBot) {
+
+    mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
+
+      if (cardjson.dwd.length > 0) {
+        cardjson.dwd = [cardjson.dwd]
+      }
+
+      //update user game finish status
+      let updateStatus = {
+        $set: {},
+      };
+      updateStatus.$set['playerInfo.$.gCard'] = cardjson;
+
+      const qr = {
+        _id: MongoID(tbid.toString()),
+        'playerInfo.seatIndex': Number(userData[0].seatIndex),
+      };
+
+      const table = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
+        new: true,
+      });
+
+      logger.info("pool DealerRobotLogicCard table =>", table)
+      this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+
+    });
+  } else {
+    this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+  }
+}

@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
+const MongoID = mongoose.Types.ObjectId;
 const BetLists = mongoose.model('dealbetLists');
 const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
+
+const botLogic = require('../botFunction');
 const gameStartActions = require('./gameStart');
 const CONST = require('../../constant');
 const logger = require('../../logger');
-const MongoID = mongoose.Types.ObjectId;
 
 const { sendEvent, sendDirectEvent, clearJob } = require('../socketFunctions');
 
@@ -288,8 +290,16 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
         counter++;
         logger.info(`Function called ${counter} times.`);
         botLogic.findRoom(tableInfo, betInfo)
-        if (counter === 5) {
-          clearInterval(intervalId); // Stop the interval after 5 calls
+        if (tableInfo.maxSeat === 2) {
+          logger.info("Check 1", counter)
+          if (counter === 1) {
+            clearInterval(intervalId); // Stop the interval after 2 calls
+          }
+        } else {
+          logger.info("Check 2", counter)
+          if (counter === 5) {
+            clearInterval(intervalId); // Stop the interval after 5 calls
+          }
         }
       }, 1500);
     }

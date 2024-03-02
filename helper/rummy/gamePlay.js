@@ -385,8 +385,8 @@ module.exports.declare = async (requestData, client) => {
 
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
-    console.log("playerInGame ", playerInGame)
-    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
+    logger.info("playerInGame ", playerInGame)
+    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 
@@ -745,8 +745,8 @@ module.exports.playerDrop = async (requestData, client) => {
     // eslint-disable-next-line no-unused-vars
     const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
 
-    console.log("playerInGame ", playerInGame)
-    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
+    logger.info("rummy playerInGame ", playerInGame)
+    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
 
 
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {

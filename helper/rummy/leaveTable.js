@@ -188,8 +188,7 @@ module.exports.manageOnUserLeave = async (tb, client) => {
 
     if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex === client.seatIndex) {
       if (realPlayerInGame.length == 0) {
-        console.log("realPlayerInGame leaveallrobot")
-        this.leaveallrobot(tb._id)
+        await this.leaveallrobot(tb._id)
       } else if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
@@ -197,13 +196,6 @@ module.exports.manageOnUserLeave = async (tb, client) => {
           _id: MongoID(tb._id.toString()),
           'playerInfo.isBot': true,
         };
-
-        // const res = await PlayingTables.findOne(whr, {}).lean();
-        // logger.info("for bot details  ==> res", res)
-
-
-        // let wh = { _id: MongoID(tb._id).toString(), isBot: true }
-        // 'playerInfo._id': MongoID(client.uid.toString()),
 
         logger.info("check bot details remove ==>", wh)
 
