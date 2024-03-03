@@ -1,5 +1,8 @@
 const logger = require('../../logger');
 const CONST = require('../../constant');
+const mongoose = require('mongoose');
+const PlayingTables = mongoose.model('playingTable');
+
 
 module.exports.getPlayingUserInRound = async (p) => {
   // logger.info("\n get getPlayingUserInRound Round p :", p);
@@ -80,6 +83,14 @@ module.exports.getPlayingAndDropUserRound = async (p) => {
 };
 
 module.exports.filterBeforeSendSPEvent = async (userData) => {
+  let findCountPlayer = await PlayingTables.aggregate([
+    {
+      $project: {
+        numberOfPlayers: { $size: "$playerInfo" }
+      }
+    }
+  ])
+
   let res = {
     _id: userData._id,
     name: userData.name,
@@ -92,6 +103,7 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
     chips: userData.chips,
     email: userData.email,
     winningChips: userData.winningChips,
+    activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
     tableId: userData.tableId || 0,
     createdAt: userData.createdAt,
   };
