@@ -200,15 +200,19 @@ async function playerDetails(requestBody) {
       },
       {
         verified: 1,
-        adharcard: 1
+        adharcard: 1,
+        pancardverified: 1,
+        panCardNumber: 1,
+        pancard: 1
       }
     );
 
-    console.log("isverified ", isverified)
+    logger.info("isverified ", isverified)
     user.verified = isverified ? isverified.verified : false
     user.aadharcardnumber = isverified ? isverified.adharcard : ""
-    user.mobileVerify = isverified ? user.mobileVerify : ""
-    user.panCardNumber = isverified ? isverified.adharcard : ""
+    user.mobileVerify = user.mobileVerify ? user.mobileVerify : false
+    user.panCardVerify = isverified ? isverified.pancardverified : false
+    user.panCardNumber = isverified ? isverified.pancard : ""
 
 
     return user;
@@ -851,9 +855,9 @@ async function verifyOTP(payload) {
       const response = await commonHelper.update(OtpMobile, { mobileNumber: mobileNumber, otpCode: otp }, res);
       const upWh2 = {
         mobileNumber: mobileNumber
-    };
+      };
 
-    
+
       return { status: true, message: 'OTP Verified', data: response.data };
     } else {
       return { status: false, message: 'OTP Not Verified' };

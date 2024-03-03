@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
 const UserReferTracks = mongoose.model('userReferTracks');
+const PlayingTables = mongoose.model('playingTable');
 const IdCounter = mongoose.model('idCounter');
 const logger = require('../../logger');
 const { tryEach } = require('async');
@@ -20,20 +21,6 @@ module.exports.appLunchDetails = async (requestData, client) => {
     if (result) {
       //when redis set then uncomment the section
       await this.userSesssionSet(result, client);
-
-      //first check a user socketId is enable or not 
-      // let checkSckId = await GameUser.findOne({
-      //   $or: [
-      //     { _id: MongoID(playerId).toString() },
-      //     { sckId: { $exists: true } }
-      //   ]
-      // })
-
-      // logger.info('Guest Final response checkSckId', checkSckId);
-      // commandAcions.sendEvent(client, CONST.EXIST_SOCKET_ID, response);
-
-      // logger.info('client checkSckId', client);
-
 
       let response = await this.filterBeforeSendSPEvent(result);
       commandAcions.sendEvent(client, CONST.DASHBOARD, response);
@@ -133,7 +120,7 @@ module.exports.getUserDefaultFields = async (data, client) => {
     location: data.location ? data.location : '',
     uniqueId: '',
     loginType: data.loginType,
-    mobileVerify:data.mobileVerify?data.mobileVerify:false,
+    mobileVerify: data.mobileVerify ? data.mobileVerify : false,
     avatar: data.avatar,
     chips: 0,
     winningChips: 0,
@@ -259,6 +246,14 @@ module.exports.userSesssionSet = async (userData, client) => {
 
 module.exports.filterBeforeSendSPEvent = async (userData) => {
   //logger.info('filter Before Send SP Event filterBeforeSendSPEvent -->', userData);
+  let findCountPlayer = await PlayingTables.aggregate([
+    {
+      $project: {
+        numberOfPlayers: { $size: "$playerInfo" }
+      }
+    }
+  ])
+  logger.info("\n findCountPlayer => ", findCountPlayer)
 
   let res = {
     _id: userData._id,
@@ -272,6 +267,7 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
     deviceId: userData.deviceId,
     chips: userData.chips,
     winningChips: userData.winningChips,
+    activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
     tableId: userData.tableId || 0,
     createdAt: userData.createdAt,
   };

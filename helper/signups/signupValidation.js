@@ -233,6 +233,7 @@ const updateMobileNumber = async (requestData, socket) => {
   }
   return true;
 };
+
 /**
  * @description Register user for New Game
  * @param {Object} requestBody
@@ -247,16 +248,6 @@ const registerUser = async (requestBody, socket) => {
       let result = await Users.findOne(query, {});
       if (!result) {
 
-        const updateData2 = {
-          $set: {
-            mobileVerify: true,
-          },
-      };
-  
-      const rse = await Users.findOneAndUpdate( { mobileNumber: mobileNumber }, updateData2, {
-          new: true,
-      });
-      logger.info('check mobile number update ', rse);
 
         let defaultData = await getUserDefaultFields(requestBody, socket);
         logger.info('registerUser defaultData : ', defaultData);
@@ -264,9 +255,18 @@ const registerUser = async (requestBody, socket) => {
         let userInsertInfo = await saveGameUser(defaultData, socket);
         logger.info('registerUser userInsertInfo : ', userInsertInfo);
 
+
+        let wh = { mobileNumber: mobileNumber };
+        let updateData2 = {
+          $set: {
+            mobileVerify: true,
+          },
+        };
+        const rse = await Users.findOneAndUpdate(wh, updateData2, {
+          new: true,
+        });
+
         let userData = userInsertInfo;
-
-
 
         await userSesssionSet(userData, socket);
 
