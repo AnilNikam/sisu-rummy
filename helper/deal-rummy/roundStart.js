@@ -317,10 +317,10 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
       });
 
       logger.info("rummy DealerRobotLogicCard table =>", table)
-      await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+      this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
 
     });
   } else {
-    await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+    this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
   }
 }

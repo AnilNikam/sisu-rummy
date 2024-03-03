@@ -281,7 +281,7 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
     return false
   }
 
-  let userData = PlayerInfo.splice(0, 1)
+  var userData = PlayerInfo.splice(0, 1)
 
   if (userData[0].isBot) {
 
@@ -310,10 +310,10 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
       });
 
       logger.info("rummy DealerRobotLogicCard table =>", table)
-      await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+      this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
 
     });
   } else {
-    await this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
+    this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
   }
 }

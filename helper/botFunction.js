@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
 const PlayingTables = mongoose.model("playingTable");
-
 const joinTable = require("./rummy/joinTable");
 const commandAcions = require('./socketFunctions');
 const _ = require("underscore");
@@ -606,7 +605,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             let randomIndex = -1
 
                                             logger.info("cardjson ", cardjson)
-                                            RemainCardTounusecardThrow(cardjson, parseInt(tableInfo.wildCard.split("-")[1]), async (RemainCard) => {
+                                            RemainCardTounusecardThrow(cardjson, tableInfo.wildCard, async (RemainCard) => {
 
 
                                                 logger.info("RemainCard ", RemainCard)
@@ -791,7 +790,7 @@ PickCardcloseDeck_or_open_deck = (cards, wildCard, opendeckcard, closecard, call
     logger.info("closecard ", closecard)
 
 
-    if (opendeckcard.split("-")[1] == wildCard.split("-")[1]) {
+    if (opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J") {
         return callback("open");
     }
 
@@ -813,7 +812,7 @@ OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
 
 
         logger.info("cardjson ", cardjson)
-        RemainCardTounusecardThrow(cardjson, parseInt(tableInfo.wildCard.split("-")[1]), async (RemainCard) => {
+        RemainCardTounusecardThrow(cardjson, wildCard, async (RemainCard) => {
 
 
             logger.info("OpenDeckcardCheckUseOrnot RemainCard", RemainCard)
@@ -1489,6 +1488,7 @@ const findImpureSequences = (cards, joker) => {
 }
 
 const mycardGroup = async (myCard, wildcard, cb) => {
+    logger.info("DealerRobotLogicCard my Crard group ", wildcard);
     logger.info("Pure sequences:");
     const pureSeqs = findPureSequences(myCard);
     logger.info("Pure sequences:", pureSeqs);
@@ -1524,18 +1524,17 @@ const mycardGroup = async (myCard, wildcard, cb) => {
 
 }
 
-const RemainCardTounusecardThrow = async (MycardSet, wildcard, callback) => {
+const RemainCardTounusecardThrow = async (MycardSet, wildCard, callback) => {
 
     logger.info("MycardSet ", MycardSet)
+    let cardNu = parseInt(wildCard.split("-")[1])
+    logger.info("MycardSet ", cardNu)
 
-    UnusedJoker(MycardSet.dwd, wildcard, MycardSet.impure, MycardSet.set, (unusedJokercards) => {
-
+    UnusedJoker(MycardSet.dwd, cardNu, MycardSet.impure, MycardSet.set, (unusedJokercards) => {
 
         logger.info("unusedJoker *-*-*-*-*-*-* ", unusedJokercards)
 
         possibilityCard(unusedJokercards.RemainCard, (possibiltyCard1) => {
-
-
 
             RemainCard = _.difference(unusedJokercards.RemainCard, _.flatten(possibiltyCard1))
 
@@ -1560,7 +1559,7 @@ const RemainCardTounusecardThrow = async (MycardSet, wildcard, callback) => {
 
 const UnusedJoker = async (RemainCard, joker, impureSequences, Teen, callback) => {
     let remainjoker = RemainCard.filter(item => (item.split("-")[0] == "J") || (parseInt(item.split("-")[1]) === joker))
-    //logger.info("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
+    // logger.info("remainjoker *-*-*--*-*-*-*-*--** ", remainjoker)
 
     if (remainjoker.length > 0 && (impureSequences.length > 0 || Teen.length > 0)) {
 

@@ -386,7 +386,7 @@ module.exports.declare = async (requestData, client) => {
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
     logger.info("playerInGame ", playerInGame)
-    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 
@@ -746,7 +746,7 @@ module.exports.playerDrop = async (requestData, client) => {
     const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
 
     logger.info("rummy playerInGame ", playerInGame)
-    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
 
 
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
