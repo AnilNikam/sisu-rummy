@@ -14,7 +14,7 @@ const dealGamePlayActions = require('../helper/deal-rummy');
 const poolGamePlayActions = require('../helper/pool-rummy');
 const { sendEvent, sendDirectEvent } = require('../helper/socketFunctions');
 const { getPaymentHistory, updateWallet } = require('../helper/walletFunction');
-const { registerUser } = require('../helper/signups/signupValidation');
+const { registerUser, addBankAccount } = require('../helper/signups/signupValidation');
 const { userReconnect, takeSeat } = require('../helper/common-function/reConnectFunction');
 const { initiatePayment } = require('./paymentController,js');
 const { PayOutTransfer } = require('./paymentController,js');
@@ -84,8 +84,17 @@ myIo.init = function (server) {
 
           case CONST.REGISTER_USER: {
             try {
-              console.log("payload.data ", payload.data)
               await registerUser(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js Register User Table error => ', error);
+            }
+            break;
+          }
+
+          case CONST.ADD_BANK_ACCOUNT: {
+            try {
+              logger.info("bank account payload.data ", payload.data)
+              await addBankAccount(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js Register User Table error => ', error);
             }

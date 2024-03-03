@@ -9,6 +9,7 @@ const logger = require('../../logger');
 const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
+const BankDeatils = mongoose.model('bankDeatils');
 const axios = require('axios');
 const commonHelper = require('../commonHelper');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
@@ -337,6 +338,47 @@ const registerUser = async (requestBody, socket) => {
     };
   }
 };
+/**
+ * @description Register user for New Game
+ * @param {Object} requestBody
+ * @returns {Object}{ status:0/1, message: '', data: Response }
+ */
+const addBankAccount = async (requestBody, socket) => {
+  try {
+    logger.info('Register User Request Body =>', requestBody);
+    const { addBankAccount, playerId, customerName, customerEmail, customerPhone, accountNo, ifscCode, BeneficiaryName, transferMode } = requestBody;
+    if (loginType === 'Guest') {
+      let query = { amountNumber: addBankAccount.toString() };
+      let result = await BankDeatils.findOne(query, {});
+      if (result) {
+
+        let info = {
+          userId: playerId,
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+          amountNumber: accountNo,
+          IFSC: ifscCode,
+          BeneficiaryName: BeneficiaryName
+        }
+        let response = await BankDeatils.create(info);
+
+
+        commandAcions.sendEvent(socket, CONST.DASHBOARD, { status: 1, response, msg: 'Account Details Successfully Added..' });
+      } else {
+
+        commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, { status: 0, msg: 'Account Details Already Registerd' });
+
+      }
+    }
+  } catch (error) {
+    logger.error('mainController.js registerUser error=> ', error);
+    return {
+      message: 'something went wrong while registering, please try again',
+      status: 0,
+    };
+  }
+};
 
 
 /**
@@ -583,5 +625,6 @@ module.exports = {
   registerUser,
   OKYCRequest,
   OKYCverifyRequest,
-  OKYCPanverifyRequest
+  OKYCPanverifyRequest,
+  addBankAccount
 };
