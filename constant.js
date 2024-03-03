@@ -157,7 +157,7 @@ const CONST = {
   TAKE_SEAT: 'TS',
   RE_BUY: 'RB',
   EDIT_MOBILE: 'EM',
-  ADD_BANK_ACCOUNT: ADDBANK,
+  ADD_BANK_ACCOUNT: 'ADDBANK',
 
   // Player Status
   WATCHING: 'WATCHING',

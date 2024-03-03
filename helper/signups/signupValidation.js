@@ -345,12 +345,13 @@ const registerUser = async (requestBody, socket) => {
  */
 const addBankAccount = async (requestBody, socket) => {
   try {
-    logger.info('Register User Request Body =>', requestBody);
+    logger.info('addBankAccount User Request Body =>', requestBody);
     const { addBankAccount, playerId, customerName, customerEmail, customerPhone, accountNo, ifscCode, BeneficiaryName, transferMode } = requestBody;
-    if (loginType === 'Guest') {
-      let query = { amountNumber: addBankAccount.toString() };
-      let result = await BankDeatils.findOne(query, {});
-      if (result) {
+    let query = { amountNumber:accountNo };
+    let result = await BankDeatils.findOne(query, {});
+    logger.info('addBankAccount User Request result =>', result);
+
+      if (!result) {
 
         let info = {
           userId: playerId,
@@ -363,14 +364,14 @@ const addBankAccount = async (requestBody, socket) => {
         }
         let response = await BankDeatils.create(info);
 
+        logger.info('addBankAccount response =>', response);
 
-        commandAcions.sendEvent(socket, CONST.DASHBOARD, { status: 1, response, msg: 'Account Details Successfully Added..' });
+        commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response ,true,'Account Details Successfully Added..' );
       } else {
 
-        commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, { status: 0, msg: 'Account Details Already Registerd' });
+        commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {},false  , 'Account Details Already Registerd' );
 
       }
-    }
   } catch (error) {
     logger.error('mainController.js registerUser error=> ', error);
     return {
