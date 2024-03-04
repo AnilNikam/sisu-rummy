@@ -195,7 +195,7 @@ const CONST = {
 
   // Timer
   userTurnTimer: 30,
-  gameStartTime: 10,
+  gameStartTime: 15,
   gameCardDistributeDelayTime: 1,
   finishTimer: 20,
   rsbTimer: 4,

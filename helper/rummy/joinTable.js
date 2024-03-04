@@ -302,7 +302,12 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       await gameStartActions.gameTimerStart(tableInfo);
     }
 
+
     // waiting for real player
+    let botJobId = 'WAITING' + ':' + tableInfo._id;
+    let delay = AddTime(7);
+
+    await setDelay(botJobId, new Date(delay));
 
     logger.info("Table max seat =>", tableInfo.maxSeat)
 
@@ -324,7 +329,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
             clearInterval(intervalId); // Stop the interval after 5 calls
           }
         }
-      }, 1500);
+      }, 1200);
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
