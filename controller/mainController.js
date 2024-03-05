@@ -841,12 +841,16 @@ async function verifyOTP(payload) {
     });
 
     if (alreadyExist) {
-      let wh = {
-        mobileNumber: mobileNumber,
-        otpType,
-      }
-      let response = await commonHelper.deleteOne(OtpMobile, wh);
-      logger.info("response ->", response)
+      logger.info("Old OTP exists. Scheduling deletion...");
+      setTimeout(async () => {
+        const deletedOtp = await OtpMobile.findOneAndDelete({
+          mobileNumber: mobileNumber,
+          otpType: otpType,
+        });
+        if (deletedOtp) {
+          logger.info("Deleted old OTP:", deletedOtp);
+        }
+      }, 30000); // Delay deletion by 30 seconds (adjust as needed)
     }
 
     const result = await OtpMobile.findOne({
