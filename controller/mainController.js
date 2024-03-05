@@ -834,6 +834,21 @@ async function verifyOTP(payload) {
     logger.info('verify User Verify OTP payload.data => ', payload);
     const { mobileNumber, otp, otpType } = payload;
 
+
+    const alreadyExist = await OtpMobile.count({
+      mobileNumber: mobileNumber,
+      otpType,
+    });
+
+    if (alreadyExist) {
+      let wh = {
+        mobileNumber: mobileNumber,
+        otpType,
+      }
+      let response = await commonHelper.deleteOne(OtpMobile, wh);
+      logger.info("response ->", response)
+    }
+
     const result = await OtpMobile.findOne({
       mobileNumber: mobileNumber,
       otpCode: otp,
