@@ -808,28 +808,20 @@ async function sendOTP(payload) {
     formData.append('body', messageBody);
     formData.append('template_id', templateId);
 
-    console.log("formData ", formData)
-    console.log("apiKey ", apiKey)
-    console.log("accountSid ", accountSid)
-
-
     const response = await axios.post(`https://api.kaleyra.io/v1/${accountSid}/messages`, formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'api-key': apiKey,
       },
     });
-    console.log("response ", response.data)
 
     if (response.data.data != undefined && response.data.data.message_id != undefined) {
-      console.log("Suceesss ::::::::::::::::::::")
+      logger.info("Suceesss Send OTP")
     } else {
-      console.log("errr ::::::::::::::::::::")
-
+      logger.info("OTP Not Send")
     }
 
   } catch (error) {
-    console.log("Error ::::::::::::::::", error)
     logger.error('mainController.js sendOTP error=> ', error, payload);
   }
 }
