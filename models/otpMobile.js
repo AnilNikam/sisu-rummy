@@ -20,5 +20,5 @@ const OtpMobileSchema = new Schema(
   { versionKey: false, timestamps: { createdAt: true } } // Combine timestamps option with other options
 );
 
-OtpMobileSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 }); // Use createdAt field for TTL index
+OtpMobileSchema.index({ createdAt: 1 }, { expireAfterSeconds: 20 }); // Use createdAt field for TTL index
 module.exports = mongoose.model(collectionName, OtpMobileSchema, collectionName);
