@@ -8,7 +8,7 @@ const mainCtrl = require('../../controller/adminController');
 const logger = require('../../logger');
 // const Userdeposit = mongoose.model('userdeposit');
 // const Userpayout = mongoose.model('userpayout');
-
+const UserWalletTracks = mongoose.model('walletTrackTransaction');
 
 /**
 * @api {post} /admin/DepositList
@@ -510,5 +510,32 @@ router.put('/PayoutUpdate', async (req, res) => {
     }
 });
 
+//==================================== Trancation  ======================================================
+//Transaction
+/**
+* @api {post} /admin/Transaction
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/transactionData', async (req, res) => {
+    try {
+        //console.info('requet => ', req);
 
+        const transactionData = await UserWalletTracks.find({ }, { uniqueId: 1, userId: 1, transType: 1, transTypeText: 1,transAmount:1,chips:1,winningChips:1,bonusChips:1,referralChips:1,
+            totalBucket:1,gameId:1,createdAt:1
+            })
+
+        logger.info('admin/dahboard.js post transactionData  error => ', transactionData);
+
+        res.json({ transactionData });
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+//==========================================================================================
 module.exports = router;

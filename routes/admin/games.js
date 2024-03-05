@@ -158,5 +158,145 @@ router.get('/getgamelogic', async (req, res) => {
 
 
 
+/**
+* @api {get} /admin/lobbies
+* @apiName  gameLogicSet
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/GetWelComeBonus', async (req, res) => {
+    try {
+        console.info('requet => ', req.query);
+        console.info('GAMELOGICCONFIG => ', GAMELOGICCONFIG);
+
+        
+        res.json({ welcomebonus: GAMELOGICCONFIG.welcomebonus,welcomebonusamount:GAMELOGICCONFIG.welcomebonusamount});
+
+
+        
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+/**
+* @api {get} /admin/lobbies
+* @apiName  GetWelComeBonus
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/WelComeBonusset', async (req, res) => {
+    try {
+        console.info('requet => ', req.body);
+    
+        console.log("req.body.game.gamename  1", req.body )
+
+        if (req.body.welcomebonus != undefined && req.body.welcomebonusamount != undefined ) {
+            GAMELOGICCONFIG.welcomebonus = req.body.welcomebonus
+            GAMELOGICCONFIG.welcomebonusamount = parseInt(req.body.welcomebonusamount)
+
+            console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+
+            });
+            res.json({ falgs: true });
+        } else{
+            res.json({ falgs: false });
+        }
+
+       
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+
+/**
+ * 
+ * referral (First deposit)
+ * 
+* @api {get} /admin/lobbies
+* @apiName  gameLogicSet
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/GetreferralBonus', async (req, res) => {
+    try {
+        console.info('requet => ', req.query);
+        console.info('GAMELOGICCONFIG => ', GAMELOGICCONFIG);
+
+        
+        res.json({ 
+            referralbonus: GAMELOGICCONFIG.referralDepositbonus,
+            referralbonusrate:GAMELOGICCONFIG.referralDepositbonusrate,
+            referralbonusamount:GAMELOGICCONFIG.referralDepositbonusamount});
+
+
+        
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+/**
+ * referral (First deposit)
+* @api {get} /admin/lobbies
+* @apiName  GetWelComeBonus
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/referralBonusset', async (req, res) => {
+    try {
+        console.info('requet => ', req.body);
+    
+        console.log("req.body.game.gamename  1", req.body )
+
+        if (req.body.referralbonus != undefined && req.body.referralbonusrate != undefined && req.body.referralbonusamount != undefined ) {
+            GAMELOGICCONFIG.referralDepositbonus = req.body.referralbonus
+            GAMELOGICCONFIG.referralDepositbonusrate = parseInt(req.body.referralbonusrate)
+            GAMELOGICCONFIG.referralDepositbonusamount = parseInt(req.body.referralbonusamount)
+
+
+            console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+
+            });
+            res.json({ falgs: true });
+        } else{
+            res.json({ falgs: false });
+        }
+
+       
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
 
 module.exports = router;

@@ -14,7 +14,7 @@ const BankDeatils = new Schema(
         paymentStatus: {
             type: String,
             enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
-            default: 'Pending',
+            default: 'Pending', //Approved //Rejected  Must This String  
         },
         IFSC: { type: String, default: '' },
         BeneficiaryName: { type: String, default: '' },
