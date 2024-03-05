@@ -774,7 +774,27 @@ async function sendOTP(payload) {
 async function sendOTP(payload) {
   try {
     logger.info('User Send OTP payload.data => ', payload);
-    const { email } = payload;
+    const { email,mobileNumber,otpType } = payload;
+
+
+    const alreadyExist = await OtpMobile.count({
+      mobileNumber: mobileNumber,
+      otpType,
+    });
+
+    if (alreadyExist) {
+      
+        const deletedOtp = await OtpMobile.findOneAndDelete({
+          mobileNumber: mobileNumber,
+          otpType: otpType,
+        });
+        if (deletedOtp) {
+          logger.info("Deleted old OTP:", deletedOtp);
+        }
+      } // Delay deletion by 30 seconds (adjust as needed)
+    
+
+
     const accountSid = process.env.SID;
     const apiKey = process.env.SMS_API;
 
@@ -833,25 +853,7 @@ async function verifyOTP(payload) {
   try {
     logger.info('verify User Verify OTP payload.data => ', payload);
     const { mobileNumber, otp, otpType } = payload;
-
-
-    const alreadyExist = await OtpMobile.count({
-      mobileNumber: mobileNumber,
-      otpType,
-    });
-
-    if (alreadyExist) {
-      logger.info("Old OTP exists. Scheduling deletion...");
-      setTimeout(async () => {
-        const deletedOtp = await OtpMobile.findOneAndDelete({
-          mobileNumber: mobileNumber,
-          otpType: otpType,
-        });
-        if (deletedOtp) {
-          logger.info("Deleted old OTP:", deletedOtp);
-        }
-      }, 30000); // Delay deletion by 30 seconds (adjust as needed)
-    }
+  
 
     const result = await OtpMobile.findOne({
       mobileNumber: mobileNumber,
