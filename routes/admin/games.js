@@ -22,10 +22,12 @@ router.get('/rummygamehistory', async (req, res) => {
     try {
         console.log('requet => ', req);
 
-        const gameHistoryData = await GameHistory.find({  },
-            { date: 1, gamePlayType: 1, commission: 1, gameId: 1, entryFee: 1, maxSeat: 1 }).sort({ date: -1 })
+        let gameHistoryData = await GameHistory.find({  },
+            { gameId:1,gamePlayType:1,maxSeat:1,tableAmount:1,date:1,playerInfo:1,entryFee:1}).sort({ date: -1 })
             
-        console.log("completeWithdrawalData ", gameHistoryData)
+      
+
+            console.log("completeWithdrawalData ", gameHistoryData)
 
         res.json({ gameHistoryData });
     } catch (error) {
@@ -273,8 +275,88 @@ router.put('/referralBonusset', async (req, res) => {
 
         if (req.body.referralbonus != undefined && req.body.referralbonusrate != undefined && req.body.referralbonusamount != undefined ) {
             GAMELOGICCONFIG.referralDepositbonus = req.body.referralbonus
-            GAMELOGICCONFIG.referralDepositbonusrate = parseInt(req.body.referralbonusrate)
+            GAMELOGICCONFIG.referralDepositbonusrate = parseFloat(req.body.referralbonusrate)
             GAMELOGICCONFIG.referralDepositbonusamount = parseInt(req.body.referralbonusamount)
+
+
+            console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+
+            });
+            res.json({ falgs: true });
+        } else{
+            res.json({ falgs: false });
+        }
+
+       
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+
+/**
+ * 
+ * referral (First deposit)
+ * 
+* @api {get} /admin/lobbies
+* @apiName  gameLogicSet
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/GetreferralgameBonus', async (req, res) => {
+    try {
+        console.info('requet => ', req.query);
+        console.info('GAMELOGICCONFIG => ', GAMELOGICCONFIG);
+
+        
+        res.json({ 
+            referralgamebonus: GAMELOGICCONFIG.referralgamebonus,
+            referralgamebonusrate:GAMELOGICCONFIG.referralgamebonusrate,
+            referralgamebonusamount:GAMELOGICCONFIG.referralgamebonusamount,
+            platformfee:GAMELOGICCONFIG.platformfee
+        });
+
+
+        
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+/**
+ * referral (First deposit)
+* @api {get} /admin/lobbies
+* @apiName  GetWelComeBonus
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/referralgameBonusset', async (req, res) => {
+    try {
+        console.info('requet => ', req.body);
+    
+        console.log("req.body.game.gamename  1", req.body )
+
+        if (req.body.referralgamebonus != undefined && req.body.referralgamebonusrate != undefined && req.body.referralgamebonusamount != undefined &&  req.body.platformfee != undefined) {
+            GAMELOGICCONFIG.referralgamebonus = req.body.referralgamebonus
+            GAMELOGICCONFIG.referralgamebonusrate = req.body.referralgamebonusrate
+            GAMELOGICCONFIG.referralgamebonusamount = parseInt(req.body.referralgamebonusamount)
+            GAMELOGICCONFIG.platformfee = req.body.platformfee
+
 
 
             console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
