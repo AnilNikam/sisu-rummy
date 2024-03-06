@@ -1,16 +1,16 @@
-const commandAcions = require('../socketFunctions');
-const { OBJECT_ID } = require('../../config');
-
-const CONST = require('../../constant');
-const UserOtp = require('../../models/userOtp');
-const smsActions = require('../sms');
 const mongoose = require('mongoose');
-const logger = require('../../logger');
-const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
 const BankDeatils = mongoose.model('bankDeatils');
+const { OBJECT_ID } = require('../../config');
+
+const CONST = require('../../constant');
 const axios = require('axios');
+const logger = require('../../logger');
+const smsActions = require('../sms');
+const UserOtp = require('../../models/userOtp');
+const commandAcions = require('../socketFunctions');
+const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const commonHelper = require('../commonHelper');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
 
@@ -338,6 +338,7 @@ const registerUser = async (requestBody, socket) => {
     };
   }
 };
+
 /**
  * @description Register user for New Game
  * @param {Object} requestBody
@@ -366,7 +367,7 @@ const addBankAccount = async (requestBody, socket) => {
 
       logger.info('addBankAccount response =>', response);
 
-      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response, undefined, 'Account Details Successfully Added..');
+      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response, "undefined", 'Account Details Successfully Added..');
     } else {
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'Account Details Already Registerd');
