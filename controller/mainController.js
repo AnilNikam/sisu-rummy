@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const Twilio = require('twilio');
 const { omit } = require('lodash');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
@@ -20,6 +19,7 @@ const BetLists = mongoose.model('betLists');
 const OtpMobile = mongoose.model('otpMobile');
 const Friend = mongoose.model('friends');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
+
 /**
  * @description  User Sign In
  * @param {Object} requestBody
@@ -262,14 +262,6 @@ async function playerInformation(requestBody) {
       logger.error('mainController.js playerInformation 297 else=> ', requestBody);
     }
 
-    // if (user) {
-    //    logger.info("User Authenticate");
-    // return { message: "Authenticate User", status: 1, user: user }
-    // }
-    // else {
-    //    logger.info("User Not Authenticate");
-    // return { message: "Un-Authenticate User", status: 0 }
-    // }
     return { user, alreadyFriend };
   } catch (error) {
     logger.error('mainController.js playerInformation error=> ', error, requestBody);
@@ -382,40 +374,26 @@ async function registerAdmin(requestBody) {
 async function registerAdminUpdate(requestBody) {
   try {
     const { email, oldPwd, newPwd, newEmail } = requestBody;
-    console.log('111111111111requestBody => ', requestBody);
-    console.log("dddd")
     const data = await Admin.findOne({ email }).lean();
-    console.log("11111111111user =>", data);
 
     if (data !== null) {
       const passwordMatch = await bcrypt.compare(oldPwd, data.password);
-      console.log('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
       if (passwordMatch) {
-
         const updateData = {
           $set: {
 
           }
         };
         if (newPwd != "") {
-
           const hashedPassword = await bcrypt.hash(newPwd, 10);
           updateData["$set"]["password"] = hashedPassword
-
         }
 
         if (newEmail != "") {
           updateData["$set"]["email"] = newEmail
-
         }
 
-
-        console.log("updateData ", updateData)
-
         const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
-
-        console.log("res", response)
-
         const token = await commonHelper.sign(data);
         data.token = token;
         delete data.password;
@@ -717,56 +695,6 @@ async function inAppPurchase(requestBody) {
   }
 }
 
-/*
-//Send OTP
-*/
-/*
-async function sendOTP(payload) {
-  try {
-    logger.info('User Send OTP payload.data => ', payload);
-    // logger.info('config.TWILIO_ACCOUNT_SID ', config.TWILIO_ACCOUNT_SID, "\nconfig.TWILIO_AUTH_TOKEN", config.TWILIO_AUTH_TOKEN, "\nconfig.TWILIO_NUMBER", config.TWILIO_NUMBER);
-    const { email } = payload;
-    const accountSid = process.env.SID;
-    const authToken = process.env.SMS_API;
-
-    const client = new Twilio(accountSid, authToken);
-    const otpCode = Math.floor(100000 + Math.random() * 900000);
-
-    const otpData = new OtpMobile({
-      mobileNumber: payload.mobileNumber,
-      email: email !== null ? email : '',
-      otpCode,
-      otpType: payload.otpType,
-      expireIn: new Date().getTime() * 60000,
-    });
-
-    const result = await otpData.save();
-    logger.info('Result Otp Data Save => ', result);
-    logger.info('send to this number', CONST.COUNTRY_CODE + payload.mobileNumber);
-
-    client.messages
-      .create({
-        body: `Thank you for connecting with Rummy Legit. Your OTP is: ${otpCode}`,
-        from: config.TWILIO_NUMBER, // From a valid Twilio number
-        statusCallback: '',
-        to: CONST.COUNTRY_CODE + payload.mobileNumber, // Text this number
-      })
-      .then((message) => {
-        logger.info('message.sid ==> ', message.sid);
-        logger.info('Twilio message ==> ', message);
-        return message;
-      })
-      .catch((error) => {
-        logger.info('Twilio Error --> ', error);
-      });
-    if (payload.email) {
-      // mailer(payload.email, otpCode)
-    }
-  } catch (error) {
-    logger.error('mainController.js sendOTP error=> ', error, payload);
-  }
-}
-*/
 
 /*
 //Send OTP
@@ -774,7 +702,7 @@ async function sendOTP(payload) {
 async function sendOTP(payload) {
   try {
     logger.info('User Send OTP payload.data => ', payload);
-    const { email,mobileNumber,otpType } = payload;
+    const { email, mobileNumber, otpType } = payload;
 
 
     const alreadyExist = await OtpMobile.count({
@@ -783,16 +711,15 @@ async function sendOTP(payload) {
     });
 
     if (alreadyExist) {
-      
-        const deletedOtp = await OtpMobile.findOneAndDelete({
-          mobileNumber: mobileNumber,
-          otpType: otpType,
-        });
-        if (deletedOtp) {
-          logger.info("Deleted old OTP:", deletedOtp);
-        }
-      } // Delay deletion by 30 seconds (adjust as needed)
-    
+
+      const deletedOtp = await OtpMobile.findOneAndDelete({
+        mobileNumber: mobileNumber,
+        otpType: otpType,
+      });
+      if (deletedOtp) {
+        logger.info("Deleted old OTP:", deletedOtp);
+      }
+    } // Delay deletion by 30 seconds (adjust as needed)
 
 
     const accountSid = process.env.SID;
@@ -853,7 +780,7 @@ async function verifyOTP(payload) {
   try {
     logger.info('verify User Verify OTP payload.data => ', payload);
     const { mobileNumber, otp, otpType } = payload;
-  
+
 
     const result = await OtpMobile.findOne({
       mobileNumber: mobileNumber,
@@ -894,6 +821,7 @@ async function verifyOTP(payload) {
       //   //logger.info('verify Result Otp Data => ', response);
       //   return { status: true, message: 'OTP Verified', data: response };
       // } else {
+      //   return { status: false, message: 'OTP Not Verified' };
 
       // }
     }

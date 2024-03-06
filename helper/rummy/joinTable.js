@@ -178,8 +178,10 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
 
     if (seatIndex === '-1') {
-      await this.findTable(betInfo, socket);
-      return false;
+      if (socket.isBot !== true) {
+        await this.findTable(betInfo, socket);
+        return false;
+      }
     }
 
     let wh = { _id: socket.uid };

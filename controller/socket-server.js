@@ -111,7 +111,6 @@ myIo.init = function (server) {
             break;
           }
 
-
           case CONST.VERIFY_OTP: {
             try {
               const result = await mainCtrl.verifyOTP(payload.data);

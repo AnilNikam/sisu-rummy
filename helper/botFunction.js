@@ -58,7 +58,7 @@ async function findRoom(tableInfo, betInfo) {
         let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
-        await joinTable.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString() });
+        await joinTable.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
     } catch (error) {
         logger.info("Robot Logic Join", error);
