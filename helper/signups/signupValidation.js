@@ -447,10 +447,10 @@ const OKYCRequest = async (requestBody, socket) => {
 
     const payload = body
 
-    const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/request', payload, {
+    const response = await axios.post('https://live.zoop.one/in/identity/okyc/otp/request', payload, {
       'headers': {
-        "app-id": "63b6927ed78829001d9aa71c",
-        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "app-id": "65e85d4f1f34630028ac6cbf",
+        "api-key": "XRTYCX1-3ARMHGT-QPY3TN4-0AS6DTP",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
       }
@@ -501,10 +501,10 @@ const OKYCverifyRequest = async (requestBody, socket) => {
       "task_id": "6270e9c2f5419a2153744f5a"
     }
 
-    const response = await axios.post('https://test.zoop.one/in/identity/okyc/otp/verify', body, {
+    const response = await axios.post('https://live.zoop.one/in/identity/okyc/otp/verify', body, {
       'headers': {
-        "app-id": "63b6927ed78829001d9aa71c",
-        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "app-id": "65e85d4f1f34630028ac6cbf",
+        "api-key": "XRTYCX1-3ARMHGT-QPY3TN4-0AS6DTP",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
       }
@@ -571,10 +571,10 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
       }
     }
 
-    const response = await axios.post('https://test.zoop.one/api/v1/in/identity/pan/lite', body, {
+    const response = await axios.post('https://live.zoop.one/api/v1/in/identity/pan/lite', body, {
       'headers': {
-        "app-id": "63b6927ed78829001d9aa71c",
-        "api-key": "ABW7D06-QGCM6AT-J1TK17G-AFXZ5GH",
+        "app-id": "65e85d4f1f34630028ac6cbf",
+        "api-key": "XRTYCX1-3ARMHGT-QPY3TN4-0AS6DTP",
         "org-id": "60800ca35ed0c7001cad2605",
         "Content-Type": "application/json"
       }
