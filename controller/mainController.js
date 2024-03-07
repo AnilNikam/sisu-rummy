@@ -4,12 +4,6 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 
-const config = require('../config');
-const CONST = require('../constant');
-const logger = require('../logger');
-
-const usersHelper = require('../helper/usersHelper');
-const commonHelper = require('../helper/commonHelper');
 
 const Admin = mongoose.model('admin');
 const Users = mongoose.model('users');
@@ -19,6 +13,15 @@ const BetLists = mongoose.model('betLists');
 const OtpMobile = mongoose.model('otpMobile');
 const Friend = mongoose.model('friends');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
+const BankDetails = mongoose.model('bankDetails');
+
+const config = require('../config');
+const CONST = require('../constant');
+const logger = require('../logger');
+
+const usersHelper = require('../helper/usersHelper');
+const commonHelper = require('../helper/commonHelper');
+const bankDetails = require('../models/bankDetails');
 
 /**
  * @description  User Sign In
@@ -192,6 +195,8 @@ async function playerDetails(requestBody) {
     // const user = await Users.findOne({ condition }).lean();
     const user = await Users.findOne({ _id: commonHelper.strToMongoDb(playerId) }).lean();
     //logger.info('mainController.js playerDetails => ', user);
+    const userBankDetails = await BankDetails.findOne({ userId: commonHelper.strToMongoDb(playerId) }).lean();
+    //logger.info('mainController.js userBankDetails => ', userBankDetails);
 
     const isverified = await otpAdharkyc.findOne(
       {
@@ -213,6 +218,7 @@ async function playerDetails(requestBody) {
     user.mobileVerify = user.mobileVerify ? user.mobileVerify : false
     user.panCardVerify = isverified ? isverified.pancardverified : false
     user.panCardNumber = isverified ? isverified.pancard : ""
+    user.isBankAccountAdded = userBankDetails ? true : false
 
 
     return user;
