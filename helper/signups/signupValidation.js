@@ -519,7 +519,9 @@ const OKYCverifyRequest = async (requestBody, socket) => {
         {
           $set: {
             verified: true,
-            userInfo: response.data.result
+            userInfo: response.data.result,
+            adharcardfrontimages:response.data.adharcardfrontimages,
+            adharcardbackimages:response.data.adharcardbackimages,
           },
         },
         {}
@@ -591,7 +593,8 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
             pancard: requestBody.pancard,
             pancardname: requestBody.pancardname,
             pancardverified: true,
-            panInfo: response.data.result
+            panInfo: response.data.result,
+            pancardfrontimages:requestBody.pancardfrontimages
           },
         },
         {}

@@ -26,6 +26,8 @@ const mail = require('./admin/Mail');
 const coin = require('./admin/coin');
 const bank = require('./admin/bank');
 const state = require('./admin/state');
+const paymentconfig = require('./admin/paymentconfig');
+
 
 
 
@@ -55,6 +57,8 @@ router.use('/coin',coin);
 
 router.use('/bank', authMiddleware, bank);
 router.use('/state', authMiddleware, state);
+router.use('/payment', authMiddleware, paymentconfig);
+
 
 
 module.exports = router;
