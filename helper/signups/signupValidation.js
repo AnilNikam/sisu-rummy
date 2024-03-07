@@ -363,11 +363,11 @@ const addBankAccount = async (requestBody, socket) => {
         IFSC: ifscCode,
         BeneficiaryName: BeneficiaryName
       }
-      let response = await BankDeatils.create(info);
 
+      let response = await BankDeatils.create(info);
       logger.info('addBankAccount response =>', response);
 
-      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response, "undefined", 'Account Details Successfully Added..');
+      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response);
     } else {
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'Account Details Already Registerd');
