@@ -172,13 +172,13 @@ module.exports.makeObjects = (length = 0) => {
 
 module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
   try {
-    // logger.info("\n findEmptySeatAndUserSeat socket  -->", socket)
-    logger.info("\n findEmptySeatAndUserSeat socket table -->", table)
+    // logger.info("\n findEmptySeatAndUserSeat socket  -->", socket.isBot)
+    // logger.info("\n findEmptySeatAndUserSeat socket table -->", table)
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
     logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
 
     if (seatIndex === '-1') {
-      if (socket.isBot !== true) {
+      if (socket && socket.isBot !== true) {
         await this.findTable(betInfo, socket);
         return false;
       }
@@ -243,9 +243,9 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     };
 
     setPlayerInfo['$set']['playerInfo.' + seatIndex] = playerDetail;
+    logger.info("joinTbale setPlayerInfo=>", whereCond);
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
-    logger.info(' Table Info --->', JSON.stringify(tableInfo));
 
     let playerInfo = tableInfo.playerInfo[seatIndex];
 

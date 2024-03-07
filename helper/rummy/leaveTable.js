@@ -312,7 +312,7 @@ module.exports.leaveallrobot = async (tbid) => {
     }
     //}
   } catch (e) {
-    logger.error('leaveTable.js leaveSingleUser error : ', e);
+    logger.error('leaveTable.js leaveallrobot error : ', e);
   }
 };
 

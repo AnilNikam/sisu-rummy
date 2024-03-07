@@ -19,6 +19,13 @@ module.exports.appLunchDetails = async (requestData, client) => {
     // logger.info('Guest Final response result', result);
 
     if (result) {
+
+      //check user already is login or not
+      // if (result.sckId !== "") {
+      //   if (result.sckId !== client.id)
+      //     commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST,)
+      // }
+
       //when redis set then uncomment the section
       await this.userSesssionSet(result, client);
 
