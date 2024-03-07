@@ -506,6 +506,17 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.GET_BANK_DETAILS: {
+            try {
+              let res = await mainCtrl.getBankDetailByUserId(payload.data, socket);
+              sendEvent(socket, CONST.GET_BANK_DETAILS, res);
+
+            } catch (error) {
+              logger.error('socketServer.js GET_BANK_DETAILS => ', error);
+            }
+            break;
+          }
+
           case CONST.OPEN_CHAT_PANEL: {
             try {
               await gamePlayActions.openChatPanel(payload.data, socket);

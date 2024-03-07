@@ -13,7 +13,7 @@ const BetLists = mongoose.model('betLists');
 const OtpMobile = mongoose.model('otpMobile');
 const Friend = mongoose.model('friends');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
-const BankDetails = mongoose.model('bankDetails');
+// const BankDetails = mongoose.model('bankDetails');
 
 const config = require('../config');
 const CONST = require('../constant');
@@ -21,7 +21,7 @@ const logger = require('../logger');
 
 const usersHelper = require('../helper/usersHelper');
 const commonHelper = require('../helper/commonHelper');
-const bankDetails = require('../models/bankDetails');
+const BankDetails = require('../models/bankDetails');
 
 /**
  * @description  User Sign In
@@ -968,6 +968,24 @@ async function getBetList(requestBody) {
 }
 
 /**
+ * @description . getBankDetails
+ * @param {Object} requestBody
+ * @returns {Object}
+ */
+async function getBankDetailByUserId(requestBody) {
+  try {
+    const responseData = await BankDetails.findOne({ userId: commonHelper.strToMongoDb(playerId) }).lean();
+    if (responseData.length !== 0) {
+      return { status: 1, message: 'result sucessfully ', data: responseData };
+    } else {
+      return { status: 0, message: 'data not find' };
+    }
+  } catch (error) {
+    logger.error('mainController.js getBetList error=> ', error, requestBody);
+  }
+}
+
+/**
  * @description . getBetDetails
  * @param {Object} requestBody
  * @returns {Object}
@@ -1017,5 +1035,6 @@ module.exports = {
   getBetList,
   getBetDetails,
   registerProblemReport,
+  getBankDetailByUserId,
   registerAdminUpdate
 };
