@@ -520,8 +520,8 @@ const OKYCverifyRequest = async (requestBody, socket) => {
           $set: {
             verified: true,
             userInfo: response.data.result,
-            adharcardfrontimages:response.data.adharcardfrontimages,
-            adharcardbackimages:response.data.adharcardbackimages,
+            adharcardfrontimages: response.data.adharcardfrontimages,
+            adharcardbackimages: response.data.adharcardbackimages,
           },
         },
         {}
@@ -584,21 +584,38 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
     });
     console.log("response.data ::::::::::::", response.data)
     if (response.data.success) {
-      await otpAdharkyc.updateOne(
-        {
-          userId: OBJECT_ID(requestBody.playerId.toString()),
-        },
-        {
-          $set: {
-            pancard: requestBody.pancard,
-            pancardname: requestBody.pancardname,
-            pancardverified: true,
-            panInfo: response.data.result,
-            pancardfrontimages:requestBody.pancardfrontimages
+      console.log("requestBody ",requestBody)
+      const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
+      console.log("isverified ",isverified)
+      if (isverified.length) {
+        await otpAdharkyc.updateOne(
+          {
+            userId: OBJECT_ID(requestBody.playerId.toString()),
           },
-        },
-        {}
-      );
+          {
+            $set: {
+              pancard: requestBody.pancard,
+              pancardname: requestBody.pancardname,
+              pancardverified: true,
+              panInfo: response.data.result,
+              pancardfrontimages: requestBody.pancardfrontimages
+            },
+          },
+          {}
+
+        );
+      }else{
+        const insertt =  await otpAdharkyc.create( {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+          pancard: requestBody.pancard,
+          pancardname: requestBody.pancardname,
+          pancardverified: true,
+          panInfo: response.data.result,
+          pancardfrontimages: requestBody.pancardfrontimages
+        });
+
+        console.log("insertt ",insertt)
+      }
 
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
       return false;

@@ -201,7 +201,7 @@ async function playerDetails(requestBody) {
     const isverified = await otpAdharkyc.findOne(
       {
         userId: commonHelper.strToMongoDb(playerId),
-        verified: true,
+        //verified: true,
       },
       {
         verified: 1,
