@@ -261,17 +261,18 @@ router.get('/kycInfoList', async (req, res) => {
         console.log("kycInfo ", req.query)
         let wh = {} 
 
-        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pending"){
-            wh = {$or:[{verified:false},{Pancardverified:false}],adharcard:"",Pancard:""}
+        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pendding"){
+            wh = {$or:[{verified:false},{pancardverified:false}],adharcard:"",Pancard:""}
         }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
-            wh = {verified:true,Pancardverified:true}
+            wh = {verified:true,pancardverified:true}
         }else{
-            wh = {$or:[{verified:false,adharcard:{$ne:""}},{Pancardverified:false,Pancard:{$ne:""}}]}
+            wh = {$or:[{verified:false,adharcard:{$ne:""}},{pancardverified:false,Pancard:{$ne:""}}]}
         }    
 
         console.log("wh ::::::::",wh)
-        const kycInfoList = await otpAdharkyc.find(wh,{})
+        let kycInfoList = await otpAdharkyc.find(wh,{})
 
+     
         console.log("kycInfoList ",kycInfoList)
         logger.info('admin/dahboard.js post dahboard  error => ',kycInfoList);
 
