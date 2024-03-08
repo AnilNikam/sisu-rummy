@@ -55,6 +55,11 @@ module.exports.roundStarted = async (tbid) => {
 
 module.exports.nextUserTurnstart = async (tb) => {
   try {
+
+    if (!tb) {
+      logger.error('roundStart.js nextUserTurnstart error: tb is not provided');
+      return;
+    }
     let nextTurnIndex = await this.getUserTurnSeatIndex(tb, tb.currentPlayerTurnIndex, 0);
 
     await this.startUserTurn(nextTurnIndex, tb, false);

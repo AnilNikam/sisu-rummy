@@ -181,8 +181,12 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       if (socket && socket.isBot !== true) {
         await this.findTable(betInfo, socket);
         return false;
+      } else {
+        logger.info("not create table by BOT and seatindex")
+        return false;
       }
     }
+
 
     let wh = { _id: socket.uid };
     let userInfo = await Users.findOne(wh, {}).lean();

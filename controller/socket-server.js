@@ -637,11 +637,6 @@ myIo.init = function (server) {
 
           case CONST.EXIT: {
             try {
-              const disconnectedUser = socketToUsers.get(socket.id);
-              logger.info('Exit disconnected User => ', disconnectedUser);
-
-              rClient.hdel(`socket-${disconnectedUser}`, ['userId', 'socketId']);
-
               await gamePlayActions.disconnectTableHandle(socket);
             } catch (error) {
               logger.error('socketServer.js EXIT event error => ', error);

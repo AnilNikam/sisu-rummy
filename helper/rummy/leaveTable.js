@@ -212,17 +212,21 @@ module.exports.manageOnUserLeave = async (tb, client) => {
           new: true,
         });
         logger.info("remove robot tbInfo", tbInfo)
-
         logger.info("Leave remove robot playerInGame[0] ", playerInGame[0])
 
 
-        await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+        if (tbInfo) {
 
-        if (tbInfo.activePlayer === 0) {
-          let wh = {
-            _id: MongoID(tbInfo._id.toString()),
-          };
-          await PlayingTables.deleteOne(wh);
+          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+
+          if (tbInfo.activePlayer === 0) {
+            let wh = {
+              _id: MongoID(tbInfo._id.toString()),
+            };
+            await PlayingTables.deleteOne(wh);
+          }
+        } else {
+          logger.info("tbInfo not found");
         }
         await roundStartActions.nextUserTurnstart(tb);
       }
