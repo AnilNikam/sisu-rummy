@@ -24,7 +24,7 @@ router.get('/BankList', async (req, res) => {
     try {
         //console.info('requet => ', req);
         let wh = {}
-        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pending"){
+        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pendding"){
             wh = {paymentStatus:"Pending"}
         }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
             wh = {paymentStatus:"Approved"}
