@@ -12,7 +12,7 @@ module.exports.sendEvent = (socket, eventName, data = {}, flag, msg, rest = {}) 
     msg = msg || '';
     const response = { eventName, data, flag, msg, ...rest };
     const encryptedData = commonHelper.encrypt(response);
-    console.log('\nResponse Time :' + new Date() + ' : Data : ' + JSON.stringify(response));
+    logger.info('\nResponse Time :' + new Date() + ' : Data : ' + JSON.stringify(response));
     socket.emit('req', { payload: encryptedData });
   } catch (error) {
     logger.error('socketFunction.js sendEvent error :--> ' + error);

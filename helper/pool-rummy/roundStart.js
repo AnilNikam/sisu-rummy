@@ -6,7 +6,8 @@ const Users = mongoose.model('users');
 const logger = require('../../logger');
 const CONST = require('../../constant');
 const leaveTableAction = require('./leaveTable');
-const { pic, mycardGroup } = require('../botFunction');
+// const { pic, mycardGroup } = require('../botFunction');
+const botCtrl = require('../botFunction');
 
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound, getUserTurnSeatIndex } = require('../common-function/manageUserFunction');
@@ -123,7 +124,7 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     }).lean();
 
     if (data && data.isBot) {
-      await pic(tb, plid, tb.gamePlayType, 'close')
+      await botCtrl.pic(tb, plid, tb.gamePlayType, 'close')
     }
 
     let tbid = tb._id.toString();
@@ -305,7 +306,7 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
 
   if (userData[0].isBot) {
 
-    mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
+    botCtrl.mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
 
       if (cardjson.dwd.length > 0) {
         cardjson.dwd = [cardjson.dwd]

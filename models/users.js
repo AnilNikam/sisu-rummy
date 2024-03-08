@@ -10,11 +10,12 @@ const GameUserSchema = new Schema(
     username: { type: String },
     deviceId: { type: String, required: true },
     mobileNumber: { type: String },
-    mobileVerify: { type: Boolean , default:false},
+    mobileVerify: { type: Boolean, default: false },
     uniqueId: { type: String },
     email: { type: String, default: '' },
     panNo: { type: String, default: '' },
     location: { type: String, default: '' },
+    state: { type: String, default: '' },
     password: { type: String, default: '' },
     chips: { type: Number, required: true, default: 0 },       // Deposite 
     winningChips: { type: Number, required: true, default: 0 }, // Winning Chips 

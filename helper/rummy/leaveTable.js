@@ -425,7 +425,7 @@ module.exports.playerSwitch = async (requestInfo, client) => {
     if (tb.gameState === 'RoundStated') {
       //loss counter after leave
       const resultLeave = await gameFinishActions.updateLostCounter(playerInfo._id);
-      logger.info('Leave lost counter', resultLeave);
+      logger.info('Switch lost counter', resultLeave);
 
       if (client.seatIndex === tb.currentPlayerTurnIndex) {
         clearJob(tb.jobId);

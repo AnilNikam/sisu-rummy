@@ -1,0 +1,157 @@
+{
+    "_id": {
+        "$oid": "65b8d0fc58b38063105f0fa3"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "point",
+            "commission": 10,
+                "maxSeat": 2,
+                    "status": "Active",
+                        "entryFee": "0.1",
+                            "createdAt": {
+        "$date": "2024-01-30T10:35:40.690Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-01T11:49:26.020Z"
+    }
+}
+
+{
+    "_id": {
+        "$oid": "65cdb074efe17ac59d6a7916"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "table20",
+            "commission": 10,
+                "maxSeat": 6,
+                    "status": "Active",
+                        "entryFee": "0.025",
+                            "createdAt": {
+        "$date": "2024-02-15T06:34:28.239Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-15T06:34:28.241Z"
+    }
+}
+
+
+{
+    "_id": {
+        "$oid": "65af5fc73dc20c1048f086b3"
+    },
+    "gamePlayType": "pointrummy",
+        "entryFee": "0.05",
+            "createdAt": {
+        "$date": "2024-01-23T06:42:15.585Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-19T12:49:53.580Z"
+    },
+    "commission": 10,
+        "maxSeat": 6,
+            "status": "Active",
+                "tableName": "Point"
+}
+
+{
+    "_id": {
+        "$oid": "65d71b3f670f3b50ac13bf32"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "sf",
+            "commission": 10,
+                "maxSeat": 3,
+                    "status": "DeActive",
+                        "entryFee": "12",
+                            "createdAt": {
+        "$date": "2024-02-22T10:00:31.630Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-22T10:00:31.631Z"
+    }
+}
+{
+    "_id": {
+        "$oid": "65af5fce3dc20c1048f086b6"
+    },
+    "gamePlayType": "pointrummy",
+        "entryFee": "0.05",
+            "createdAt": {
+        "$date": "2024-01-23T06:42:22.291Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-01T11:49:06.397Z"
+    },
+    "commission": 10,
+        "maxSeat": 2,
+            "status": "Active",
+                "tableName": "Point"
+}
+{
+    "_id": {
+        "$oid": "65b8bcb28dd5c229449761f4"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "point",
+            "commission": 10,
+                "maxSeat": 6,
+                    "status": "Active",
+                        "entryFee": "0.1",
+                            "createdAt": {
+        "$date": "2024-01-30T09:09:06.973Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-01T11:49:42.019Z"
+    }
+}
+{
+    "_id": {
+        "$oid": "65d33ab750b4f511b40f6e1e"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "point1",
+            "commission": 10,
+                "maxSeat": 6,
+                    "status": "Active",
+                        "entryFee": "1",
+                            "createdAt": {
+        "$date": "2024-02-19T11:25:43.786Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-19T11:25:43.786Z"
+    }
+}
+{
+    "_id": {
+        "$oid": "65d339cb50b4f511b40f6e13"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "pointdata",
+            "commission": 10,
+                "maxSeat": 2,
+                    "status": "Active",
+                        "entryFee": "1",
+                            "createdAt": {
+        "$date": "2024-02-19T11:21:47.682Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-19T11:21:47.682Z"
+    }
+}
+{
+    "_id": {
+        "$oid": "65d71b83670f3b50ac13bf37"
+    },
+    "gamePlayType": "pointrummy",
+        "tableName": "demo",
+            "commission": 10,
+                "maxSeat": 2,
+                    "status": "DeActive",
+                        "entryFee": "10",
+                            "createdAt": {
+        "$date": "2024-02-22T10:01:39.883Z"
+    },
+    "modifiedAt": {
+        "$date": "2024-02-22T10:01:39.883Z"
+    }
+}

@@ -219,8 +219,6 @@ async function playerDetails(requestBody) {
     user.panCardVerify = isverified ? isverified.pancardverified : false
     user.panCardNumber = isverified ? isverified.pancard : ""
     user.isBankAccountAdded = userBankDetails ? true : false
-
-
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
@@ -428,26 +426,26 @@ async function registerAdminProfileUpdate(requestBody) {
     const data = await Admin.findOne({ email }).lean();
 
     if (data !== null) {
-     
-        const updateData = {
-          $set: {
 
-          }
-        };
-        if (name != "") {
-          updateData["$set"]["name"] = name
+      const updateData = {
+        $set: {
+
         }
+      };
+      if (name != "") {
+        updateData["$set"]["name"] = name
+      }
 
-        if (newEmail != "") {
-          updateData["$set"]["email"] = newEmail
-        }
+      if (newEmail != "") {
+        updateData["$set"]["email"] = newEmail
+      }
 
-        const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
-        const token = await commonHelper.sign(data);
-        data.token = token;
-        delete data.password;
-        return { status: 1, message: 'Update Admin Profile Succesfully', data };
-      
+      const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
+      const token = await commonHelper.sign(data);
+      data.token = token;
+      delete data.password;
+      return { status: 1, message: 'Update Admin Profile Succesfully', data };
+
     } else {
       logger.info('At mainController.js:571 userId not found => ', JSON.stringify(requestBody));
       return { status: 0, message: 'Id not Found' };

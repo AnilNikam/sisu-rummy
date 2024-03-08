@@ -252,8 +252,6 @@ module.exports.disCard = async (requestData, client) => {
 module.exports.cardGroup = async (requestData, client) => {
   try {
 
-    console.log("cardGroup :::::::::::::::::::::::::::::::::", requestData)
-
     if (!ifSocketDefine(requestData, client, CONST.CARD_GROUP)) {
       return false;
     }
