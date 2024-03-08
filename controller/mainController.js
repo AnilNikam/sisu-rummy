@@ -379,7 +379,7 @@ async function registerAdmin(requestBody) {
 
 async function registerAdminUpdate(requestBody) {
   try {
-    const { email, oldPwd, newPwd, newEmail } = requestBody;
+    const { email, oldPwd, newPwd } = requestBody;
     const data = await Admin.findOne({ email }).lean();
 
     if (data !== null) {
@@ -393,10 +393,6 @@ async function registerAdminUpdate(requestBody) {
         if (newPwd != "") {
           const hashedPassword = await bcrypt.hash(newPwd, 10);
           updateData["$set"]["password"] = hashedPassword
-        }
-
-        if (newEmail != "") {
-          updateData["$set"]["email"] = newEmail
         }
 
         const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
@@ -419,6 +415,54 @@ async function registerAdminUpdate(requestBody) {
     };
   }
 }
+
+/**
+ * @description . Create Admin User
+ * @param {Object} requestBody
+ * @returns {Object}
+ */
+
+async function registerAdminProfileUpdate(requestBody) {
+  try {
+    const { email, name, newEmail } = requestBody;
+    const data = await Admin.findOne({ email }).lean();
+
+    if (data !== null) {
+     
+        const updateData = {
+          $set: {
+
+          }
+        };
+        if (name != "") {
+          updateData["$set"]["name"] = name
+        }
+
+        if (newEmail != "") {
+          updateData["$set"]["email"] = newEmail
+        }
+
+        const response = await Admin.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
+        const token = await commonHelper.sign(data);
+        data.token = token;
+        delete data.password;
+        return { status: 1, message: 'Update Admin Profile Succesfully', data };
+      
+    } else {
+      logger.info('At mainController.js:571 userId not found => ', JSON.stringify(requestBody));
+      return { status: 0, message: 'Id not Found' };
+    }
+
+
+  } catch (error) {
+    logger.error('adminController.js registerAdmin error=> ', error, requestBody);
+    return {
+      message: 'something went wrong while registering, please try again',
+      status: 0,
+    };
+  }
+}
+
 
 /**
  * @description . Create GAME REPORT PROBLEM
@@ -1036,5 +1080,6 @@ module.exports = {
   getBetDetails,
   registerProblemReport,
   getBankDetailByUserId,
-  registerAdminUpdate
+  registerAdminUpdate,
+  registerAdminProfileUpdate
 };

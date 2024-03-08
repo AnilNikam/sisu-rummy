@@ -31,6 +31,11 @@ router.post('/signup-admin-update', async (req, res) => {
   res.json(await mainCtrl.registerAdminUpdate(req.body));
 });
 
+router.post('/signup-admin-profile-update', async (req, res) => {
+  console.log("signup-admin :::::::::::::::", req.body)
+  res.json(await mainCtrl.registerAdminProfileUpdate(req.body));
+});
+
 
 /**
  * @api {post} /admin/user
