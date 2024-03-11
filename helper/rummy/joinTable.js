@@ -118,12 +118,15 @@ module.exports.findTable = async (betInfo, socket) => {
   }
 };
 
+
 module.exports.getBetTable = async (betInfo) => {
   try {
     logger.info("getBetTable betinfo =>", betInfo);
     let wh = {
       entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
+      gamePlayType:betInfo.gamePlayType,
+      maxSeat:parseInt(betInfo.maxSeat),
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
