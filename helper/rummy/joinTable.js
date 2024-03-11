@@ -250,6 +250,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     logger.info("joinTbale setPlayerInfo=>", whereCond);
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
+    console.log("fina update table ->", tableInfo);
 
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
@@ -317,26 +318,33 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     logger.info("Table max seat =>", tableInfo.maxSeat)
 
-    if (tableInfo.activePlayer <= 2) {
-      let counter = 0;
 
-      const intervalId = setInterval(() => {
-        counter++;
-        logger.info(`Function called ${counter} times.`);
-        botLogic.findRoom(tableInfo, betInfo)
-        if (tableInfo.maxSeat === 2) {
-          logger.info("Check 1", counter)
-          if (counter === 1) {
-            clearInterval(intervalId); // Stop the interval after 2 calls
-          }
-        } else {
-          logger.info("Check 2", counter)
-          if (counter === 5) {
-            clearInterval(intervalId); // Stop the interval after 5 calls
-          }
-        }
-      }, 1200);
+    if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+      botLogic.findRoom(tableInfo, betInfo)
+
+    } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+      botLogic.findRoom(tableInfo, betInfo)
     }
+
+    let counter = 0;
+
+    // const intervalId = setInterval(() => {
+    //   counter++;
+    //   logger.info(`Function called ${counter} times.`);
+    //   botLogic.findRoom(tableInfo, betInfo)
+    //   if (tableInfo.maxSeat === 2) {
+    //     logger.info("Check 1", counter)
+    //     if (counter === 1) {
+    //       clearInterval(intervalId); // Stop the interval after 2 calls
+    //     }
+    //   } else {
+    //     logger.info("Check 2", counter)
+    //     if (counter === 5) {
+    //       clearInterval(intervalId); // Stop the interval after 5 calls
+    //     }
+    //   }
+    // }, 1200);
+
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
   }

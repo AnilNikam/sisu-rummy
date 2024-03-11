@@ -23,7 +23,7 @@ let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 async function findRoom(tableInfo, betInfo) {
     try {
 
-        let RobotPlayer = []
+        let RealPlayer = []
 
         logger.info("rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo)
 
@@ -31,13 +31,17 @@ async function findRoom(tableInfo, betInfo) {
         tableInfo = await PlayingTables.findOne(whereCond).lean();
         logger.info("tabInfo =>", tableInfo);
 
-        // tableInfo.playerInfo.forEach(e => {
-        //     logger.info("tableInfo.playerInfo ", e)
-        //     if (e.isBot == true) {
-        //         RobotPlayer.push(MongoID(e._id).toString())
-        //     }
-        // })
+        tableInfo.playerInfo.forEach(e => {
+            logger.info("tableInfo.playerInfo ", e)
+            if (e.isBot == false) {
+                RealPlayer.push(MongoID(e._id).toString())
+            }
+        })
+        if (RealPlayer.length == 0) {
+            logger.info("Real USer Leght zero ", RealPlayer.length);
 
+            return false
+        }
         let user_wh = {
             isBot: true,
             isfree: true,
