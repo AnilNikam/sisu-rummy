@@ -28,9 +28,9 @@ module.exports.joinTable = async (requestData, socket) => {
       return false;
     }
 
-    if (typeof socket.JT !== 'undefined' && socket.JT) {
-      return false;
-    }
+    // if (typeof socket.JT !== 'undefined' && socket.JT) {
+    //   return false;
+    // }
 
     socket.JT = true;
 
@@ -66,7 +66,7 @@ module.exports.joinTable = async (requestData, socket) => {
       //   flag: false,
       //   msg: 'Already In playing table!!',
       // });
-      // logger.info('player already in table');
+       logger.info('player already in table');
 
       // let updateData = {
       //   $set: {
@@ -82,12 +82,11 @@ module.exports.joinTable = async (requestData, socket) => {
       // });
 
       // logger.info("Remove User table -->", tableInfo)
-      // delete socket.JT;
-
+      
       await userReconnect({
         playerId: MongoID(socket.uid)
       }, socket);
-
+      delete socket.JT;
       return false;
     } else {
       return await this.findTable(betInfo, socket);
