@@ -306,7 +306,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     if (tableInfo.activePlayer === 2 && tableInfo.gameState === '') {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
       clearJob(jobId);
-      await gameStartActions.gameTimerStart(tableInfo);
+      gameStartActions.gameTimerStart(tableInfo);
     }
 
 
@@ -326,7 +326,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       botLogic.findRoom(tableInfo, betInfo)
     }
 
-    let counter = 0;
+    //let counter = 0;
 
     // const intervalId = setInterval(() => {
     //   counter++;
