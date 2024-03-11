@@ -84,7 +84,7 @@ module.exports.joinTable = async (requestData, socket) => {
       // logger.info("Remove User table -->", tableInfo)
       
       await userReconnect({
-        playerId: MongoID(socket.uid)
+        playerId:socket.uid
       }, socket);
       delete socket.JT;
       return false;
