@@ -312,18 +312,43 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     // waiting for real player
     // let botJobId = 'WAITING' + ':' + tableInfo._id;
+
+
     // let delay = AddTime(7);
 
     // await setDelay(botJobId, new Date(delay));
 
+
     logger.info("Table max seat =>", tableInfo.maxSeat)
 
+    if (tableInfo.activePlayer == 1) {
 
-    if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
-      botLogic.findRoom(tableInfo, betInfo)
+      setTimeout(() => {
 
-    } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
-      botLogic.findRoom(tableInfo, betInfo)
+        if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+
+          setTimeout(() => {
+            botLogic.findRoom(tableInfo, betInfo)
+          }, 1000)
+
+        } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+          setTimeout(() => {
+            botLogic.findRoom(tableInfo, betInfo)
+          }, 1000)
+        }
+      }, 7000)
+    }else if(userInfo.isBot == true){
+      if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+
+        setTimeout(() => {
+          botLogic.findRoom(tableInfo, betInfo)
+        }, 1000)
+
+      } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+        setTimeout(() => {
+          botLogic.findRoom(tableInfo, betInfo)
+        }, 1000)
+      }
     }
 
     //let counter = 0;
