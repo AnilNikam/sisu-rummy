@@ -10,6 +10,7 @@ const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { sendEvent, sendDirectEvent, AddTime, setDelay, clearJob } = require('../socketFunctions');
+const { userReconnect } = require('../common-function/reConnectFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
@@ -27,7 +28,7 @@ module.exports.joinTable = async (requestData, socket) => {
       return false;
     }
 
-    if (typeof socket.JT !== 'undefined' && socket.JT){
+    if (typeof socket.JT !== 'undefined' && socket.JT) {
       return false;
     }
 
@@ -61,27 +62,31 @@ module.exports.joinTable = async (requestData, socket) => {
     logger.info('join table Info ->', tableInfo);
 
     if (tableInfo) {
-      sendDirectEvent(socket.id, CONST.ALREADY_PLAYER_AXIST, requestData, {
-        flag: false,
-        msg: 'Already In playing table!!',
-      });
-      logger.info('player already in table');
+      // sendDirectEvent(socket.id, CONST.ALREADY_PLAYER_AXIST, requestData, {
+      //   flag: false,
+      //   msg: 'Already In playing table!!',
+      // });
+      // logger.info('player already in table');
 
-      let updateData = {
-        $set: {
-          'playerInfo.$': {},
-        },
-        $inc:{
-          "activePlayer":-1
-        }
-      };
+      // let updateData = {
+      //   $set: {
+      //     'playerInfo.$': {},
+      //   },
+      //   $inc:{
+      //     "activePlayer":-1
+      //   }
+      // };
 
-      let tableInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
-        new: true,
-      });
+      // let tableInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+      //   new: true,
+      // });
 
-      logger.info("Remove User table -->", tableInfo)
-      delete socket.JT;
+      // logger.info("Remove User table -->", tableInfo)
+      // delete socket.JT;
+
+      await userReconnect({
+        playerId: MongoID(socket.uid)
+      }, socket);
 
       return false;
     } else {
@@ -132,8 +137,8 @@ module.exports.getBetTable = async (betInfo) => {
     let wh = {
       entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
-      gamePlayType:betInfo.gamePlayType,
-      maxSeat:parseInt(betInfo.maxSeat),
+      gamePlayType: betInfo.gamePlayType,
+      maxSeat: parseInt(betInfo.maxSeat),
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
@@ -261,9 +266,9 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
     console.log("fina update table ->", tableInfo);
-    if(tableInfo == null && socket && socket.isBot !== true){
+    if (tableInfo == null && socket && socket.isBot !== true) {
       await this.findTable(betInfo, socket);
-        return false;
+      return false;
     }
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
@@ -350,7 +355,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
           }, 1000)
         }
       }, 7000)
-    }else if(userInfo.isBot == true){
+    } else if (userInfo.isBot == true) {
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
 
         setTimeout(() => {
