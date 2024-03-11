@@ -28,9 +28,9 @@ module.exports.joinTable = async (requestData, socket) => {
       return false;
     }
 
-    // if (typeof socket.JT !== 'undefined' && socket.JT) {
-    //   return false;
-    // }
+    if (typeof socket.JT !== 'undefined' && socket.JT) {
+      return false;
+    }
 
     socket.JT = true;
 
