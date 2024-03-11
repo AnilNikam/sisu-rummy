@@ -6,6 +6,7 @@ const { OK_STATUS, BAD_REQUEST } = require('../../config');
 const logger = require('../../logger');
 const mongoose = require('mongoose');
 const paymentin = mongoose.model('paymentin');
+const BankDetails = mongoose.model('bankDetails');
 
 const paymentout = mongoose.model('paymentout');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
@@ -139,12 +140,24 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
 
   if (req.body != undefined && req.body.StatusCode != undefined) {
+    if (req.body.Data.Amount == 1) {
+      let paymentdata = await paymentout.findOne({ "OrderID": req.body.Data.TransactionId.toString() }).lean();
+      logger.info("Bankpaymentdata ->", paymentdata);
+
+      // Update 
+      const bankDetailsData = await BankDetails.findOneAndUpdate({ userId: paymentdata.userId }, { $set: { verfiy: true } }, {
+        new: true,
+      });
+      logger.info("Bank Details Data ->", bankDetailsData);
+
+    }
+
     console.log("res.body. ", req.body.Data.ClientOrderId)
     const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.TransactionId.toString() }, { $set: { webhook: req.body } }, {
       new: true,
     });
     console.log("PaymentOutdata ", PaymentOutdata)
-    if (PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1) {
+    if (PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Amount != 1) {
 
       await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
     } else {
@@ -153,6 +166,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
     }
   } else {
     console.log("req.body ", req.body)
+    // 1 rs 
   }
 
   res.send("ok")
@@ -224,7 +238,8 @@ router.post('/BotAdd', async (req, res) => {
 * @apiError (Error 4xx) {String} message Validation or error message.
 */
 
-var multer = require('multer')
+var multer = require('multer');
+const bankDetails = require('../../models/bankDetails');
 var storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
 

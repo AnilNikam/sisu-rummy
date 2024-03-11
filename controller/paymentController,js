@@ -3,6 +3,7 @@ const MongoID = mongoose.Types.ObjectId;
 const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
 const paymentout = mongoose.model('paymentout');
+const BankDetails = mongoose.model('bankDetails');
 
 const axios = require('axios');
 const commandAcions = require('../helper/socketFunctions');
@@ -20,9 +21,9 @@ const PaymentInDeepLink = {
     secret_key: '04d34b84-e065-42a7-bbef-795965535275',
 };
 
-async function initiatePayment(requestData,socket) {
+async function initiatePayment(requestData, socket) {
     try {
-        console.log("initiatePayment requestData ",requestData)
+        console.log("initiatePayment requestData ", requestData)
         const paymentindata = await paymentin.create({
             userId: requestData.playerId,
             transactionId: "aaa",
@@ -31,11 +32,11 @@ async function initiatePayment(requestData,socket) {
             phone: requestData.customerPhone,
             amount: requestData.amount,
             paymentStatus: "Pending"
-          });
+        });
 
-        if(paymentindata){
+        if (paymentindata) {
 
-            console.log("paymentindata ",paymentindata)
+            console.log("paymentindata ", paymentindata)
             const payload = {
                 "token": PaymentInOrderCreate.token,
                 "name": requestData.customerName,
@@ -46,17 +47,17 @@ async function initiatePayment(requestData,socket) {
             };
 
             const response = await axios.post(PaymentInOrderCreate.url, payload);
-            console.log("response    ",response.data)
+            console.log("response    ", response.data)
             if (response.data.code == "OK") {
                 //add amount in coins
 
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined){
+                if (response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined) {
 
-                    const Updatedata = await paymentin.findOneAndUpdate({_id:MongoID(paymentindata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
+                    const Updatedata = await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": response.data.body.orderID } }, {
                         new: true,
-                    });     
-                    console.log("Updatedata ",Updatedata)
+                    });
+                    console.log("Updatedata ", Updatedata)
                     const payloaddeeplink = {
                         "note": "rechargeMoney_103",
                         "OrderID": response.data.body.orderID,
@@ -64,20 +65,20 @@ async function initiatePayment(requestData,socket) {
                     }
 
                     const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
-                    console.log("response Deeplink ",responseDeep.data)
+                    console.log("response Deeplink ", responseDeep.data)
                     commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
 
-                }else{
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false,response.data.message); 
+                } else {
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
                 }
             } else {
-                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);   
-            }   
-        }else{
+                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+            }
+        } else {
             console.log("Data Not Insert ")
             commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
-            
+
     } catch (error) {
         console.error('Error initiating payment:', error.response ? error.response.data : error.message);
 
@@ -109,7 +110,7 @@ accountNo
 ifscCode
 */
 
-async function PayOutTransfer(requestData,socket) {
+async function PayOutTransfer(requestData, socket, UserverifyId) {
     try {
 
         //Insert Payout Table 
@@ -123,18 +124,18 @@ async function PayOutTransfer(requestData,socket) {
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
             "beneficiaryName": requestData.BeneficiaryName.trim(),
-            "transferMode":requestData.transferMode,
+            "transferMode": requestData.transferMode,
             paymentStatus: "Pending"
         });
 
-        if(paymentoutdata){
+        if (paymentoutdata) {
 
-            console.log("paymentoutdata ",paymentoutdata)
+            console.log("paymentoutdata ", paymentoutdata)
             const Paylod = {
                 "clientId": Account_WOWPE_PAYOUT.clientId,
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
-                "number":  requestData.customerPhone,
-                "transferMode":requestData.transferMode,
+                "number": requestData.customerPhone,
+                "transferMode": requestData.transferMode,
                 "amount": requestData.amount.toString(),
                 "accountNo": requestData.accountNo,
                 "ifscCode": requestData.ifscCode,
@@ -142,47 +143,68 @@ async function PayOutTransfer(requestData,socket) {
                 "vpa": "",
                 "orderID": paymentoutdata._id.toString()
             }
-            console.log("Paylod ",Paylod)
+            console.log("Paylod ", Paylod)
             const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'accept':'application/json'
+                    'accept': 'application/json'
                 }
             });
-            console.log("response ",response.data)
+            console.log("response ", response.data)
 
-            
+
 
             if (response.data.code == "OK") {
                 //add amount in coins
-                console.log("response ",response.data.body)
+                console.log("response ", response.data.body)
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if(response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null){
+                if (response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null) {
 
-                    const Updatedata = await paymentout.findOneAndUpdate({_id:MongoID(paymentoutdata._id.toString())}, {$set:{"OrderID": response.data.body.orderID}}, {
+                    const Updatedata = await paymentout.findOneAndUpdate({ _id: MongoID(paymentoutdata._id.toString()) }, { $set: { "OrderID": response.data.body.orderID } }, {
                         new: true,
-                    });     
-                    console.log("Updatedata ",Updatedata)
-                    
-                  
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
+                    });
+                    console.log("Updatedata ", Updatedata)
 
-                }else{
-                    console.log("response elase 1 ",response.data)
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false,response.data.message); 
+                    if (UserverifyId == undefined) {
+                        commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
+                    } else {
+                        await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: "Go to Webhook" } }, {
+                            new: true,
+                        });
+                    }
+                } else {
+                    console.log("response elase 1 ", response.data)
+                    if (UserverifyId == undefined) {
+                        commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
+                    } else {
+                        await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: response.data.message } }, {
+                            new: true,
+                        });
+                    }
                 }
             } else {
-                console.log("response elase 2 ",response.data)
-
-                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);   
-            }   
-        }else{
+                console.log("response elase 2 ", response.data)
+                if (UserverifyId == undefined) {
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
+                } else {
+                    await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: response.data.message } }, {
+                        new: true,
+                    });
+                }
+            }
+        } else {
             console.log("Data Not Insert ")
-            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
+            if (UserverifyId == undefined) {
+                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
+            } else {
+                await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: "Something Went Wrong Please try again" } }, {
+                    new: true,
+                });
+            }
         }
-      
+
     } catch (error) {
-        console.log("error ::::::::::::",error)
+        console.log("error ::::::::::::", error)
 
         throw error.response ? error.response.data : error.message;
     }
@@ -243,24 +265,24 @@ const Account_WOWPE_VERIFICATION = {
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
 
-async function checkPayoutStatus(requestData,callback) {
+async function checkPayoutStatus(requestData, callback) {
     try {
-            const Paylod = {
-                "clientId": Account_WOWPE_VERIFICATION.clientId,
-                "secretKey": Account_WOWPE_VERIFICATION.secretKey,
-                "number":  requestData.customerPhone,
-                "accountNo": requestData.accountNo,
-                "ifscCode": requestData.ifscCode,
-                "orderID": requestData.orderID
+        const Paylod = {
+            "clientId": Account_WOWPE_VERIFICATION.clientId,
+            "secretKey": Account_WOWPE_VERIFICATION.secretKey,
+            "number": requestData.customerPhone,
+            "accountNo": requestData.accountNo,
+            "ifscCode": requestData.ifscCode,
+            "orderID": requestData.orderID
+        }
+        console.log("PayOut ::::::::::::::::::::::", Paylod)
+        const response = await axios.post(Account_WOWPE_VERIFICATION.base_url, Paylod, {
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'application/json'
             }
-            console.log("PayOut ::::::::::::::::::::::",Paylod)
-            const response = await axios.post(Account_WOWPE_VERIFICATION.base_url, Paylod, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'accept':'application/json'
-                }
-            });
-            console.log("checkPayoutStatus ",response)
+        });
+        console.log("checkPayoutStatus ", response)
         return callback(response.data);
     } catch (error) {
         throw error.response ? error.response.data : error.message;

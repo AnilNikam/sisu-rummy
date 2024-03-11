@@ -682,6 +682,7 @@ myIo.init = function (server) {
             }
             break;
           }
+
           case CONST.PAY_IN: {
             try {
               console.log("PAY_IN ", payload.data)

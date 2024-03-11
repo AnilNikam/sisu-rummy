@@ -13,6 +13,7 @@ const commandAcions = require('../socketFunctions');
 const { userSesssionSet, filterBeforeSendSPEvent, getUserDefaultFields, saveGameUser, checkReferral } = require('./appStart');
 const commonHelper = require('../commonHelper');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
+const { PayOutTransfer } = require('../../controller/paymentController,js');
 
 const checkMobileNumber = async (requestData, socket) => {
   logger.info(' Signup validation Request Data ->', requestData);
@@ -368,6 +369,24 @@ const addBankAccount = async (requestBody, socket) => {
       logger.info('addBankAccount response =>', response);
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response);
+
+      let bankJson =
+      {
+        playerId: playerId,
+        customerName: customerName,
+        customerEmail: customerEmail,
+        customerPhone: customerPhone,
+        amount: 1,
+        accountNo: accountNo,
+        ifscCode: ifscCode,
+        "BeneficiaryName": BeneficiaryName,
+        "transferMode": "IMPS",
+
+      }
+
+
+      await PayOutTransfer(bankJson, socket, response._id)
+
     } else {
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'Account Details Already Registerd');
@@ -562,10 +581,10 @@ const OKYCverifyRequest = async (requestBody, socket) => {
 const OKYCPanverifyRequest = async (requestBody, socket) => {
   try {
 
-    const findadharcard = await otpAdharkyc.find({userId: {$ne:commonHelper.strToMongoDb(requestBody.playerId.toString())}, pancard: requestBody.pancard}, {})
+    const findadharcard = await otpAdharkyc.find({ userId: { $ne: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, pancard: requestBody.pancard }, {})
 
 
-    if (findadharcard.length != 0 ) {
+    if (findadharcard.length != 0) {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: "001", statusText: "Already Pan Card Use ...!!!" });
 
       return false;
@@ -593,9 +612,9 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
     });
     console.log("response.data ::::::::::::", response.data)
     if (response.data.success) {
-      console.log("requestBody ",requestBody)
+      console.log("requestBody ", requestBody)
       const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
-      console.log("isverified ",isverified)
+      console.log("isverified ", isverified)
       if (isverified.length) {
         await otpAdharkyc.updateOne(
           {
@@ -613,8 +632,8 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
           {}
 
         );
-      }else{
-        const insertt =  await otpAdharkyc.create( {
+      } else {
+        const insertt = await otpAdharkyc.create({
           userId: OBJECT_ID(requestBody.playerId.toString()),
           pancard: requestBody.pancard,
           pancardname: requestBody.pancardname,
@@ -623,7 +642,7 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
           pancardfrontimages: requestBody.pancardfrontimages
         });
 
-        console.log("insertt ",insertt)
+        console.log("insertt ", insertt)
       }
 
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });

@@ -18,6 +18,7 @@ const BankDeatils = new Schema(
         },
         IFSC: { type: String, default: '' },
         BeneficiaryName: { type: String, default: '' },
+        reMark: { type: String, default: '' },
         transferMode: { type: String, enum: ['NEFT', 'RTGS'] },
         verfiy: { type: Boolean, default: false },
         webhook: {}
