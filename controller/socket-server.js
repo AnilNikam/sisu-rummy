@@ -101,6 +101,7 @@ myIo.init = function (server) {
             break;
           }
 
+
           case CONST.SEND_OTP: {
             try {
               let result = await mainCtrl.sendOTP(payload.data);

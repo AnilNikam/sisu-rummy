@@ -5,6 +5,7 @@ const userCtrl = require('../../helper/signups/signupValidation');
 const { OK_STATUS, BAD_REQUEST } = require('../../config');
 const logger = require('../../logger');
 const mongoose = require('mongoose');
+const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
 const BankDetails = mongoose.model('bankDetails');
 

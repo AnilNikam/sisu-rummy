@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
-const BankDeatils = mongoose.model('bankDetails');
+const BankDetails = mongoose.model('bankDetails');
 
 const express = require('express');
 const router = express.Router();

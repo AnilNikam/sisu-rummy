@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
-const BankDeatils = mongoose.model('bankDetails');
+const BankDetails = mongoose.model('bankDetails');
 const { OBJECT_ID } = require('../../config');
 
 const CONST = require('../../constant');
@@ -350,7 +350,7 @@ const addBankAccount = async (requestBody, socket) => {
     logger.info('addBankAccount User Request Body =>', requestBody);
     const { addBankAccount, playerId, customerName, customerEmail, customerPhone, accountNo, ifscCode, BeneficiaryName, transferMode } = requestBody;
     let query = { amountNumber: accountNo };
-    let result = await BankDeatils.findOne(query, {});
+    let result = await BankDetails.findOne(query, {});
     logger.info('addBankAccount User Request result =>', result);
 
     if (!result) {
@@ -365,7 +365,7 @@ const addBankAccount = async (requestBody, socket) => {
         BeneficiaryName: BeneficiaryName
       }
 
-      let response = await BankDeatils.create(info);
+      let response = await BankDetails.create(info);
       logger.info('addBankAccount response =>', response);
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response);
