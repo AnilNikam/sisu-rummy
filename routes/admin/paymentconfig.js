@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
-const BankDeatils = mongoose.model('bankDeatils');
+const BankDeatils = mongoose.model('bankDetails');
 
 const express = require('express');
 const router = express.Router();
@@ -124,7 +124,7 @@ router.get('/Getwithdrawconfig', async (req, res) => {
         });
 
 
-      
+
 
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);

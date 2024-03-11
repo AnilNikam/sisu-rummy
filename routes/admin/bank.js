@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
-const BankDeatils = mongoose.model('bankDeatils');
+const BankDeatils = mongoose.model('bankDetails');
 
 const express = require('express');
 const router = express.Router();
@@ -24,16 +24,16 @@ router.get('/BankList', async (req, res) => {
     try {
         //console.info('requet => ', req);
         let wh = {}
-        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pendding"){
-            wh = {paymentStatus:"Pending"}
-        }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
-            wh = {paymentStatus:"Approved"}
-        }else{
-            wh = {paymentStatus:"Rejected"}
-        }  
+        if (req.query != undefined && req.query.status != undefined && req.query.status == "Pendding") {
+            wh = { paymentStatus: "Pending" }
+        } else if (req.query != undefined && req.query.status != undefined && req.query.status == "Approved") {
+            wh = { paymentStatus: "Approved" }
+        } else {
+            wh = { paymentStatus: "Rejected" }
+        }
 
-        const bankList = await BankDeatils.find(wh, { name: 1,email:1,phone:1,amountNumber:1,IFSC:1, createdAt: 1 , userId:1,BeneficiaryName:1,paymentStatus:1 })
-            
+        const bankList = await BankDeatils.find(wh, { name: 1, email: 1, phone: 1, amountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
+
         logger.info('admin/dahboard.js post BankList  error => ', bankList);
 
         res.json({ bankList });

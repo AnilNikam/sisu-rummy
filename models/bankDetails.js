@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
-const GameUser = require('./users');
 const Schema = mongoose.Schema;
+const GameUser = require('./users');
 
-const BankDeatils = new Schema(
+const collectionName = 'bankDetails';
+
+const bankDeatilsschema = new Schema(
     {
         userId: { type: Schema.Types.ObjectId, ref: GameUser },
         transactionId: { type: String, trim: true, default: 'N/A' },
@@ -19,7 +21,7 @@ const BankDeatils = new Schema(
         IFSC: { type: String, default: '' },
         BeneficiaryName: { type: String, default: '' },
         reMark: { type: String, default: '' },
-        transferMode: { type: String, enum: ['NEFT', 'RTGS'] },
+        transferMode: { type: String, enum: ['NEFT', 'RTGS', 'IMPS'] },
         verfiy: { type: Boolean, default: false },
         webhook: {}
     },
@@ -28,4 +30,4 @@ const BankDeatils = new Schema(
     }
 );
 
-module.exports = mongoose.model('bankDeatils', BankDeatils);
+module.exports = mongoose.model(collectionName, bankDeatilsschema);
