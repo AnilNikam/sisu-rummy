@@ -14,6 +14,8 @@ const { sendEvent, sendDirectEvent, AddTime, setDelay, clearJob } = require('../
 module.exports.joinTable = async (requestData, socket) => {
   try {
     logger.info("requestData joinTable", requestData)
+    logger.info("requestData joinTable socket ", socket.JT)
+
     const entryFee = requestData.entryFee.toString()
     logger.info("requestData joinTable entryFee", typeof entryFee, entryFee)
 
@@ -67,6 +69,9 @@ module.exports.joinTable = async (requestData, socket) => {
         $set: {
           'playerInfo.$': {},
         },
+        $inc:{
+          "activePlayer":-1
+        }
       };
 
       let tableInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
