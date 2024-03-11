@@ -56,10 +56,10 @@ module.exports.cardDealStart = async (tbid) => {
     });
 
     let tbId = tableInfo._id;
-    let jobId = commandAcions.GetRandomString(10);
-    let delay = commandAcions.AddTime(4);
+    // let jobId = commandAcions.GetRandomString(10);
+    // let delay = commandAcions.AddTime(4);
 
-    await commandAcions.setDelay(jobId, new Date(delay));
+    // await commandAcions.setDelay(jobId, new Date(delay));
 
     await roundStartActions.roundStarted(tbId);
   } catch (err) {
