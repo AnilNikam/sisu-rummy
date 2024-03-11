@@ -311,10 +311,10 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
 
     // waiting for real player
-    let botJobId = 'WAITING' + ':' + tableInfo._id;
-    let delay = AddTime(7);
+    // let botJobId = 'WAITING' + ':' + tableInfo._id;
+    // let delay = AddTime(7);
 
-    await setDelay(botJobId, new Date(delay));
+    // await setDelay(botJobId, new Date(delay));
 
     logger.info("Table max seat =>", tableInfo.maxSeat)
 
