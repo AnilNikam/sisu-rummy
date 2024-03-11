@@ -66,7 +66,7 @@ module.exports.joinTable = async (requestData, socket) => {
       //   flag: false,
       //   msg: 'Already In playing table!!',
       // });
-       logger.info('player already in table');
+      logger.info('player already in table');
 
       // let updateData = {
       //   $set: {
@@ -82,9 +82,9 @@ module.exports.joinTable = async (requestData, socket) => {
       // });
 
       // logger.info("Remove User table -->", tableInfo)
-      
+
       await userReconnect({
-        playerId:socket.uid
+        playerId: socket.uid
       }, socket);
       delete socket.JT;
       return false;
@@ -329,25 +329,15 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     // waiting for real player
     // let botJobId = 'WAITING' + ':' + tableInfo._id;
-
-
     // let delay = AddTime(7);
-
     // await setDelay(botJobId, new Date(delay));
 
-
-    logger.info("Table max seat =>", tableInfo.maxSeat)
-
     if (tableInfo.activePlayer == 1) {
-
       setTimeout(() => {
-
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
-
           setTimeout(() => {
             botLogic.findRoom(tableInfo, betInfo)
           }, 1000)
-
         } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
           setTimeout(() => {
             botLogic.findRoom(tableInfo, betInfo)
@@ -356,11 +346,9 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       }, 7000)
     } else if (userInfo.isBot == true) {
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
-
         setTimeout(() => {
           botLogic.findRoom(tableInfo, betInfo)
         }, 1000)
-
       } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
         setTimeout(() => {
           botLogic.findRoom(tableInfo, betInfo)
