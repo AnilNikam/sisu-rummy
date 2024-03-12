@@ -210,7 +210,7 @@ async function getBannerList(requestBody) {
             return { status: 0, message: 'data not find' };
         }
     } catch (error) {
-        logger.error('mainController.js getBetList error=> ', error, requestBody);
+        logger.error('mainController.js getBannerList error=> ', error, requestBody);
     }
 }
 

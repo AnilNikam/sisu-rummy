@@ -20,7 +20,9 @@ module.exports.pickCard = async (requestData, client) => {
     if (!ifSocketDefine(requestData, client, CONST.PICK_CARD)) {
       return false;
     }
-    if (typeof client.pickCard !== 'undefined' && client.pickCard) return false;
+    if (typeof client.pickCard !== 'undefined' && client.pickCard) {
+      return false;
+    }
 
     client.pickCard = true;
 
@@ -66,7 +68,7 @@ module.exports.pickCard = async (requestData, client) => {
 
       const words = pickedCard.split('-');
 
-      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1] && tableInfo.wildCard !== pickedCard) {
+      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) {
         logger.info("JOKER");
         delete client.pickCard;
         commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");
