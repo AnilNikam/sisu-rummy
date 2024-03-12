@@ -16,6 +16,7 @@ module.exports.joinTable = async (requestData, socket) => {
   try {
     logger.info('Join Pool Table Request Data : ', JSON.stringify(requestData));
     logger.info('\n socket joinTable Table Id: ', socket.tbid);
+    const entryFee = requestData.entryFee.toString()
 
     if (typeof socket.uid === 'undefined') {
       sendEvent(socket, CONST.JOIN_TABLE, requestData, {
@@ -33,10 +34,12 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let query = {
       type: requestData.type,
+      entryFee: entryFee,
       maxSeat: parseInt(requestData.maxSeat)
     };
 
     const betInfo = await BetLists.findOne(query, {}).lean();
+    logger.info("pool Bet Info =>", betInfo);
 
     let condition = { _id: MongoID(socket.uid) };
     let userInfo = await Users.findOne(condition, {}).lean();
@@ -210,6 +213,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       pickedCard: '',
       debitChips: false,
       rejoin: false,
+      isBot: userInfo.isBot
     };
 
     //logger.info('findEmptySeatAndUserSeat playerDetail : ', playerDetail, '\n find Empty Seat And User Seat table : ', table);

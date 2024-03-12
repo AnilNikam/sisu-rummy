@@ -754,7 +754,7 @@ async function sendOTP(payload) {
     const { email, mobileNumber, otpType } = payload;
 
 
-    const alreadyExist = await OtpMobile.count({
+    const alreadyExist = await OtpMobile.countDocuments({
       mobileNumber: mobileNumber,
       otpType,
     });

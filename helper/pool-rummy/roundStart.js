@@ -10,7 +10,7 @@ const leaveTableAction = require('./leaveTable');
 const botCtrl = require('../botFunction');
 
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
-const { getPlayingUserInRound, getUserTurnSeatIndex } = require('../common-function/manageUserFunction');
+const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
 
 module.exports.roundStarted = async (tbid) => {
@@ -119,9 +119,12 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
 
     //Assign to BOT
     let plid = tb.playerInfo[tb.currentPlayerTurnIndex]._id
+    logger.info("player id bot =>", plid)
+
     const data = await Users.findOne({
       _id: MongoID(plid),
     }).lean();
+    logger.info("pool check pic data =>", data)
 
     if (data && data.isBot) {
       await botCtrl.pic(tb, plid, tb.gamePlayType, 'close')
@@ -224,6 +227,9 @@ module.exports.userTurnExpaire = async (tbid) => {
     // logger.info("upRes.playerInfo[upRes.currentPlayerTurnIndex] :  ", upRes.playerInfo[upRes.currentPlayerTurnIndex]);
     if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 3) {
       // logger.info("userTurnExpaire : user turn miss 3 times");
+      let sckId = upRes.playerInfo[upRes.currentPlayerTurnIndex].sck
+      sendDirectEvent(sckId, CONST.USER_MESSAGE, { msg: 'User Drop Out for Missed 3 turn' });
+
       this.handleTimeOut(upRes.playerInfo[upRes.currentPlayerTurnIndex], tbid);
       return;
     }
@@ -256,39 +262,11 @@ module.exports.handleTimeOut = async (turnIndex, tbid) => {
   //Diskcard Card Function Called
   return;
 };
-/*
-module.exports.getUserTurnSeatIndex = async (tbInfo, prevTurn, cnt) => {
-  let counter = cnt;
-  let p = tbInfo.playerInfo; // [{},{},{}]
-  let plen = p.length; //3
-
-  let x = 0;
-
-  if (prevTurn === plen - 1) x = 0;
-  else x = Number(prevTurn) + 1;
-
-  if (counter === plen + 1) {
-    return prevTurn;
-  }
-
-  counter++;
-
-  if (x < plen && (p[x] === null || typeof p[x].seatIndex === 'undefined' || p[x].status !== 'PLAYING')) {
-    let index = await this.getUserTurnSeatIndex(tbInfo, x, counter);
-    //logger.info('getUserTurnSeatIndex index', index);
-    return index;
-  } else {
-    logger.info('getUserTurnSeatIndex x', x);
-    return x;
-  }
-};
-*/
-// in separate file
 
 module.exports.nextUserTurnstart = async (tb) => {
   try {
     // logger.info("next User Turnstart tb => :: ", tb);
-    let nextTurnIndex = await getUserTurnSeatIndex(tb, tb.currentPlayerTurnIndex, 0);
+    let nextTurnIndex = await this.getUserTurnSeatIndex(tb, tb.currentPlayerTurnIndex, 0);
     //logger.info('nextUserTurnstart nextTurnIndex :: ', nextTurnIndex);
 
     await this.startUserTurn(nextTurnIndex, tb, false);
@@ -335,3 +313,28 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
     this.DealerRobotLogicCard(PlayerInfo, wildcard, tbid)
   }
 }
+
+module.exports.getUserTurnSeatIndex = async (tbInfo, prevTurn, cnt) => {
+  let counter = cnt;
+  let p = tbInfo.playerInfo; // [{},{},{}]
+  let plen = p.length; //3
+
+  let x = 0;
+
+  if (prevTurn === plen - 1) x = 0;
+  else x = Number(prevTurn) + 1;
+
+  if (counter === plen + 1) {
+    return prevTurn;
+  }
+
+  counter++;
+
+  if (x < plen && (p[x] === null || typeof p[x].seatIndex === 'undefined' || p[x].status !== 'PLAYING')) {
+    const index = await this.getUserTurnSeatIndex(tbInfo, x, counter);
+    return index;
+  } else {
+    logger.info('getUserTurnSeatIndex x', x);
+    return x;
+  }
+};
