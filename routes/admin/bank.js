@@ -32,7 +32,7 @@ router.get('/BankList', async (req, res) => {
             wh = { paymentStatus: "Rejected" }
         }
 
-        const bankList = await BankDetails.find(wh, { name: 1, email: 1, phone: 1, amountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
+        const bankList = await BankDetails.find(wh, { name: 1, email: 1, phone: 1, accountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
 
         logger.info('admin/dahboard.js post BankList  error => ', bankList);
 

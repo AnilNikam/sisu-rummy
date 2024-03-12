@@ -159,6 +159,7 @@ const CONST = {
   EDIT_MOBILE: 'EM',
   ADD_BANK_ACCOUNT: 'ADDBANK',
   GET_BANK_DETAILS: 'GBD',
+  USER_MESSAGE: "UM",
 
   // Player Status
   WATCHING: 'WATCHING',

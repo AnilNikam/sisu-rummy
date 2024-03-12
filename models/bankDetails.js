@@ -12,7 +12,7 @@ const bankDeatilsschema = new Schema(
         email: { type: String },
         // amount: { type: Number, required: true },
         phone: { type: String, required: true },
-        amountNumber: { type: String, required: true },
+        accountNumber: { type: String, required: true },
         paymentStatus: {
             type: String,
             enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],

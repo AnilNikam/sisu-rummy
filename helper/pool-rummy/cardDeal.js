@@ -48,7 +48,7 @@ module.exports.cardDealStart = async (tbid) => {
     };
 
     tableInfo.playerInfo.forEach((player) => {
-      if (player !== {} && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING') {
+      if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING') {
         eventResponse.card = player.cards;
         commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
       }

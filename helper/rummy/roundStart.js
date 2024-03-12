@@ -10,7 +10,7 @@ const { leaveTable } = require('./leaveTable');
 const { pic, mycardGroup } = require('../botFunction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
-const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
+const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable, sendDirectEvent } = require('../socketFunctions');
 
 
 module.exports.roundStarted = async (tbid) => {
@@ -225,6 +225,8 @@ module.exports.userTurnExpaire = async (tbid) => {
     });
 
     if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 3) {
+      let sckId = upRes.playerInfo[upRes.currentPlayerTurnIndex].sck
+      sendDirectEvent(sckId, CONST.USER_MESSAGE, { msg: 'User Drop Out for Missed 3 turn' });
       this.handleTimeOut(upRes.playerInfo[upRes.currentPlayerTurnIndex], tbid);
       return;
     }

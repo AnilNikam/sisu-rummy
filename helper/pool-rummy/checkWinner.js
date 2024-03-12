@@ -72,7 +72,16 @@ module.exports.getWinner = async (tb) => {
 
     let gameResult;
 
-    if (playerDetails.gCard === []) {
+    const isGCardEmpty = (gCard) => {
+      return (
+        gCard.pure.length === 0 &&
+        gCard.impure.length === 0 &&
+        gCard.set.length === 0 &&
+        gCard.dwd.length === 0
+      );
+    };
+
+    if (isGCardEmpty(playerDetails.gCard)) {
       gameResult = await getScore(playerDetails.cards, tb.wildCard);
     } else {
       gameResult = await getScore(playerDetails.gCard, tb.wildCard);

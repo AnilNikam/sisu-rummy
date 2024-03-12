@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
 const BankDetails = mongoose.model('bankDetails');
+const MongoID = mongoose.Types.ObjectId;
+
 const { OBJECT_ID } = require('../../config');
 
 const CONST = require('../../constant');
@@ -349,7 +351,7 @@ const addBankAccount = async (requestBody, socket) => {
   try {
     logger.info('addBankAccount User Request Body =>', requestBody);
     const { addBankAccount, playerId, customerName, customerEmail, customerPhone, accountNo, ifscCode, BeneficiaryName, transferMode } = requestBody;
-    let query = { amountNumber: accountNo };
+    let query = { accountNumber: accountNo };
     let result = await BankDetails.findOne(query, {});
     logger.info('addBankAccount User Request result =>', result);
 
@@ -360,38 +362,41 @@ const addBankAccount = async (requestBody, socket) => {
         name: customerName,
         email: customerEmail,
         phone: customerPhone,
-        amountNumber: accountNo,
+        accountNumber: accountNo,
         IFSC: ifscCode,
         BeneficiaryName: BeneficiaryName
       }
 
       let response = await BankDetails.create(info);
       logger.info('addBankAccount response =>', response);
-
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response);
 
-      let bankJson =
-      {
-        playerId: playerId,
-        customerName: customerName,
-        customerEmail: customerEmail,
-        customerPhone: customerPhone,
-        amount: 1,
-        accountNo: accountNo,
-        ifscCode: ifscCode,
-        "BeneficiaryName": BeneficiaryName,
-        "transferMode": "IMPS",
+      resData = await this.accountVerifyAPI({ account_number: accountNo, ifsccode: ifscCode, userId: playerId })
+      logger.info('check accountVerifyAPI response =>', resData);
 
+      if (resData) {
+        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, resData);
+      } else {
+        // Account not verify 
+        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, {}, false, "Your bank account information is not correct");
       }
-
-
-      await PayOutTransfer(bankJson, socket, response._id)
 
     } else {
 
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'Account Details Already Registerd');
 
+      //pass the data for account verification
+      let { accountNumber, IFSC, userId } = result
+      resData = this.accountVerifyAPI({ account_number: accountNumber, ifsccode: IFSC, userId: userId })
+
+      if (resData) {
+        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, resData);
+      } else {
+        // Account not verify 
+        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, {}, false, "Your bank account information is not correct");
+      }
     }
+
   } catch (error) {
     logger.error('mainController.js registerUser error=> ', error);
     return {
@@ -401,6 +406,42 @@ const addBankAccount = async (requestBody, socket) => {
   }
 };
 
+const accountVerifyAPI = async (data) => {
+  logger.info("accountVerifyAPI =>", data)
+  let body = {
+    "mode": "sync",
+    "data": {
+      "account_number": data.account_number,
+      "ifsc": data.ifsccode,
+      "consent": "Y",
+      "consent_text": "I hear by declare my consent agreement for fetching my information via ZOOP API"
+    },
+    "task_id": data.userId.toString()
+  }
+
+  const payload = body
+
+  const response = await axios.post('https://live.zoop.one/api/v1/in/financial/bav/lite', payload, {
+    'headers': {
+      "app-id": "65e85d4f1f34630028ac6cbf",
+      "api-key": "XRTYCX1-3ARMHGT-QPY3TN4-0AS6DTP",
+      "org-id": "60800ca35ed0c7001cad2605",
+      "Content-Type": "application/json"
+    }
+  });
+
+
+  logger.info("Account Verify Response ::>", response.data);
+
+  if (response.data.success) {
+    let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verfiy: true } }, {
+      new: true,
+    });
+    return res;
+  } else {
+    return false
+  }
+}
 
 /**
  * @description OKYCRequest
@@ -676,5 +717,6 @@ module.exports = {
   OKYCRequest,
   OKYCverifyRequest,
   OKYCPanverifyRequest,
-  addBankAccount
+  addBankAccount,
+  accountVerifyAPI
 };

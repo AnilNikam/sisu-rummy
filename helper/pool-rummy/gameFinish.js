@@ -231,14 +231,14 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     if (/*tableInfo.gameTracks[i].result === CONST.WON &&*/ gameStartStatus) {
       logger.info(' Add Win Pool Wallet gameStartStatus', gameStartStatus);
       //await walletActions.addWallet(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-      
-      let perdecuct  = GAMELOGICCONFIG.PLAYING_WIN_PER || 5
-        let winningwallet = ((Number(winnerTrack.winningAmount)*perdecuct) /100)
+
+      let perdecuct = GAMELOGICCONFIG.PLAYING_WIN_PER || 5
+      let winningwallet = ((Number(winnerTrack.winningAmount) * perdecuct) / 100)
       let TotalwithdrawableChips = Number(winnerTrack.winningAmount) - Number(winningwallet)
 
       //withdrawableChips Management Function name only 
-      await walletActions.deductWalletPayOut(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId,Number(TotalwithdrawableChips), 'Credit', 'Game Win',tableInfo);
-      await walletActions.addWalletWinngChpis(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId,Number(winningwallet), 'Credit', 'Game Win',tableInfo);
+      await walletActions.deductWalletPayOut(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, Number(TotalwithdrawableChips), 'Credit', 'Game Win', tableInfo);
+      await walletActions.addWalletWinngChpis(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, Number(winningwallet), 'Credit', 'Game Win', tableInfo);
 
 
     }

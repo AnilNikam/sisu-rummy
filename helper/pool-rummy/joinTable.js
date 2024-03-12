@@ -10,6 +10,7 @@ const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { sendEvent, sendDirectEvent, clearJob } = require('../socketFunctions');
+const { userReconnect } = require('../common-function/reConnectFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
@@ -24,12 +25,15 @@ module.exports.joinTable = async (requestData, socket) => {
       return false;
     }
 
-    if (typeof socket.JT !== 'undefined' && socket.JT) return false;
+    if (typeof socket.JT !== 'undefined' && socket.JT) {
+      return false;
+    }
 
     socket.JT = true;
 
     let query = {
       type: requestData.type,
+      maxSeat: parseInt(requestData.maxSeat)
     };
 
     const betInfo = await BetLists.findOne(query, {}).lean();
@@ -57,6 +61,8 @@ module.exports.joinTable = async (requestData, socket) => {
         flag: false,
         msg: 'Already In playing table!!',
       });
+
+      await userReconnect({ playerId: socket.uid }, socket);
 
       delete socket.JT;
 
@@ -111,9 +117,10 @@ module.exports.getBetTable = async (betInfo) => {
   try {
     let wh = {
       gameType: betInfo.type,
-      activePlayer: { $gte: 0, $lt: 6 },
+      activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: 'poolrummy',
       tableLock: false,
+      maxSeat: parseInt(betInfo.maxSeat),
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
@@ -138,7 +145,7 @@ module.exports.createTable = async (betInfo) => {
       commission: betInfo.commission,
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
-      playerInfo: this.makeObjects(6),
+      playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
@@ -278,17 +285,28 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       await gameStartActions.gameTimerStart(tableInfo);
     }
 
-    if (tableInfo.activePlayer <= 2) {
-      let counter = 0;
-
-      const intervalId = setInterval(() => {
-        counter++;
-        logger.info(`Function called ${counter} times.`);
-        botLogic.findRoom(tableInfo, betInfo)
-        if (counter === 5) {
-          clearInterval(intervalId); // Stop the interval after 5 calls
+    if (tableInfo.activePlayer == 1) {
+      setTimeout(() => {
+        if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+          setTimeout(() => {
+            botLogic.findRoom(tableInfo, betInfo)
+          }, 1000)
+        } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+          setTimeout(() => {
+            botLogic.findRoom(tableInfo, betInfo)
+          }, 1000)
         }
-      }, 1500);
+      }, 7000)
+    } else if (userInfo.isBot == true) {
+      if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+        setTimeout(() => {
+          botLogic.findRoom(tableInfo, betInfo)
+        }, 1000)
+      } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+        setTimeout(() => {
+          botLogic.findRoom(tableInfo, betInfo)
+        }, 1000)
+      }
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);

@@ -161,8 +161,8 @@ module.exports.leaveTable = async (requestInfo, client) => {
       ap: activePlayerInRound.length,
       // seatIndex: client.seatIndex
     };
-    logger.info('Respons when user leave', response);
-    logger.info('Leave Client Socket Id =>', client.sck);
+    logger.info('pool Respons when user leave', response);
+    logger.info('pool Leave Client Socket Id =>', client.sck);
     sendDirectEvent(client.sck.toString(), CONST.LEAVE, response);
     sendEventInTable(tbInfo._id.toString(), CONST.LEAVE, response);
 
@@ -214,11 +214,22 @@ module.exports.manageOnUserLeave = async (tb, client) => {
           new: true,
         });
         logger.info("Pool remove robot tbInfo", tbInfo)
-
         logger.info("Pool Leave remove robot playerInGame[0] ", playerInGame[0])
 
 
-        await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+        if (tbInfo) {
+
+          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+
+          if (tbInfo.activePlayer === 0) {
+            let wh = {
+              _id: MongoID(tbInfo._id.toString()),
+            };
+            await PlayingTables.deleteOne(wh);
+          }
+        } else {
+          logger.info("tbInfo not found");
+        }
 
         await nextUserTurnstart(tb);
       }
