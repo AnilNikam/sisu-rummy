@@ -371,7 +371,7 @@ const addBankAccount = async (requestBody, socket) => {
       logger.info('addBankAccount response =>', response);
       commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, response);
 
-      resData = await this.accountVerifyAPI({ account_number: accountNo, ifsccode: ifscCode, userId: playerId })
+      resData = await accountVerifyAPI({ account_number: accountNo, ifsccode: ifscCode, userId: playerId })
       logger.info('check accountVerifyAPI response =>', resData);
 
       if (resData) {
@@ -383,10 +383,16 @@ const addBankAccount = async (requestBody, socket) => {
 
     } else {
 
-      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'Account Details Already Registerd');
-
-      //pass the data for account verification
       let { accountNumber, IFSC, userId } = result
+      commandAcions.sendEvent(socket, CONST.ADD_BANK_ACCOUNT, {}, false, 'please Account Details Add correctly.. ');
+      const deletedOtp = await BankDetails.findOneAndDelete({
+        userId: userId,
+        accountNumber: accountNumber,
+      });
+    logger.error('mainController.js registerUser deletedOtp => ', deletedOtp);
+
+/*
+      //pass the data for account verification
       resData = this.accountVerifyAPI({ account_number: accountNumber, ifsccode: IFSC, userId: userId })
 
       if (resData) {
@@ -395,6 +401,7 @@ const addBankAccount = async (requestBody, socket) => {
         // Account not verify 
         commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, {}, false, "Your bank account information is not correct");
       }
+      */
     }
 
   } catch (error) {
@@ -437,9 +444,9 @@ const accountVerifyAPI = async (data) => {
     let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verfiy: true } }, {
       new: true,
     });
-    return res;
+    return  response.data;
   } else {
-    return false
+    return response.data
   }
 }
 
