@@ -1016,9 +1016,11 @@ async function getBetList(requestBody) {
  */
 async function getBankDetailByUserId(requestBody) {
   try {
+    logger.info("getBankDetailByUserId requestBody ==>", requestBody)
+    let { playerId } = requestBody
     const responseData = await BankDetails.findOne({ userId: MongoID(playerId) }).lean();
     logger.info("getBankDetailByUserId ==>", responseData)
-    if (responseData.length !== 0) {
+    if (responseData) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
     } else {
       return { status: 0, message: 'data not find' };
