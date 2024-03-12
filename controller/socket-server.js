@@ -510,7 +510,7 @@ myIo.init = function (server) {
           case CONST.GET_BANK_DETAILS: {
             try {
               let res = await mainCtrl.getBankDetailByUserId(payload.data, socket);
-              sendEvent(socket, CONST.GET_BANK_DETAILS, res);
+              sendEvent(socket, CONST.GET_BANK_DETAILS, res.data);
 
             } catch (error) {
               logger.error('socketServer.js GET_BANK_DETAILS => ', error);
