@@ -219,6 +219,7 @@ async function playerDetails(requestBody) {
     user.panCardVerify = isverified ? isverified.pancardverified : false
     user.panCardNumber = isverified ? isverified.pancard : ""
     user.isBankAccountAdded = userBankDetails ? true : false
+    user.isBankAccountVerify = userBankDetails ? userBankDetails.verify : false
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
