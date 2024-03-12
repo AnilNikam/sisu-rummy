@@ -441,9 +441,11 @@ const accountVerifyAPI = async (data) => {
   logger.info("Account Verify Response ::>", response.data);
 
   if (response.data.success) {
-    let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verfiy: true } }, {
+    let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verify: true } }, {
       new: true,
     });
+
+    logger.info("Update status account verfiy",res);
     return  response.data;
   } else {
     return response.data

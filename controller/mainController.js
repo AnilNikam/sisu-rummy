@@ -196,7 +196,7 @@ async function playerDetails(requestBody) {
     const user = await Users.findOne({ _id: commonHelper.strToMongoDb(playerId) }).lean();
     //logger.info('mainController.js playerDetails => ', user);
     const userBankDetails = await BankDetails.findOne({ userId: commonHelper.strToMongoDb(playerId) }).lean();
-    //logger.info('mainController.js userBankDetails => ', userBankDetails);
+    logger.info('mainController.js userBankDetails => ', userBankDetails);
 
     const isverified = await otpAdharkyc.findOne(
       {
@@ -219,7 +219,7 @@ async function playerDetails(requestBody) {
     user.panCardVerify = isverified ? isverified.pancardverified : false
     user.panCardNumber = isverified ? isverified.pancard : ""
     user.isBankAccountAdded = userBankDetails ? true : false
-    user.isBankAccountVerify = userBankDetails ? userBankDetails.verify : false
+    user.isBankAccountVerify = userBankDetails ? userBankDetails.verify : false //
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);

@@ -22,7 +22,7 @@ const bankDeatilsschema = new Schema(
         BeneficiaryName: { type: String, default: '' },
         reMark: { type: String, default: '' },
         transferMode: { type: String, enum: ['NEFT', 'RTGS', 'IMPS'] },
-        verfiy: { type: Boolean, default: false },
+        verify: { type: Boolean, default: false },
         webhook: {}
     },
     {
