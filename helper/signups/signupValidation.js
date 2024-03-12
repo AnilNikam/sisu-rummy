@@ -405,7 +405,8 @@ const addBankAccount = async (requestBody, socket) => {
     }
 
   } catch (error) {
-    logger.error('mainController.js registerUser error=> ', error);
+    logger.error('mainController.js addBankAccount error=> ', error);
+    commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, error, false);
     return {
       message: 'something went wrong while registering, please try again',
       status: 0,
