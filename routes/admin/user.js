@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
+const BankDetails = mongoose.model('bankDetails');
 
 const express = require('express');
 const router = express.Router();
@@ -49,34 +50,95 @@ router.get('/UserData', async (req, res) => {
     try {
         console.info('requet => ', req.query);
         //userInfo
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1,location:1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+
+        console.log("userInfo :::::::::::::::::::",userInfo)
+
+        let UserOKYC = await otpAdharkyc.findOne({userId: new mongoose.Types.ObjectId(req.query.userId)},
+                                                    {adharcard:1,verified:1,"userInfo":1,"DOB":1,adharcardfrontimages:1,adharcardbackimages:1,
+                                                    pancardname:1,pancardfrontimages:1,pancard:1,"panInfo":1,pancardverified:1})
+        console.log("UserOKYC",UserOKYC)
+
+        UserOKYCData = {
+            adharcard:" - ",
+            full_name:"",
+            verified:"",
+            userInfo:"",
+            DOB:"",
+            gender:"",
+            pincode:"",
+            adharcardfrontimages:"",
+            adharcardbackimages:""
+
+        }
+        UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ?UserOKYC.adharcard : "-";
+        UserOKYCData.full_name = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ?UserOKYC.userInfo.user_full_name : "-";
+
+        UserOKYCData.verified = (UserOKYC != undefined && UserOKYC.verified != undefined) ?UserOKYC.verified : "-";
+        UserOKYCData.adharcardfrontimages = (UserOKYC != undefined && UserOKYC.adharcardfrontimages != undefined) ?UserOKYC.adharcardfrontimages : "-";
+        UserOKYCData.adharcardbackimages = (UserOKYC != undefined && UserOKYC.adharcardbackimages != undefined) ?UserOKYC.adharcardbackimages : "-";
 
         
-
-        let UserOKYC = await otpAdharkyc.findOne({userId: new mongoose.Types.ObjectId(req.query.userId)},{adharcard:1,verified:1,"userInfo.user_address":1})
-        console.log("UserOKYC",UserOKYC)
-        if(UserOKYC == undefined || UserOKYC == null ){
-            
-            UserOKYC = {
-                adharcard:" - ",
-                verified:"",
-                userInfo:""
-            }
-        }
-        UserOKYC.userInfo  =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
+        UserOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
+        UserOKYCData.gender = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_gender != undefined) ?UserOKYC.userInfo.user_gender : "-";
+        UserOKYCData.userInfo  =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
          ""+UserOKYC.userInfo.user_address.house+","+UserOKYC.userInfo.user_address.street+","+UserOKYC.userInfo.user_address.po+","+UserOKYC.userInfo.user_address.loc+","
          +UserOKYC.userInfo.user_address.vtc+","+UserOKYC.userInfo.user_address.dist+","+UserOKYC.userInfo.user_address.state+","+UserOKYC.userInfo.user_address.country+"" :"Not Available";
 
+         UserOKYCData.pincode =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
 
-        console.log('admin/dahboard.js post dahboard  error => :::::::: ', UserOKYC);
+        PanOKYCData = {
+            pancardname:"",
+            pancard:"",
+            verified:"",
+            DOB:"",
+            full_name:"",
+            pancardfrontimages:""
+        }   
 
-        res.json({ userInfo,UserOKYC });
+        PanOKYCData.pancard = ( UserOKYC.pancard != undefined) ?UserOKYC.pancard : "-";
+        PanOKYCData.pancardname = ( UserOKYC.pancardname != undefined) ?UserOKYC.pancardname : "-";
+        PanOKYCData.pancardfrontimages = ( UserOKYC.pancardfrontimages != undefined) ?UserOKYC.pancardfrontimages : "-";
+        PanOKYCData.verified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined) ?UserOKYC.pancardverified : "-";
+        PanOKYCData.full_name = (UserOKYC != undefined &&  UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ?UserOKYC.panInfo.user_full_name : "-";
+        PanOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
+
+       
+        
+        console.log('admin/dahboard.js post dahboard  error => :::::::: UserOKYCData ', UserOKYCData);
+        console.log('admin/dahboard.js post dahboard  error => :::::::: PanOKYCData ', PanOKYCData);
+
+
+        res.json({ userInfo,UserOKYCData,PanOKYCData });
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
 
+
+/**
+* @api {post} /admin/UserData
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/BankData', async (req, res) => {
+    try {
+        console.info('requet => BankData ', req.query);
+        //userInfo
+        const userBankInfo = await BankDetails.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) }, { })
+
+        console.log("userBankInfo :::::::::::::::::::",userBankInfo)
+
+        res.json({ userBankInfo });
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
 
 /**
 * @api {post} /admin/AddUser
