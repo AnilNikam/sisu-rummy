@@ -265,6 +265,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
     console.log("fina update table ->", tableInfo);
+
     if (tableInfo == null && socket && socket.isBot !== true) {
       await this.findTable(betInfo, socket);
       return false;

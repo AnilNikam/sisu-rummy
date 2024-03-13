@@ -21,7 +21,9 @@ module.exports.pickCard = async (requestData, client) => {
     if (!ifSocketDefine(requestData, client, CONST.PICK_CARD)) {
       return false;
     }
-    if (typeof client.pickCard !== 'undefined' && client.pickCard) return false;
+    if (typeof client.pickCard !== 'undefined' && client.pickCard) {
+      return false;
+    }
 
     client.pickCard = true;
 
@@ -382,10 +384,10 @@ module.exports.declare = async (requestData, client) => {
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
     //BOT
-    playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
+    playerInGame = await getPlayingUserInRound(tb.playerInfo);
 
     logger.info("pool rummy playerInGame ", playerInGame)
-    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
+    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tb.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 

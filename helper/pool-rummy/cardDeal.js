@@ -8,7 +8,7 @@ fortuna.init();
 const logger = require('../../logger');
 const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
-const roundStartActions = require('../rummy/roundStart');
+const roundStartActions = require('./roundStart');
 const { createDealer } = require('../helperFunction');
 
 module.exports.cardDealStart = async (tbid) => {
@@ -48,7 +48,7 @@ module.exports.cardDealStart = async (tbid) => {
     };
 
     tableInfo.playerInfo.forEach((player) => {
-      if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING') {
+      if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
         eventResponse.card = player.cards;
         commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
       }

@@ -5,7 +5,7 @@ const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
 
 const gameStartActions = require('./gameStart');
-const botLogic = require('../botFunction');
+const botCtrl = require('./poolBotFunction');
 const CONST = require('../../constant');
 const logger = require('../../logger');
 
@@ -175,12 +175,18 @@ module.exports.makeObjects = (length = 0) => {
 
 module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
   try {
+    logger.info("pool findEmptySeatAndUserSeat betInfo ::", betInfo);
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
-    // logger.info("findEmptySeatAndUserSeat seatIndex ::", seatIndex);
+    logger.info("findEmptySeatAndUserSeat seatIndex ::", seatIndex);
 
     if (seatIndex === '-1') {
-      await this.findTable(betInfo, socket);
-      return false;
+      if (socket && socket.isBot !== true) {
+        await this.findTable(betInfo, socket);
+        return false;
+      } else {
+        logger.info("not create table by BOT and seatindex")
+        return false;
+      }
     }
 
     let wh = { _id: socket.uid };
@@ -230,8 +236,12 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     };
 
     setPlayerInfo['$set']['playerInfo.' + seatIndex] = playerDetail;
+    logger.info("joinTbale setPlayerInfo=>", whereCond);
+
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
+    logger.info("pool final update table ->", tableInfo);
+
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
     if (!(playerInfo._id.toString() === userInfo._id.toString())) {
@@ -273,8 +283,10 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       tableAmount: tableInfo.tableAmount,
     });
 
+
     //JT event
-    socket.join(tableInfo._id.toString());
+    if (userInfo.isBot == undefined || userInfo.isBot == false)
+      socket.join(tableInfo._id.toString());
 
     sendDirectEvent(socket.tbid.toString(), CONST.JOIN_TABLE, {
       ap: tableInfo.activePlayer,
@@ -289,26 +301,29 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       await gameStartActions.gameTimerStart(tableInfo);
     }
 
+    logger.info("check find room table info -->", tableInfo)
+    logger.info("check find room bet info -->", betInfo)
+
     if (tableInfo.activePlayer == 1) {
       setTimeout(() => {
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
           setTimeout(() => {
-            botLogic.findRoom(tableInfo, betInfo)
+            botCtrl.findPoolRoom(tableInfo, betInfo)
           }, 1000)
         } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
           setTimeout(() => {
-            botLogic.findRoom(tableInfo, betInfo)
+            botCtrl.findPoolRoom(tableInfo, betInfo)
           }, 1000)
         }
       }, 7000)
     } else if (userInfo.isBot == true) {
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
         setTimeout(() => {
-          botLogic.findRoom(tableInfo, betInfo)
+          botCtrl.findPoolRoom(tableInfo, betInfo)
         }, 1000)
       } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
         setTimeout(() => {
-          botLogic.findRoom(tableInfo, betInfo)
+          botCtrl.findPoolRoom(tableInfo, betInfo)
         }, 1000)
       }
     }

@@ -7,7 +7,7 @@ const logger = require('../../logger');
 const CONST = require('../../constant');
 const leaveTableAction = require('./leaveTable');
 // const { pic, mycardGroup } = require('../botFunction');
-const botCtrl = require('../botFunction');
+const botCtrl = require('./poolBotFunction');
 
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
@@ -15,7 +15,7 @@ const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = requi
 
 module.exports.roundStarted = async (tbid) => {
   try {
-    // logger.info("roundStarted call tbid : ", tbid);
+    logger.info("pool roundStarted call tbid : ", tbid);
     const wh = {
       _id: MongoID(tbid),
     };
@@ -64,7 +64,7 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     };
 
     let tabInfo = await PlayingTables.findOne(wh, project).lean();
-    // logger.info("init Game State table Info : ", tabInfo);
+    logger.info("pool init Game State table Info : ", tabInfo);
 
     if (typeof tabInfo.jobId !== 'undefined' && tabInfo.jobId !== '') {
       await clearJob(tabInfo.jobId);
@@ -80,29 +80,29 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
         jobId: jobId,
       },
     };
-    // logger.info("startUserTurn wh update ::", wh, update);
+    logger.info("pool startUserTurn wh update ::", wh, update);
 
     const tb = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
-    // logger.info("\n Amit init Game State table Info : ", JSON.stringify(tb, null, 5));
+    logger.info("pool \n init Game State table Info : ", JSON.stringify(tb, null, 5));
 
     const playerInGame = await getPlayingUserInRound(tb.playerInfo);
     //logger.info('startUserTurn playerInGame ::', playerInGame);
 
     if (playerInGame.length === 1) {
-      // logger.info("startUserTurn single user in game so game goes on winner state..!");
+      logger.info("pool startUserTurn single user in game so game goes on winner state..!");
       await lastUserWinnerDeclareCall(tb);
       return false;
     }
 
-    // logger.info("tb.openDeck -->: ", tb.openDeck);
+    logger.info("pool tb.openDeck -->: ", tb.openDeck);
     let lastCardIndex = tb.openDeck.length - 1;
-    // logger.info("startUserTurn lastCardIndex : ", lastCardIndex);
+    logger.info("pool startUserTurn lastCardIndex : ", lastCardIndex);
 
     if (lastCardIndex < 0) {
       lastCardIndex = 0;
     }
 
-    // logger.info("After startUserTurn lastCardIndex : ", lastCardIndex);
+    logger.info("pool After startUserTurn lastCardIndex : ", lastCardIndex);
 
     const deck = 'open';
 
@@ -265,13 +265,13 @@ module.exports.handleTimeOut = async (turnIndex, tbid) => {
 
 module.exports.nextUserTurnstart = async (tb) => {
   try {
-    // logger.info("next User Turnstart tb => :: ", tb);
+    logger.info("pool next User Turnstart tb => :: ", tb);
     let nextTurnIndex = await this.getUserTurnSeatIndex(tb, tb.currentPlayerTurnIndex, 0);
-    //logger.info('nextUserTurnstart nextTurnIndex :: ', nextTurnIndex);
+    logger.info('pool nextUserTurnstart nextTurnIndex :: ', nextTurnIndex);
 
     await this.startUserTurn(nextTurnIndex, tb, false);
   } catch (e) {
-    logger.error('roundStart.js nextUserTurnstart error : ', e);
+    logger.error('pool roundStart.js nextUserTurnstart error : ', e);
   }
 };
 

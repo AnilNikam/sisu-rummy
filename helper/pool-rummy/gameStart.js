@@ -11,6 +11,8 @@ const logger = require('../../logger');
 
 const { deductWallet } = require('../common-function/walletTrackTransaction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
+const walletActions = require('../common-function/walletTrackTransaction');
+
 
 module.exports.gameTimerStart = async (tb) => {
   try {
@@ -69,9 +71,10 @@ module.exports.collectBoot = async (tbId) => {
     };
 
     let tableInfo = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
+    logger.info(' pull Player tableInfo=>', tableInfo);
 
     let playerUgcInfo = await this.deduct(tableInfo, playerInfo);
-    logger.info(' Player UGC details =>', playerUgcInfo);
+    logger.info('Pull Player UGC details =>', playerUgcInfo);
 
     let response = {
       playerUgcInfo,
@@ -199,69 +202,69 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       if (userInfo === null) {
         return;
-      } 
+      }
 
       let totalWallet = Number(userInfo.chips);
-        let totalbonus = Number(userInfo.bonusChips);
+      let totalbonus = Number(userInfo.bonusChips);
 
-        let playerGameChips = tabInfo.entryFee * 80;
-        let gameDepositChips = playerGameChips * 3; 
+      let playerGameChips = tabInfo.entryFee * 80;
+      let gameDepositChips = playerGameChips * 3;
 
-        let perdecuct  = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
-        
-        let bonuscutchips = Number((gameDepositChips * perdecuct)/100)
-        let mainchipscut = Number(gameDepositChips - bonuscutchips)
+      let perdecuct = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
 
-        let bonuswalletdeduct = false;
-        let mainwalletdeduct = false;
+      let bonuscutchips = Number((gameDepositChips * perdecuct) / 100)
+      let mainchipscut = Number(gameDepositChips - bonuscutchips)
 
-
-        if(totalbonus >= bonuscutchips && totalWallet >= mainchipscut){
-          bonuswalletdeduct = true
-          mainwalletdeduct = true
-
-        }else if(totalWallet >= mainchipscut){
-          mainwalletdeduct = true
-        }
-        // let playerGameChips = tabInfo.entryFee * 80;
-        // let gameDepositChips = playerGameChips * 3;
-
-        // if (userInfo.chips > gameDepositChips) {
-        //   playerGameChips = gameDepositChips;
-        //   totalWallet -= gameDepositChips;
-        // } else if (userInfo.chips > playerGameChips * 2) {
-        //   playerGameChips = playerGameChips * 2;
-        //   totalWallet -= playerGameChips;
-        // } else if (userInfo.chips > playerGameChips) {
-        //   playerGameChips;
-        //   totalWallet -= playerGameChips;
-        // }
-
-        // let userWalletUpdate = {
-        //   $set: {
-        //     chips: Number(totalWallet),
-        //   },
-        //   $inc: {
-        //     'counters.totalMatch': 1,
-        //   },
-        // };
-
-        // let uwh = { _id: MongoID(pId.toString()) };
-        // let updateCounters = await Users.findOneAndUpdate(uwh, userWalletUpdate, { new: true });
-
-        // logger.info('Wallet after deduct coins update in user and counter ::', updateCounters);
-
-        console.log("bonuswalletdeduct ",bonuswalletdeduct)
-        console.log("mainwalletdeduct ",mainwalletdeduct)
+      let bonuswalletdeduct = false;
+      let mainwalletdeduct = false;
 
 
-        if(bonuswalletdeduct && mainwalletdeduct){
-          await walletActions.addWalletPayin(pId,- Number(mainchipscut), 'debit', 'Pool Playing Entry Deposit');
-          await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Pool Playing Entry Deduct bonus');
-          
-        }else if(mainwalletdeduct){
-          await walletActions.addWalletPayin(pId,- Number(gameDepositChips), 'debit', 'Pool Playing Entry Deposit');
-        }
+      if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
+        bonuswalletdeduct = true
+        mainwalletdeduct = true
+
+      } else if (totalWallet >= mainchipscut) {
+        mainwalletdeduct = true
+      }
+      // let playerGameChips = tabInfo.entryFee * 80;
+      // let gameDepositChips = playerGameChips * 3;
+
+      // if (userInfo.chips > gameDepositChips) {
+      //   playerGameChips = gameDepositChips;
+      //   totalWallet -= gameDepositChips;
+      // } else if (userInfo.chips > playerGameChips * 2) {
+      //   playerGameChips = playerGameChips * 2;
+      //   totalWallet -= playerGameChips;
+      // } else if (userInfo.chips > playerGameChips) {
+      //   playerGameChips;
+      //   totalWallet -= playerGameChips;
+      // }
+
+      // let userWalletUpdate = {
+      //   $set: {
+      //     chips: Number(totalWallet),
+      //   },
+      //   $inc: {
+      //     'counters.totalMatch': 1,
+      //   },
+      // };
+
+      // let uwh = { _id: MongoID(pId.toString()) };
+      // let updateCounters = await Users.findOneAndUpdate(uwh, userWalletUpdate, { new: true });
+
+      // logger.info('Wallet after deduct coins update in user and counter ::', updateCounters);
+
+      console.log("bonuswalletdeduct ", bonuswalletdeduct)
+      console.log("mainwalletdeduct ", mainwalletdeduct)
+
+
+      if (bonuswalletdeduct && mainwalletdeduct) {
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Pool Playing Entry Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Pool Playing Entry Deduct bonus');
+
+      } else if (mainwalletdeduct) {
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Pool Playing Entry Deposit');
+      }
 
       // if (userInfo.chips >= tabInfo.entryFee) {
       //   userInfo.chips = Number(userInfo.chips) - Number(tabInfo.entryFee);

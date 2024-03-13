@@ -2,31 +2,32 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
 const PlayingTables = mongoose.model("playingTable");
-const pointTableAction = require("./rummy/joinTable");
-const commandAcions = require('./socketFunctions');
-const logger = require("../logger");
-const CONST = require("../constant");
-const config = require("../config");
+
+const poolTableAction = require("./joinTable");
+
+const commandAcions = require('../socketFunctions');
+const logger = require("../../logger");
+const CONST = require("../../constant");
+const config = require("../../config");
 const _ = require("underscore");
 let io = require('socket.io-client')
 const schedule = require('node-schedule');
-const { getRandomNumber } = require("./helperFunction");
-const roundStartActions = require('./rummy/roundStart');
-const checkWinnerActions = require('./rummy/checkWinner');
 
-const gamePlayActions = require('./rummy/gamePlay');
-const dealGamePlayActions = require('./deal-rummy/gamePlay');
-const poolGamePlayActions = require('./pool-rummy/gamePlay');
+const { getRandomNumber } = require("../helperFunction");
+const roundStartActions = require('./roundStart');
+const checkWinnerActions = require('./checkWinner');
+
+const gamePlayActions = require('./gamePlay');
+const dealGamePlayActions = require('../deal-rummy/gamePlay');
+const poolGamePlayActions = require('./gamePlay');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
-async function findRoom(tableInfo, betInfo) {
+module.exports.findPoolRoom = async (tableInfo, betInfo) => {
     try {
-
         let RealPlayer = []
-
-        logger.info("rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo)
-        logger.info("rummy BOT call tableInfo betInfo =>", betInfo)
+        logger.info("pool rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo)
+        logger.info("pool rummy BOT call tableInfo betInfo =>", betInfo)
 
         let whereCond = { _id: MongoID(tableInfo._id.toString()) };
         tableInfo = await PlayingTables.findOne(whereCond).lean();
@@ -63,7 +64,7 @@ async function findRoom(tableInfo, betInfo) {
         let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
-        await pointTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
 
     } catch (error) {
@@ -850,12 +851,6 @@ OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
         })
     })
 }
-
-// const findDeclareCard = (max) => {
-//     let min = Math.ceil(0);
-//     let max = Math.floor(max);
-//     return Math.floor(Math.random() * (max - min + 1)) + min;
-// }
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -1707,7 +1702,7 @@ const possibilityCard = async (cards, cb) => {
 }
 
 module.exports = {
-    findRoom,
+    // findPoolRoom,
     pic,
     checkCardMatched,
     checkCardFoundFollower,
