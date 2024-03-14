@@ -217,13 +217,15 @@ module.exports.manageOnUserLeave = async (tb, client) => {
 
         logger.info("Deal Leave remove robot playerInGame[0] ", playerInGame[0])
 
-        await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+        if (tbInfo) {
+          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
 
-        if (tbInfo.activePlayer === 0) {
-          let wh = {
-            _id: MongoID(tbInfo._id.toString()),
-          };
-          await PlayingTables.deleteOne(wh);
+          if (tbInfo.activePlayer === 0) {
+            let wh = {
+              _id: MongoID(tbInfo._id.toString()),
+            };
+            await PlayingTables.deleteOne(wh);
+          }
         }
         await roundStartAction.nextUserTurnstart(tb);
       }
@@ -235,7 +237,10 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         await gameFinishActions.lastUserWinnerDeclareCall(tb);
       }
     } else if (['', 'GameStartTimer'].indexOf(tb.gameState) !== -1) {
-      if (playerInGame.length === 0 && tb.activePlayer === 0) {
+      if (realPlayerInGame.length == 0) {
+        logger.info("deal realPlayerInGame leaveallrobot")
+        this.leaveallrobot(tb._id)
+      } else if (playerInGame.length === 0 && tb.activePlayer === 0) {
         let wh = {
           _id: MongoID(tb._id.toString()),
         };

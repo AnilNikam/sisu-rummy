@@ -370,7 +370,7 @@ module.exports.declare = async (requestData, client) => {
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
     logger.info("Deal - rummy playerInGame ", playerInGame)
-    await DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
+    DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
 
     delete client.declare;

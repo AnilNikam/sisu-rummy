@@ -4,7 +4,7 @@ const BetLists = mongoose.model('dealbetLists');
 const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
 
-const botLogic = require('../botFunction');
+const botCtrl = require('./assignBot');
 const gameStartActions = require('./gameStart');
 const CONST = require('../../constant');
 const logger = require('../../logger');
@@ -16,6 +16,9 @@ module.exports.joinTable = async (requestData, socket) => {
     logger.info('Join Deal Table Request Data : ', JSON.stringify(requestData));
     logger.info('\n socket joinTable Table Id: ', socket.tbid);
 
+    const entryFee = requestData.entryFee.toString()
+
+
     if (typeof socket.uid === 'undefined') {
       sendEvent(socket, CONST.JOIN_TABLE, requestData, {
         flag: false,
@@ -24,12 +27,16 @@ module.exports.joinTable = async (requestData, socket) => {
       return false;
     }
 
-    if (typeof socket.JT !== 'undefined' && socket.JT) return false;
+    if (typeof socket.JT !== 'undefined' && socket.JT) {
+      return false
+    };
 
     socket.JT = true;
 
     let query = {
       deal: Number(requestData.deal),
+      entryFee: entryFee,
+      maxSeat: parseInt(requestData.maxSeat)
     };
 
     const betInfo = await BetLists.findOne(query, {}).lean();
@@ -59,6 +66,7 @@ module.exports.joinTable = async (requestData, socket) => {
         msg: 'Already In playing table!!',
       });
 
+      await userReconnect({ playerId: socket.uid }, socket);
       delete socket.JT;
 
       return false;
@@ -113,8 +121,7 @@ module.exports.getBetTable = async (betInfo) => {
     logger.info('getBetTable betInfo ->', betInfo);
     let wh = {
       deal: betInfo.deal,
-      //activePlayer: { $gte: 0, $lt: 6 },
-      activePlayer: { $gte: 0, $lt: betInfo.deal },
+      activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: 'dealrummy',
       tableLock: false,
     };
@@ -173,8 +180,13 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     // logger.info("findEmptySeatAndUserSeat seatIndex ::", seatIndex);
 
     if (seatIndex === '-1') {
-      await this.findTable(betInfo, socket);
-      return false;
+      if (socket && socket.isBot !== true) {
+        await this.findTable(betInfo, socket);
+        return false;
+      } else {
+        logger.info("not create table by BOT and seatindex")
+        return false;
+      }
     }
 
     let wh = { _id: socket.uid };
@@ -207,6 +219,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       pickedCard: '',
       debitChips: false,
       rejoin: false,
+      isBot: userInfo.isBot
+
     };
 
     //logger.info('findEmptySeatAndUserSeat playerDetail : ', playerDetail, '\n find Empty Seat And User Seat table : ', table);
@@ -268,7 +282,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     });
 
     //JT event
-    socket.join(tableInfo._id.toString());
+    if (userInfo.isBot == undefined || userInfo.isBot == false)
+      socket.join(tableInfo._id.toString());
 
     sendDirectEvent(socket.tbid.toString(), CONST.JOIN_TABLE, {
       ap: tableInfo.activePlayer,
@@ -283,25 +298,34 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       await gameStartActions.gameTimerStart(tableInfo);
     }
 
-    if (tableInfo.activePlayer <= 2) {
-      let counter = 0;
-
-      const intervalId = setInterval(() => {
-        counter++;
-        logger.info(`Function called ${counter} times.`);
-        botLogic.findRoom(tableInfo, betInfo)
-        if (tableInfo.maxSeat === 2) {
-          logger.info("Check 1", counter)
-          if (counter === 1) {
-            clearInterval(intervalId); // Stop the interval after 2 calls
-          }
-        } else {
-          logger.info("Check 2", counter)
-          if (counter === 5) {
-            clearInterval(intervalId); // Stop the interval after 5 calls
-          }
+    if (tableInfo.activePlayer == 1) {
+      setTimeout(() => {
+        if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+          setTimeout(() => {
+            botCtrl.findRoom(tableInfo, betInfo)
+            // findRoom(tableInfo, betInfo)
+          }, 1000)
+        } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+          setTimeout(() => {
+            logger.info("check call function 111 ==>")
+            botCtrl.findRoom(tableInfo, betInfo)
+            // botCtrl.findRoom(tableInfo, betInfo)
+          }, 1000)
         }
-      }, 1500);
+      }, 7000)
+    } else if (userInfo.isBot == true) {
+      if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
+        setTimeout(() => {
+          botCtrl.findRoom(tableInfo, betInfo)
+          // findRoom(tableInfo, betInfo)
+        }, 1000)
+      } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
+        setTimeout(() => {
+          logger.info("check call function 222 ==>")
+          botCtrl.findRoom(tableInfo, betInfo)
+          // botCtrl.findRoom(tableInfo, betInfo)
+        }, 1000)
+      }
     }
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const PlayingTables = mongoose.model('playingTable');
+const Users = mongoose.model('users');
+
 
 const logger = require('../../logger');
 const CONST = require('../../constant');
@@ -8,6 +10,7 @@ const leaveTableAction = require('./leaveTable');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound, getUserTurnSeatIndex } = require('../common-function/manageUserFunction');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
+const { pic, mycardGroup } = require('./botFunction');
 
 module.exports.roundStarted = async (tbid) => {
   try {
@@ -112,6 +115,19 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     // logger.info("\nstartUserTurn response =>", response);
 
     sendEventInTable(tb._id.toString(), CONST.USER_TURN_START, response);
+
+    //Assign to bot
+    let plid = tb.playerInfo[tb.currentPlayerTurnIndex]._id
+
+    const data = await Users.findOne({
+      _id: MongoID(plid),
+    }).lean();
+
+    logger.info("check pic data =>", data)
+
+    if (data && data.isBot) {
+      await pic(tb, plid, tb.gamePlayType, 'close')
+    }
 
     let tbid = tb._id.toString();
 

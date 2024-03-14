@@ -3,377 +3,76 @@ const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
 const PlayingTables = mongoose.model("playingTable");
 
-const poolTableAction = require("./joinTable");
-
+const dealTableAction = require("./joinTable");
 const commandAcions = require('../socketFunctions');
+
 const logger = require("../../logger");
 const CONST = require("../../constant");
 const config = require("../../config");
 const _ = require("underscore");
 let io = require('socket.io-client')
 const schedule = require('node-schedule');
-
 const { getRandomNumber } = require("../helperFunction");
 const roundStartActions = require('./roundStart');
 const checkWinnerActions = require('./checkWinner');
 
 const gamePlayActions = require('../rummy/gamePlay');
-const dealGamePlayActions = require('../deal-rummy/gamePlay');
-const poolGamePlayActions = require('./gamePlay');
+const dealGamePlayActions = require('./gamePlay');
+const poolGamePlayActions = require('../pool-rummy/gamePlay');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
-
-const findPoolRoom = async (tableInfo, betInfo) => {
+const findRoom = async (tableInfo, betInfo) => {
     try {
 
-        let RealPlayer = [];
-        logger.info("pool rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo);
-        logger.info("pool rummy BOT call tableInfo betInfo =>", betInfo);
+        let RealPlayer = []
+
+        logger.info("rummy BOT call tableInfo playerInfo =>", tableInfo.playerInfo)
+        logger.info("rummy BOT call tableInfo betInfo =>", betInfo)
 
         let whereCond = { _id: MongoID(tableInfo._id.toString()) };
         tableInfo = await PlayingTables.findOne(whereCond).lean();
         logger.info("botfunction tabInfo =>", tableInfo);
 
         tableInfo.playerInfo.forEach(e => {
-            logger.info("tableInfo.playerInfo ", e);
+            logger.info("tableInfo.playerInfo ", e)
             if (e.isBot == false) {
-                RealPlayer.push(MongoID(e._id).toString());
+                RealPlayer.push(MongoID(e._id).toString())
             }
-        });
+        })
 
         if (RealPlayer.length == 0) {
-            logger.info("Real User Length is zero ", RealPlayer.length);
-            return false;
+            logger.info("Real USer Leght zero ", RealPlayer.length);
+            return false
         }
 
         let user_wh = {
             isBot: true,
             isfree: true,
             // "_id": { $nin: RobotPlayer }
-        };
+        }
 
-        logger.info("JoinRobot ROBOT Not user_wh   : ", user_wh);
+        logger.info(" JoinRobot ROBOT Not user_wh   : ", user_wh)
+
 
         let robotInfo = await GameUser.findOne(user_wh, {});
-        logger.info("JoinRobot ROBOT Info : ", robotInfo);
+        logger.info("JoinRobot ROBOT Info : ", robotInfo)
 
         if (robotInfo == null) {
-            logger.info("JoinRobot ROBOT Not Found  : ");
-            return false;
+            logger.info("JoinRobot ROBOT Not Found  : ")
+            return false
         }
 
         let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
-        logger.info("update robot isfree", up);
+        logger.info("update robot isfree", up)
+
+        await dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
 
-        poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
     } catch (error) {
         logger.info("Robot Logic Join", error);
     }
-};
-
-const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
-    try {
-        logger.info("tableInfo, playerId, gamePlayType, deckType", tableInfo, playerId, gamePlayType, deck)
-
-        deck = ['close', 'open'];
-        const randomIndex = Math.floor(Math.random() * deck.length);
-        const deckType = deck[randomIndex];
-        logger.info("open card deck Type ->", deckType, typeof deckType)
-
-        const jobId = `BOTPIC+${tableInfo._id}`;
-        let startPicScheduleTime = new Date(Date.now() + 5000);
-        // let startPicScheduleTime = Date.now() + getRandomNumber(3000, 6500)
-        logger.info("startPicScheduleTime ->", startPicScheduleTime)
-
-        let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-        logger.info('bot playerIndex: ', playerIndex);
-        let pickedCard;
-
-        schedule.scheduleJob(jobId, startPicScheduleTime, async () => {
-            schedule.cancelJob(jobId);
-            logger.info("Bot PIC event call");
-
-            if (tableInfo.playerInfo && tableInfo.playerInfo.length > 0) {
-                let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-                logger.info('playerIndex: ', playerIndex);
-                if (playerIndex !== -1) {
-                    let playerInfo = tableInfo.playerInfo[playerIndex];
-                    logger.info('bot player cards => ', playerInfo.cards);
-                    let updateData = {
-                        $set: {},
-                        $inc: {},
-                    };
-                    /////////////////////////////////////////////////////////////////
-                    // let pickedCard;
-                    if (deckType === 'open') {
-                        pickedCard = tableInfo.openDeck.pop();
-                        playerInfo.cards.push(pickedCard.toString());
-
-                        if (playerInfo.playerStatus === 'PLAYING') {
-                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                            updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
-                            updateData.$set['openDeck'] = tableInfo.openDeck;
-                        }
-
-                        //Cancel the Scheduele job
-                        // commandAcions.clearJob(tabInfo.jobId);
-
-                        const upWh = {
-                            _id: MongoID(tableInfo._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-
-                        // logger.info("pickCard upWh updateData :: ", upWh, updateData);
-                        if (playerInfo.turnMissCounter > 0) {
-                            playerInfo.turnMissCounter = 0;
-                            updateData.$set['playerInfo.' + playerIndex + '.turnMissCounter'] = playerInfo.turnMissCounter;
-                        }
-                        tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                            new: true,
-                        });
-                        logger.info('Pic card Open Deck BOT ', tableInfo);
-                    } else if (deckType === 'close') {
-                        // Use player object as needed
-
-                        // let closeDeckCardIndex;
-                        // let closeDeckCard;
-
-                        // closeDeckCardIndex = table.closeDeck.length - 1;
-                        // closeDeckCard = table.closeDeck[closeDeckCardIndex];
-
-                        // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
-                        // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
-
-                        pickedCard = tableInfo.closeDeck.pop();
-                        logger.info("close deck picked card ->", pickedCard)
-                        playerInfo.cards.push(pickedCard.toString());
-
-                        if (playerInfo.playerStatus === 'PLAYING') {
-                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                            updateData.$set['playerInfo.$.pickedCard'] = pickedCard;
-                            updateData.$set['closeDeck'] = tableInfo.closeDeck;
-                            updateData.$inc['playerInfo.$.turnCount'] = 1;
-                        }
-
-                        const upWh = {
-                            _id: MongoID(tableInfo._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-
-
-                        tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                            new: true,
-                        });
-
-                        logger.info('Pic card Close Deck BOT ', tableInfo);
-
-                    }
-
-                    /////////////////////////////////////////////////////////////////
-
-
-
-                    let response = {
-                        pickedCard: pickedCard,
-                        playerId: playerId,
-                        deck: deckType,
-                        closedecklength: tableInfo.closeDeck.length,
-                    }
-
-                    logger.info('Bot PIC card response  => ', response);
-                    commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.PICK_CARD, response);
-
-                } else {
-                    logger.info('Player not found with seatIndex: ', tableInfo.currentPlayerTurnIndex);
-                }
-            } else {
-                logger.info('No players found in the table.');
-            }
-
-            //DiscCard Logic
-            // let qu = {
-            //     _id: MongoID(tableInfo._id.toString()),
-            // }
-            // tableInfo = await PlayingTables.findOne(qu).lean;
-            logger.info("find before discard table info", tableInfo);
-
-            /*
-            let playerInfo = tableInfo.playerInfo[playerIndex];
-
-            // Bot Win Logic
-            //Cancel the Scheduele job
-            commandAcions.clearJob(tableInfo.jobId);
-
-            let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
-            logger.info("ressss-->", ress);
-            let updateData1 = {
-                $set: {},
-                $inc: {},
-            };
-            const upWh1 = {
-                _id: MongoID(tableInfo._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-            updateData1.$set['playerInfo.$.gCard'] = ress;
-
-            tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
-                new: true,
-            });
-
-            let response = {
-                playerId: playerId,
-                disCard: pickedCard,
-            };
-
-            const upWh2 = {
-                _id: MongoID(tableInfo._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-
-            const updateData2 = {
-                $set: {
-                    discardCard: pickedCard,
-                },
-            };
-
-            const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
-                new: true,
-            });
-            logger.info('Declare tbl : ', tbl);
-
-            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
-
-            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
-
-            delete client.declare;
-
-            let roundTime = CONST.finishTimer;
-            let tableId = tbl._id;
-            let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
-            let delay = commandAcions.AddTime(roundTime);
-
-            await commandAcions.setDelay(finishJobId, new Date(delay));
-
-            //update user game finish status
-            let updateStatus = {
-                $set: {},
-                $inc: {},
-            };
-            updateStatus.$set['playerInfo.$.finished'] = true;
-
-            const qr = {
-                _id: MongoID(tbl._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-            //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
-
-            const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
-                new: true,
-            });
-
-            logger.info('check status ==> and Table ', tabl);
-
-            await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
-            //finish Bot win logic
-*/
-            let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
-            schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
-                try {
-                    logger.info("Bot DISCARD event call");
-
-                    //cancel the Schedule
-                    schedule.cancelJob(`table.tableId${tableInfo._id}`);
-                    // logger.info("Data ----->", playerId + "****" + gamePlayType + " ***" + table.tableId);
-                    let playerIndex = tableInfo.playerInfo.findIndex(o => o.seatIndex === tableInfo.currentPlayerTurnIndex);
-                    let player = tableInfo.playerInfo[playerIndex];
-                    logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
-                    logger.info("DISCARD Player Cards", player.cards);
-
-                    //Select Card for Discard
-                    if (player) {
-                        let playerCards = player.cards
-
-                        const randomIndex = Math.floor(Math.random() * playerCards.length);
-                        const throwCard = playerCards[randomIndex];
-
-                        // let selectDiscardCard = convertCardPairAndFollowers(playerCards);
-
-                        // logger.info('selectDiscardCard => ', selectDiscardCard);
-                        // logger.info('select Discard followers Card => ', selectDiscardCard.followers + ' select Discard followers Card => ' + selectDiscardCard.pair);
-
-                        // const isWinner = checkPairAndFollowers(playerCards);
-                        // console.info('isWinner => ', isWinner);
-
-                        // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
-                        logger.info('DIS throwCard => ', throwCard);
-
-                        let droppedCard = throwCard//requestData.cardName;
-                        let playerInfo = tableInfo.playerInfo[playerIndex];
-                        let playersCards = playerInfo.cards;
-
-                        const droppedCardIndex = playersCards.indexOf(droppedCard);
-                        const disCard = playersCards[droppedCardIndex];
-
-                        playerInfo.cards.splice(droppedCardIndex, 1);
-
-                        //remove picCard
-                        playerInfo.pickedCard = '';
-                        tableInfo.openDeck.push(disCard);
-
-                        let updateData = {
-                            $set: {},
-                            $inc: {},
-                        };
-
-                        if (playerInfo.playerStatus === 'PLAYING') {
-                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
-                            updateData.$set['playerInfo.$.pickedCard'] = '';
-                            updateData.$set['openDeck'] = tableInfo.openDeck;
-                        }
-
-                        //cancel Schedule job
-                        commandAcions.clearJob(tableInfo.jobId);
-
-                        const upWh = {
-                            _id: MongoID(tableInfo._id.toString()),
-                            'playerInfo.seatIndex': Number(playerIndex),
-                        };
-
-                        const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
-                            new: true,
-                        });
-
-                        logger.info("final discard table =>", tb);
-
-                        let responsee = {
-                            playerId: playerInfo._id,
-                            disCard: disCard,
-                        };
-
-
-                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
-
-
-                        let re = await roundStartActions.nextUserTurnstart(tb);
-
-
-                    } else {
-                        logger.info('<= Player Not Found => ');
-
-                    }
-                } catch (error) {
-                    logger.error("Discard or Declare event of BOT", error);
-                }
-            })
-
-        })
-    } catch (error) {
-        logger.info("Bot try catch error in bot pic event", error);
-    }
-
 
 }
 
@@ -512,85 +211,6 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                             // tableInfo = await PlayingTables.findOne(qu).lean;
                             logger.info("find before discard table info", tableInfo);
 
-                            /*
-                            let playerInfo = tableInfo.playerInfo[playerIndex];
-    
-                            // Bot Win Logic
-                            //Cancel the Scheduele job
-                            commandAcions.clearJob(tableInfo.jobId);
-    
-                            let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
-                            logger.info("ressss-->", ress);
-                            let updateData1 = {
-                                $set: {},
-                                $inc: {},
-                            };
-                            const upWh1 = {
-                                _id: MongoID(tableInfo._id.toString()),
-                                'playerInfo.seatIndex': Number(playerIndex),
-                            };
-                            updateData1.$set['playerInfo.$.gCard'] = ress;
-    
-                            tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
-                                new: true,
-                            });
-    
-                            let response = {
-                                playerId: playerId,
-                                disCard: pickedCard,
-                            };
-    
-                            const upWh2 = {
-                                _id: MongoID(tableInfo._id.toString()),
-                                'playerInfo.seatIndex': Number(playerIndex),
-                            };
-    
-                            const updateData2 = {
-                                $set: {
-                                    discardCard: pickedCard,
-                                },
-                            };
-    
-                            const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
-                                new: true,
-                            });
-                            logger.info('Declare tbl : ', tbl);
-    
-                            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
-    
-                            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
-    
-                            delete client.declare;
-    
-                            let roundTime = CONST.finishTimer;
-                            let tableId = tbl._id;
-                            let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
-                            let delay = commandAcions.AddTime(roundTime);
-    
-                            await commandAcions.setDelay(finishJobId, new Date(delay));
-    
-                            //update user game finish status
-                            let updateStatus = {
-                                $set: {},
-                                $inc: {},
-                            };
-                            updateStatus.$set['playerInfo.$.finished'] = true;
-    
-                            const qr = {
-                                _id: MongoID(tbl._id.toString()),
-                                'playerInfo.seatIndex': Number(playerIndex),
-                            };
-                            //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
-    
-                            const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
-                                new: true,
-                            });
-    
-                            logger.info('check status ==> and Table ', tabl);
-    
-                            await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
-                            //finish Bot win logic
-                */
                             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
                             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                                 try {
@@ -852,6 +472,12 @@ OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
         })
     })
 }
+
+// const findDeclareCard = (max) => {
+//     let min = Math.ceil(0);
+//     let max = Math.floor(max);
+//     return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -1686,11 +1312,6 @@ const possibilityCard = async (cards, cb) => {
 
     // logger.info("impureseq 858585", impureSequences)
 
-
-
-
-
-
     // logger.info(" repeatedIndexes :::::::::::::::::: ", repeatedIndexes)
     if (repeatedIndexes.length > 0) {
         repeatedIndexes.forEach(element => {
@@ -1703,7 +1324,7 @@ const possibilityCard = async (cards, cb) => {
 }
 
 module.exports = {
-    findPoolRoom,
+    findRoom,
     pic,
     checkCardMatched,
     checkCardFoundFollower,
