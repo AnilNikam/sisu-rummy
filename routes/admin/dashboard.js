@@ -262,11 +262,12 @@ router.get('/', async (req, res) => {
     const todayWithdraw = 0;
     const todayKYC = 0;
     const totalGamePay = 0;
+    const totalCommission = 0;
 
 
     logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
 
-    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay });
+    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay,totalCommission });
   } catch (error) {
     logger.error('admin/dahboard.js post bet-list error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);

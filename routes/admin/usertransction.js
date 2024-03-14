@@ -9,6 +9,10 @@ const logger = require('../../logger');
 // const Userdeposit = mongoose.model('userdeposit');
 // const Userpayout = mongoose.model('userpayout');
 const UserWalletTracks = mongoose.model('walletTrackTransaction');
+const PaymentOut = mongoose.model('paymentout');
+
+
+
 
 /**
 * @api {post} /admin/DepositList
@@ -538,4 +542,31 @@ router.get('/transactionData', async (req, res) => {
 });
 
 //==========================================================================================
+
+/**
+* @api {post} /admin/PayoutList
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/PayoutListData', async (req, res) => {
+    try {
+        console.log('PayoutListData requet => ', req);
+
+        const PayoutList = await PaymentOut.find({  }, {OrderID:1,
+            transactionId: 1, paymentStatus: 1, orderInfo: 1, "accountNo": 1, ifscCode: 1, beneficiaryName: 1, transferMode: 1, rrn: 1,
+            userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
+        })
+
+        logger.info('admin/dahboard.js post dahboard PayoutList  error => ', PayoutList);
+
+        res.json({ PayoutList });
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
 module.exports = router;

@@ -7,7 +7,7 @@ const commonHelper = require('../../helper/commonHelper');
 const mainCtrl = require('../../controller/adminController');
 const logger = require('../../logger');
 const { registerUser, getRegisterUserDetails } = require('../../helper/signups/signupValidation');
-
+const fs = require("fs")
 
 /**
 * @api {post} /admin/lobbies
@@ -220,6 +220,90 @@ router.delete('/BotDelete/:id', async (req, res) => {
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
+
+
+
+/**
+* @api {get} /admin/Getpaymentconfig
+* @apiName  Getpaymentconfig
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/Getbotconfig', async (req, res) => {
+    try {
+        console.info('requet => ', req.query);
+        console.info('Getbotconfig => ', GAMELOGICCONFIG);
+
+ 
+        res.json({
+            botversion: GAMELOGICCONFIG.BOTVERSION,
+            botmode: GAMELOGICCONFIG.BOTMODE,
+            botdifficulty: GAMELOGICCONFIG.BOTDIFFICULTY
+        });
+
+
+
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+/**
+* @api {get} /admin/lobbies
+* @apiName  Botconfigset
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/Botconfigset', async (req, res) => {
+    try {
+        console.info('Botconfigset requet => ', req.body);
+
+        console.log("req.body.game.gamename  1", req.body)
+
+        // res.json({
+        //     botversion: GAMELOGICCONFIG.BOTVERSION,
+        //     botmode: GAMELOGICCONFIG.BOTMODE,
+        //     botdifficulty: GAMELOGICCONFIG.BOTDIFFICULTY
+        // });
+
+
+        if (req.body.botversion != undefined
+            && req.body.botmode != undefined
+            && req.body.botdifficulty != undefined
+        ) {
+            GAMELOGICCONFIG.BOTVERSION =parseInt(req.body.botversion)
+            GAMELOGICCONFIG.BOTMODE = req.body.botmode
+            GAMELOGICCONFIG.BOTDIFFICULTY = req.body.botdifficulty
+
+
+            console.log("GAMELOGICCONFIG ", GAMELOGICCONFIG)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+            });
+            res.json({ falgs: true });
+        } else {
+            res.json({ falgs: false });
+        }
+
+
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
 
 async function createPhoneNumber() {
     const countryCode = "91";
