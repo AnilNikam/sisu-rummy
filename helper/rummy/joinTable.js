@@ -129,7 +129,6 @@ module.exports.findTable = async (betInfo, socket) => {
   }
 };
 
-
 module.exports.getBetTable = async (betInfo) => {
   try {
     logger.info("getBetTable betinfo =>", betInfo);

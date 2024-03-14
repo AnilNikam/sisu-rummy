@@ -242,6 +242,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
     logger.info("pool final update table ->", tableInfo);
 
+    if (tableInfo == null && socket && socket.isBot !== true) {
+      await this.findTable(betInfo, socket);
+      return false;
+    }
+
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
     if (!(playerInfo._id.toString() === userInfo._id.toString())) {
@@ -294,6 +299,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     });
 
     delete socket.JT;
+    logger.info('\n Assign tbale ableInfo.activePlayer ->', tableInfo.activePlayer);
 
     if (tableInfo.activePlayer === 2 && tableInfo.gameState === '') {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
@@ -309,10 +315,13 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
           setTimeout(() => {
             botCtrl.findPoolRoom(tableInfo, betInfo)
+            // findRoom(tableInfo, betInfo)
           }, 1000)
         } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
           setTimeout(() => {
+            logger.info("check call function 111 ==>")
             botCtrl.findPoolRoom(tableInfo, betInfo)
+            // botCtrl.findRoom(tableInfo, betInfo)
           }, 1000)
         }
       }, 7000)
@@ -320,13 +329,17 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
         setTimeout(() => {
           botCtrl.findPoolRoom(tableInfo, betInfo)
+          // findRoom(tableInfo, betInfo)
         }, 1000)
       } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
         setTimeout(() => {
+          logger.info("check call function 222 ==>")
           botCtrl.findPoolRoom(tableInfo, betInfo)
+          // botCtrl.findRoom(tableInfo, betInfo)
         }, 1000)
       }
     }
+
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);
   }

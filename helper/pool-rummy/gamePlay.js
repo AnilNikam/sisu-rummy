@@ -384,10 +384,10 @@ module.exports.declare = async (requestData, client) => {
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
     //BOT
-    playerInGame = await getPlayingUserInRound(tb.playerInfo);
+    // playerInGame = await getPlayingUserInRound(tb.playerInfo);
 
     logger.info("pool rummy playerInGame ", playerInGame)
-    await roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tb.wildCard.split("-")[1]), tb._id.toString())
+    roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tb.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
 

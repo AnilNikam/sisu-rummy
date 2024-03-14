@@ -11,7 +11,7 @@ const botCtrl = require('./poolBotFunction');
 
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
-const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
+const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable, sendDirectEvent } = require('../socketFunctions');
 
 module.exports.roundStarted = async (tbid) => {
   try {

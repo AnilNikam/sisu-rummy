@@ -2,8 +2,12 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const GameUser = mongoose.model('users');
 const PlayingTables = mongoose.model("playingTable");
+
 const pointTableAction = require("./rummy/joinTable");
+const poolTableAction = require("./pool-rummy/joinTable");
+const dealTableAction = require("./deal-rummy/joinTable");
 const commandAcions = require('./socketFunctions');
+
 const logger = require("../logger");
 const CONST = require("../constant");
 const config = require("../config");
@@ -20,7 +24,7 @@ const poolGamePlayActions = require('./pool-rummy/gamePlay');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
-async function findRoom(tableInfo, betInfo) {
+const findRoom = async (tableInfo, betInfo) => {
     try {
 
         let RealPlayer = []
@@ -38,11 +42,12 @@ async function findRoom(tableInfo, betInfo) {
                 RealPlayer.push(MongoID(e._id).toString())
             }
         })
+
         if (RealPlayer.length == 0) {
             logger.info("Real USer Leght zero ", RealPlayer.length);
-
             return false
         }
+
         let user_wh = {
             isBot: true,
             isfree: true,
@@ -63,7 +68,18 @@ async function findRoom(tableInfo, betInfo) {
         let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
-        await pointTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        if (tableInfo.gamePlayType == 'pointrummy') {
+
+            await pointTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+
+        } else if (tableInfo.gamePlayType == 'poolrummy') {
+
+            await poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+
+        } else if (tableInfo.gamePlayType == 'dealrummy') {
+
+            await dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        }
 
 
     } catch (error) {
