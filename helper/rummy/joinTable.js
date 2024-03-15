@@ -206,7 +206,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     let totalWallet = Number(userInfo.chips);
 
     let playerGameChips = table.entryFee * 80;
-    let gameDepositChips = playerGameChips * 3;
+    let gameDepositChips = playerGameChips;
 
     if (userInfo.chips > gameDepositChips) {
       playerGameChips = gameDepositChips;

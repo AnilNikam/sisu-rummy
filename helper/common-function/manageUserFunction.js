@@ -106,6 +106,7 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
     activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
     tableId: userData.tableId || 0,
     createdAt: userData.createdAt,
+    msg: ""
   };
 
   //logger.info('filter Before Send SP Event -->', res);

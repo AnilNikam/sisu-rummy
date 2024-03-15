@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const PlayingTables = mongoose.model('playingTable');
 const commandAcions = require('../socketFunctions');
 
-const { nextUserTurnstart } = require('./roundStart');
+// const { nextUserTurnstart } = require('./roundStart');
 
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const roundStartActions = require('./roundStart');
@@ -244,7 +244,7 @@ module.exports.disCard = async (requestData, client) => {
     if (activePlayerInRound.length === 1) {
       await gameFinishActions.lastUserWinnerDeclareCall(tb);
     } else {
-      await nextUserTurnstart(tb);
+      await roundStartActions.nextUserTurnstart(tb);
     }
     return true;
   } catch (e) {
@@ -518,7 +518,7 @@ module.exports.invalidDeclare = async (tbInfo, client) => {
 
     delete client.invalidDeclare;
 
-    await nextUserTurnstart(tb);
+    await roundStartActions.nextUserTurnstart(tb);
 
     return true;
   } catch (e) {
@@ -738,7 +738,7 @@ module.exports.playerDrop = async (requestData, client) => {
 
     delete client.drop;
 
-    await nextUserTurnstart(tb);
+    await roundStartActions.nextUserTurnstart(tb);
 
     return true;
   } catch (e) {

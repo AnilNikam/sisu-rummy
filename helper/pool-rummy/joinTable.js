@@ -304,7 +304,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     if (tableInfo.activePlayer === 2 && tableInfo.gameState === '') {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
       clearJob(jobId);
-      await gameStartActions.gameTimerStart(tableInfo);
+      gameStartActions.gameTimerStart(tableInfo);
     }
 
     logger.info("check find room table info -->", tableInfo)

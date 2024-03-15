@@ -172,6 +172,7 @@ module.exports.leaveTable = async (requestInfo, client) => {
 
     let finaldata = await filterBeforeSendSPEvent(userDetails);
 
+    finaldata.msg = requestData.autotimeout == true ? 'User Drop Out for Missed 3 turn' : ""
     sendDirectEvent(client.sck.toString(), CONST.DASHBOARD, finaldata);
 
     await this.manageOnUserLeave(tbInfo, client);

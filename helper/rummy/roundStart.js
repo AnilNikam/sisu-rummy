@@ -241,7 +241,7 @@ module.exports.handleTimeOut = async (turnIndex, tbid) => {
   let playerInfo = turnIndex;
   logger.info('handle TimeOut tb.pi[turnIndex] :: ', playerInfo);
 
-  let requestData = { playerId: playerInfo._id };
+  let requestData = { playerId: playerInfo._id, autotimeout: true };
 
   let client = {
     tbid: tbid,

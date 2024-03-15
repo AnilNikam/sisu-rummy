@@ -208,7 +208,7 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
       let totalbonus = Number(userInfo.bonusChips);
 
       let playerGameChips = tabInfo.entryFee * 80;
-      let gameDepositChips = playerGameChips * 3;
+      let gameDepositChips = playerGameChips;
 
       let perdecuct = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
 

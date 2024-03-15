@@ -186,21 +186,21 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
         let totalbonus = Number(userInfo.bonusChips);
 
         let playerGameChips = tabInfo.entryFee * 80;
-        let gameDepositChips = playerGameChips * 3;
+        let gameDepositChips = playerGameChips;
 
-        let perdecuct  = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
-        let bonuscutchips = Number((gameDepositChips * perdecuct)/100)
+        let perdecuct = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
+        let bonuscutchips = Number((gameDepositChips * perdecuct) / 100)
         let mainchipscut = Number(gameDepositChips - bonuscutchips)
 
         let bonuswalletdeduct = false;
         let mainwalletdeduct = false;
 
 
-        if(totalbonus >= bonuscutchips && totalWallet >= mainchipscut){
+        if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
           bonuswalletdeduct = true
           mainwalletdeduct = true
 
-        }else if(totalWallet >= mainchipscut){
+        } else if (totalWallet >= mainchipscut) {
           mainwalletdeduct = true
         }
         // let playerGameChips = tabInfo.entryFee * 80;
@@ -231,16 +231,16 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
         // logger.info('Wallet after deduct coins update in user and counter ::', updateCounters);
 
-        console.log("bonuswalletdeduct ",bonuswalletdeduct)
-        console.log("mainwalletdeduct ",mainwalletdeduct)
+        console.log("bonuswalletdeduct ", bonuswalletdeduct)
+        console.log("mainwalletdeduct ", mainwalletdeduct)
 
 
-        if(bonuswalletdeduct && mainwalletdeduct){
-          await walletActions.addWalletPayin(pId,- Number(mainchipscut), 'debit', 'Point Playing Entry Deposit');
+        if (bonuswalletdeduct && mainwalletdeduct) {
+          await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry Deposit');
           await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Point Playing Entry Deduct bonus');
-          
-        }else if(mainwalletdeduct){
-          await walletActions.addWalletPayin(pId,- Number(gameDepositChips), 'debit', 'Point Playing Entry Deposit');
+
+        } else if (mainwalletdeduct) {
+          await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry Deposit');
         }
 
         const upWh = {

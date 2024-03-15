@@ -163,6 +163,7 @@ module.exports.leaveTable = async (requestInfo, client) => {
     };
     logger.info('pool Respons when user leave', response);
     logger.info('pool Leave Client Socket Id =>', client.sck);
+
     sendDirectEvent(client.sck.toString(), CONST.LEAVE, response);
     sendEventInTable(tbInfo._id.toString(), CONST.LEAVE, response);
 
@@ -172,6 +173,7 @@ module.exports.leaveTable = async (requestInfo, client) => {
 
     let finaldata = await filterBeforeSendSPEvent(userDetails);
 
+    finaldata.msg = requestData.autotimeout == true ? 'User Drop Out for Missed 3 turn' : ""
     sendDirectEvent(client.sck.toString(), CONST.DASHBOARD, finaldata);
 
     await this.manageOnUserLeave(tbInfo, client);

@@ -23,7 +23,7 @@ const GameUserSchema = new Schema(
     referralChips: { type: Number, required: true, default: 0 }, // referarl Chips
     unlockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips unlock Chips  
     lockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips lock Chips 
-    withdrawableChips: { type: Number, required: true, default: 0 },
+    //withdrawableChips: { type: Number, required: true, default: 0 },
     referralCode: { type: String },
     referredBy: { type: String },
     avatar: { type: String },
