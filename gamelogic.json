@@ -1,1 +1,27 @@
-{"payingateway":"FRENZOPAY","payoutgateway":"NEOKRED","depositbonus":1,"depositbonusinr":1,"minimumdepositinr":1,"autopay":true,"autopaymaxlimit":1111,"minimumwithdrawalamount":111,"dailywithdrawallimit":11111,"dailytransactionlimit":1111,"welcomebonus":true,"welcomebonusamount":1010,"referralDepositbonus":true,"referralDepositbonusrate":1,"referralDepositbonusamount":200,"referralgamebonus":true,"referralgamebonusrate":5.011,"referralgamebonusamount":1200,"platformfee":1.55,"DEPOSIT_BONUS_PER":5,"PLAYING_BONUS_DEDUCT_PER":5,"PLAYING_WIN_PER":5,"BOTVERSION":123,"BOTMODE":"Only Bot join with Player","BOTDIFFICULTY":"MEDIUM"}
+{
+    "payingateway": "FRENZOPAY",
+    "payoutgateway": "NEOKRED",
+    "depositbonus": 1,
+    "depositbonusinr": 1,
+    "minimumdepositinr": 1,
+    "autopay": true,
+    "autopaymaxlimit": 1111,
+    "minimumwithdrawalamount": 111,
+    "dailywithdrawallimit": 11111,
+    "dailytransactionlimit": 1111,
+    "welcomebonus": true,
+    "welcomebonusamount": 1010,
+    "referralDepositbonus": true,
+    "referralDepositbonusrate": 1,
+    "referralDepositbonusamount": 200,
+    "referralgamebonus": true,
+    "referralgamebonusrate": 5.011,
+    "referralgamebonusamount": 1200,
+    "platformfee": 1.55,
+    "DEPOSIT_BONUS_PER": 5,
+    "PLAYING_BONUS_DEDUCT_PER": 10,
+    "PLAYING_WIN_PER": 5,
+    "BOTVERSION": 123,
+    "BOTMODE": "Only Bot join with Player",
+    "BOTDIFFICULTY": "MEDIUM"
+}

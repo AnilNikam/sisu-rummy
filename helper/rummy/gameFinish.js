@@ -271,19 +271,24 @@ module.exports.updateLostCounter = async (playerId) => {
 
 module.exports.updateUserScore = async (playerId, gameChips) => {
   try {
-    //logger.info('update User Score payload =>', gameChips);
-    //logger.info('playerId payload =>', playerId);
+    logger.info('update User Score payload =>', gameChips);
+    logger.info('playerId payload =>', playerId);
     // + - 
     // gameChips + hoi to 10 bonus 90 Chips 
     // gameChips - hoi chips 100 
-    let finalGameChips = 0
+    let data;
     if (gameChips > 0) {
-      finalGameChips = gameChips - Number((gameChips * 10) / 100);
-      bonusChips = gameChips - finalGameChips
-      let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips, bonusChips: bonusChips } }, { new: true });
+      let bonusChips = Number((gameChips * 10) / 100);
+      let finalGameChips = gameChips - bonusChips
+      logger.info('bonusChips  =>', bonusChips);
+
+      logger.info('finalGameChips', finalGameChips);
+
+
+      data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: finalGameChips, bonusChips: bonusChips } }, { new: true });
       logger.info('Update User Score =>', data);
     } else {
-      let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips } }, { new: true });
+      data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips } }, { new: true });
       logger.info('Update User Score =>', data);
     }
 

@@ -68,7 +68,7 @@ module.exports.pickCard = async (requestData, client) => {
 
       const words = pickedCard.split('-');
 
-      if (words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) {
+      if ((words[0] === 'J' || tableInfo.wildCard.split('-')[1] === words[1]) && tableInfo.openDeck.length != 1) {
         logger.info("JOKER");
         delete client.pickCard;
         commandAcions.sendDirectEvent(client.sck, CONST.PICK_CARD, requestData, false, "You can't pic the joker!");

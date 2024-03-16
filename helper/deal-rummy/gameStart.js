@@ -264,51 +264,31 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
       } else if (mainwalletdeduct) {
         await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Deal Playing Entry Deposit');
       }
-      // if (userInfo.chips >= tabInfo.entryFee) {
-      //   userInfo.chips = Number(userInfo.chips) - Number(tabInfo.entryFee);
-      //   tabInfo.tableAmount += tabInfo.entryFee;
+      if (bonuswalletdeduct && mainwalletdeduct) {
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Pool Playing Entry Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Pool Playing Entry Deduct bonus');
 
-      //   let userWalletUpdate = {
-      //     $set: {
-      //       chips: Number(userInfo.chips),
-      //     },
-      //     $inc: {
-      //       'counters.totalMatch': 1,
-      //     },
-      //   };
+      } else if (mainwalletdeduct) {
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Pool Playing Entry Deposit');
+      }
 
-      //   let uwh = { _id: MongoID(pId.toString()) };
+      if (bonuswalletdeduct || mainwalletdeduct) {
 
-      //   let updateCounters = await Users.findOneAndUpdate(uwh, userWalletUpdate, { new: true });
+        let dataUpdate = {
+          $inc: {
+            tableAmount: Number(tabInfo.entryFee),
+          },
+        };
 
-      //   deductWallet(updateCounters._id, tabInfo.entryFee, 'credit', 'match', tabInfo);
+        let uWh1 = {
+          _id: MongoID(tabInfo._id.toString()),
+          'playerInfo.seatIndex': Number(playerInfo[i].seatIndex),
+        };
 
-      //   let totCoin = Number(updateCounters.chips);
-
-      //   let playerUgcInfoData = {
-      //     chips: totCoin,
-      //     playerId: userInfo._id,
-      //   };
-      //   playerUgcInfo.push(playerUgcInfoData);
-
-      //   let dataUpdate = {
-      //     $set: {
-      //       'playerInfo.$.chips': Number(totCoin),
-      //     },
-      //     $inc: {
-      //       tableAmount: Number(tabInfo.entryFee),
-      //     },
-      //   };
-
-      //   let uWh1 = {
-      //     _id: MongoID(tabInfo._id.toString()),
-      //     'playerInfo.seatIndex': Number(playerInfo[i].seatIndex),
-      //   };
-
-      //   await PlayingTables.findOneAndUpdate(uWh1, dataUpdate, { new: true });
-      // } else {
-      //   logger.info('\n gameStart.js at 276 User Balance is not sufficient to play the game');
-      // }
+        await PlayingTables.findOneAndUpdate(uWh1, dataUpdate, { new: true });
+      } else {
+        logger.info('\n gameStart.js at 276 User Balance is not sufficient to play the game');
+      }
     }
     return playerUgcInfo;
   } catch (error) {

@@ -65,28 +65,15 @@ module.exports.roundFinish = async (tb) => {
             logger.info(' BORROW_USER_CHIPS Result ==>', result);
             commandAcions.sendDirectEvent(player.sck.toString(), CONST.BORROW_USER_CHIPS, result);
 
-            let wh = {
-              _id: MongoID(tb._id.toString()),
-              'playerInfo._id': MongoID(player._id.toString()),
-            };
 
-            let updateUserData = {
-              $set: {},
-              $inc: {},
-            };
-
-            updateUserData.$set['playerInfo.$.gameChips'] = finalGameChips;
-            updateUserData.$set['playerInfo.$.chips'] = remaningChip;
-
-            let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateUserData, {
-              new: true,
-            });
             logger.info('roundFinish update the gameChips -> ', tbInfo);
 
+            let resp = await gameStartActions.RoundFinishdeduct(tb, player, Math.abs(diff));
+            logger.info('checlll ===? Player Deduct Coins', resp);
 
-            let data = await Users.findOneAndUpdate(whr, { $inc: { chips: -diff } }, { new: true });
-
-            logger.info('Deduct diff from User chips =>', data);
+            //let data = await Users.findOneAndUpdate(whr, { $inc: { chips: -diff } }, { new: true });
+            // User track 
+            // logger.info('Deduct diff from User chips =>', data);
           } else {
             logger.info(' Insufficient Balance..Please Add Wallet!!');
 

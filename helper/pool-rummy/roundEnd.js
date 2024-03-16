@@ -120,7 +120,7 @@ module.exports.resetTable = async (tb) => {
           $set: {
             'playerInfo.$.finished': false,
             'playerInfo.$.currentGamePoint': 0,
-            'playerInfo.$.point': 0,
+            //'playerInfo.$.point': 0,
           },
         };
 

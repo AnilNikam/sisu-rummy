@@ -180,8 +180,11 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     });
 
     const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
+    logger.info(" pool playerInGame => ", playerInGame)
 
     let tableInfo = await this.manageUserScore(playerInGame, tbInfo);
+    logger.info(" update manageLastUserScore tableInfo =>", tableInfo)
+
     let lostPlayerInTable = await getPlayingInTable(tableInfo.playerInfo, tableInfo.gameType);
     let gameStartStatus = false;
 
@@ -475,7 +478,9 @@ module.exports.manageUserScore = async (playerInfo, tabInfo) => {
   let tableInfo = tabInfo;
 
   for (let i = 0; i < playerInfo.length; i++) {
+    logger.info("check player Info ->", playerInfo[i].playerStatus)
     if (playerInfo[i].playerStatus !== CONST.WON) {
+
       let pId = playerInfo[i].playerId;
 
       let updateData = {
@@ -506,6 +511,8 @@ module.exports.manageUserScore = async (playerInfo, tabInfo) => {
       tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
         new: true,
       });
+      logger.info(" manageUserScore tableInfo =>", tableInfo)
+
     } else {
       logger.info('find won');
     }
@@ -537,6 +544,7 @@ module.exports.manageLastUserScore = async (playerInfo, tabInfo) => {
       tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
         new: true,
       });
+      logger.info(" manageLastUserScore tableInfo =>", tableInfo)
     } else {
       logger.info('find won');
     }

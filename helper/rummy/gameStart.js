@@ -270,3 +270,81 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
     logger.error('\nngameStart.js deduct error :-> ', error);
   }
 };
+
+
+
+module.exports.RoundFinishdeduct = async (tbInfo, playerInfo, diff) => {
+  const tabInfo = tbInfo;
+
+  try {
+    // let playerUgcInfo = [];
+    //Update the Cards of the user
+
+    let pId = playerInfo.playerId;
+
+    let wh1 = { _id: MongoID(pId.toString()) };
+    let userInfo = await Users.findOne(wh1, {}).lean();
+
+    if (userInfo === null) {
+      return;
+    }
+
+    let totalWallet = Number(userInfo.chips);
+    let totalbonus = Number(userInfo.bonusChips);
+
+    let playerGameChips = diff;
+    let gameDepositChips = playerGameChips;
+
+    let perdecuct = GAMELOGICCONFIG.PLAYING_BONUS_DEDUCT_PER || 10
+    let bonuscutchips = Number((gameDepositChips * perdecuct) / 100)
+    let mainchipscut = Number(gameDepositChips - bonuscutchips)
+
+    let bonuswalletdeduct = false;
+    let mainwalletdeduct = false;
+
+
+    if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
+      bonuswalletdeduct = true
+      mainwalletdeduct = true
+
+    } else if (totalWallet >= mainchipscut) {
+      mainwalletdeduct = true
+    }
+
+
+    console.log("bonuswalletdeduct ", bonuswalletdeduct)
+    console.log("mainwalletdeduct ", mainwalletdeduct)
+
+
+    if (bonuswalletdeduct && mainwalletdeduct) {
+      await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry Deposit');
+      await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Point Playing Entry Deduct bonus');
+
+    } else if (mainwalletdeduct) {
+      await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry Deposit');
+    }
+
+    let wh = {
+      _id: MongoID(tabInfo._id.toString()),
+      'playerInfo._id': MongoID(pId.toString()),
+    };
+
+    let updateUserData = {
+      $set: {},
+      $inc: {},
+    };
+
+    updateUserData.$inc['playerInfo.$.gameChips'] = diff;
+    updateUserData.$inc['playerInfo.$.chips'] = -diff;
+
+    let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateUserData, {
+      new: true,
+    });
+
+    logger.info("tbInfo =>", tbInfo)
+
+    return tbInfo;
+  } catch (error) {
+    logger.error('\nngameStart.js deduct error :-> ', error);
+  }
+};

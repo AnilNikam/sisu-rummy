@@ -682,18 +682,18 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                     logger.info("Teen  sequestion  ")
 
 
-                                                    randomIndex = Math.floor(Math.random() * RemainCard.Teen[0].length);
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.Teen.length);
                                                     throwCard = RemainCard.Teen[randomIndex];
                                                 } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0) {
                                                     logger.info("ImpureSeqs  sequestion  ")
 
 
-                                                    randomIndex = Math.floor(Math.random() * RemainCard.ImpureSeqs[0].length);
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.ImpureSeqs.length);
                                                     throwCard = RemainCard.ImpureSeqs[randomIndex];
                                                 } else if (RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length > 0) {
 
                                                     logger.info("pureSeqs  sequestion  ")
-                                                    randomIndex = Math.floor(Math.random() * RemainCard.pureSeqs[0].length);
+                                                    randomIndex = Math.floor(Math.random() * RemainCard.pureSeqs.length);
                                                     throwCard = RemainCard.pureSeqs[randomIndex];
                                                 } else {
                                                     logger.info("else :::::::::::::::::: ")
@@ -812,11 +812,11 @@ PickCardcloseDeck_or_open_deck = (cards, wildCard, opendeckcard, closecard, call
     logger.info("closecard ", closecard)
 
 
-    if (opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J") {
+    if (opendeckcard != undefined && opendeckcard != null && opendeckcard.split("-")[1] == wildCard.split("-")[1] || opendeckcard.split("-")[0] == "J") {
         return callback("open");
     }
 
-    if (closecard.split("-")[1] == wildCard.split("-")[1] || closecard.split("-")[0] == "J") {
+    if (closecard != undefined && closecard != null && closecard.split("-")[1] == wildCard.split("-")[1] || closecard.split("-")[0] == "J") {
         return callback("close");
     }
 
@@ -828,7 +828,8 @@ PickCardcloseDeck_or_open_deck = (cards, wildCard, opendeckcard, closecard, call
 }
 
 OpenDeckcardCheckUseOrnot = (cards, wildCard, opendeckcard, callback) => {
-    cards.push(opendeckcard)
+    if (opendeckcard != undefined && opendeckcard != null)
+        cards.push(opendeckcard)
 
     mycardGroup(cards, parseInt(wildCard.split("-")[1]), async (cardjson) => {
 
