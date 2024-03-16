@@ -110,8 +110,19 @@ accountNo
 ifscCode
 */
 
-async function PayOutTransfer(requestData, socket, UserverifyId) {
+async function PayOutTransfer(requestData, socket) {
     try {
+
+        // Valiation 
+        if (requestData.amount < 50 || requestData.amount > 1000) {
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
+
+            return false
+        }
+
+        requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
+
+        // %%% Admin Wallte addd 
 
         //Insert Payout Table 
         const paymentoutdata = await paymentout.create({
@@ -165,42 +176,26 @@ async function PayOutTransfer(requestData, socket, UserverifyId) {
                     });
                     console.log("Updatedata ", Updatedata)
 
-                    if (UserverifyId == undefined) {
-                        commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
-                    } else {
-                        await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: "Go to Webhook" } }, {
-                            new: true,
-                        });
-                    }
+
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
+
                 } else {
                     console.log("response elase 1 ", response.data)
-                    if (UserverifyId == undefined) {
-                        commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
-                    } else {
-                        await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: response.data.message } }, {
-                            new: true,
-                        });
-                    }
+
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
+
                 }
             } else {
                 console.log("response elase 2 ", response.data)
-                if (UserverifyId == undefined) {
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
-                } else {
-                    await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: response.data.message } }, {
-                        new: true,
-                    });
-                }
+
+                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
+
             }
         } else {
             console.log("Data Not Insert ")
-            if (UserverifyId == undefined) {
-                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
-            } else {
-                await BankDetails.findOneAndUpdate({ _id: MongoID(UserverifyId) }, { $set: { reMark: "Something Went Wrong Please try again" } }, {
-                    new: true,
-                });
-            }
+
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
+
         }
 
     } catch (error) {

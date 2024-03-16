@@ -528,9 +528,10 @@ router.get('/transactionData', async (req, res) => {
     try {
         //console.info('requet => ', req);
 
-        const transactionData = await UserWalletTracks.find({ }, { uniqueId: 1, userId: 1, transType: 1, transTypeText: 1,transAmount:1,chips:1,winningChips:1,bonusChips:1,referralChips:1,
-            totalBucket:1,gameId:1,createdAt:1
-            })
+        const transactionData = await UserWalletTracks.find({}, {
+            uniqueId: 1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
+            totalBucket: 1, gameId: 1, createdAt: 1
+        })
 
         logger.info('admin/dahboard.js post transactionData  error => ', transactionData);
 
@@ -555,7 +556,8 @@ router.get('/PayoutListData', async (req, res) => {
     try {
         console.log('PayoutListData requet => ', req);
 
-        const PayoutList = await PaymentOut.find({  }, {OrderID:1,
+        const PayoutList = await PaymentOut.find({}, {
+            OrderID: 1,
             transactionId: 1, paymentStatus: 1, orderInfo: 1, "accountNo": 1, ifscCode: 1, beneficiaryName: 1, transferMode: 1, rrn: 1,
             userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
         })

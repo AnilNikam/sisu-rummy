@@ -4,7 +4,8 @@ const BetLists = mongoose.model('dealbetLists');
 const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
 
-const botCtrl = require('./assignBot');
+// const botCtrl = require('./assignBot');
+const { findRoom } = require('./assignBot');
 const gameStartActions = require('./gameStart');
 const CONST = require('../../constant');
 const logger = require('../../logger');
@@ -121,9 +122,11 @@ module.exports.getBetTable = async (betInfo) => {
     logger.info('getBetTable betInfo ->', betInfo);
     let wh = {
       deal: betInfo.deal,
+      entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: 'dealrummy',
       tableLock: false,
+      maxSeat: parseInt(betInfo.maxSeat),
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
@@ -142,14 +145,14 @@ module.exports.getBetTable = async (betInfo) => {
 module.exports.createTable = async (betInfo) => {
   try {
     let insertobj = {
-      maxSeat: betInfo.deal,
+      maxSeat: betInfo.maxSeat,
       betId: betInfo._id,
       entryFee: betInfo.entryFee,
       commission: betInfo.commission,
       deal: parseInt(betInfo.deal),
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
-      playerInfo: this.makeObjects(6),
+      playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
@@ -176,6 +179,8 @@ module.exports.makeObjects = (length = 0) => {
 
 module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
   try {
+    logger.info("deal findEmptySeatAndUserSeat betInfo ::", betInfo);
+
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
     // logger.info("findEmptySeatAndUserSeat seatIndex ::", seatIndex);
 
@@ -239,6 +244,13 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     setPlayerInfo['$set']['playerInfo.' + seatIndex] = playerDetail;
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
+
+
+    if (tableInfo == null && socket && socket.isBot !== true) {
+      await this.findTable(betInfo, socket);
+      return false;
+    }
+
     let playerInfo = tableInfo.playerInfo[seatIndex];
 
     if (!(playerInfo._id.toString() === userInfo._id.toString())) {
@@ -298,32 +310,41 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       gameStartActions.gameTimerStart(tableInfo);
     }
 
+    logger.info("Table Info 1==>", tableInfo)
+    logger.info("Table userInfo 1==>", userInfo)
+    logger.info("\n Table activePlayer 1==>", tableInfo.activePlayer)
+
     if (tableInfo.activePlayer == 1) {
       setTimeout(() => {
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
           setTimeout(() => {
-            botCtrl.findRoom(tableInfo, betInfo)
-            // findRoom(tableInfo, betInfo)
+            // findDealRoom(tableInfo, betInfo)
+            findRoom(tableInfo, betInfo)
           }, 1000)
         } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
           setTimeout(() => {
             logger.info("check call function 111 ==>")
-            botCtrl.findRoom(tableInfo, betInfo)
-            // botCtrl.findRoom(tableInfo, betInfo)
+            // findDealRoom(tableInfo, betInfo)
+            findRoom(tableInfo, betInfo)
           }, 1000)
         }
       }, 7000)
     } else if (userInfo.isBot == true) {
+      logger.info("check call function seat bot 2==>")
+      logger.info("check call function MAx seat 2==>", tableInfo.maxSeat)
+      logger.info("\n else Table activePlayer 2==>", tableInfo.activePlayer)
+
+
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
         setTimeout(() => {
-          botCtrl.findRoom(tableInfo, betInfo)
-          // findRoom(tableInfo, betInfo)
+          // findDealRoom(tableInfo, betInfo)
+          findRoom(tableInfo, betInfo)
         }, 1000)
       } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
         setTimeout(() => {
           logger.info("check call function 222 ==>")
-          botCtrl.findRoom(tableInfo, betInfo)
-          // botCtrl.findRoom(tableInfo, betInfo)
+          // findDealRoom(tableInfo, betInfo)
+          findRoom(tableInfo, betInfo)
         }, 1000)
       }
     }

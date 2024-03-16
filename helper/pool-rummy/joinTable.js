@@ -120,6 +120,7 @@ module.exports.getBetTable = async (betInfo) => {
   try {
     let wh = {
       gameType: betInfo.type,
+      entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: 'poolrummy',
       tableLock: false,
@@ -315,13 +316,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
           setTimeout(() => {
             botCtrl.findPoolRoom(tableInfo, betInfo)
-            // findRoom(tableInfo, betInfo)
           }, 1000)
         } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
           setTimeout(() => {
             logger.info("check call function 111 ==>")
             botCtrl.findPoolRoom(tableInfo, betInfo)
-            // botCtrl.findRoom(tableInfo, betInfo)
           }, 1000)
         }
       }, 7000)
@@ -329,13 +328,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
         setTimeout(() => {
           botCtrl.findPoolRoom(tableInfo, betInfo)
-          // findRoom(tableInfo, betInfo)
         }, 1000)
       } else if (tableInfo.maxSeat === 6 && tableInfo.activePlayer < 6) {
         setTimeout(() => {
           logger.info("check call function 222 ==>")
           botCtrl.findPoolRoom(tableInfo, betInfo)
-          // botCtrl.findRoom(tableInfo, betInfo)
         }, 1000)
       }
     }

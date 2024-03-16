@@ -19,10 +19,11 @@ const GameUserSchema = new Schema(
     password: { type: String, default: '' },
     chips: { type: Number, required: true, default: 0 },       // Deposite 
     winningChips: { type: Number, required: true, default: 0 }, // Winning Chips 
-    bonusChips: { type: Number, required: true, default: 0 },  // Sp && deposite Bonus 5%
-    referralChips: { type: Number, required: true, default: 0 }, // referarl Chips
-    unlockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips unlock Chips  
-    lockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips lock Chips 
+    bonusChips: { type: Number, required: true, default: 0 },  // Sp && deposite Bonus 5% + referralChips
+    lockbonusChips: { type: Number, required: true, default: 0 }, // lock Chips 
+    //referralChips: { type: Number, required: true, default: 0 }, // referarl Chips
+    // unlockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips unlock Chips  
+    // lockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips lock Chips 
     //withdrawableChips: { type: Number, required: true, default: 0 },
     referralCode: { type: String },
     referredBy: { type: String },

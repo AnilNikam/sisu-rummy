@@ -22,7 +22,7 @@ const poolGamePlayActions = require('../pool-rummy/gamePlay');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
-const findRoom = async (tableInfo, betInfo) => {
+const findDealRoom = async (tableInfo, betInfo) => {
     try {
 
         let RealPlayer = []
@@ -66,9 +66,7 @@ const findRoom = async (tableInfo, betInfo) => {
         let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
-        await dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
-
-
+        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
     } catch (error) {
         logger.info("Robot Logic Join", error);
@@ -1324,7 +1322,7 @@ const possibilityCard = async (cards, cb) => {
 }
 
 module.exports = {
-    findRoom,
+    findDealRoom,
     pic,
     checkCardMatched,
     checkCardFoundFollower,

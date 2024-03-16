@@ -13,9 +13,10 @@ const UserWalletTracksSchema = new Schema(
     chips: { type: Number },
     winningChips: { type: Number },
     bonusChips: { type: Number },
-    referralChips: { type: Number }, // referarl Chips
-    unlockreferralChips: { type: Number }, // referarl Chips unlock Chips  
-    lockreferralChips: { type: Number }, // referarl Chips lock Chips 
+    lockbonusChips: { type: Number },
+    // referralChips: { type: Number }, // referarl Chips
+    // unlockreferralChips: { type: Number }, // referarl Chips unlock Chips  
+    // lockreferralChips: { type: Number }, // referarl Chips lock Chips 
     //withdrawableChips:{ type: Number},
     totalBucket: { type: Number, defualt: 0 },
     gameId: { type: String },

@@ -162,7 +162,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     table.tableAmount -= parseFloat(amount.toFixed(2));
     logger.info('table.tableAmount ->', table.tableAmount);
 
-    updateData.$inc['playerInfo.$.gameChips'] = table.tableAmount;
+    //updateData.$inc['playerInfo.$.gameChips'] = table.tableAmount;
     updateData.$set['tableAmount'] = table.tableAmount;
 
     const tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
@@ -273,9 +273,20 @@ module.exports.updateUserScore = async (playerId, gameChips) => {
   try {
     //logger.info('update User Score payload =>', gameChips);
     //logger.info('playerId payload =>', playerId);
+    // + - 
+    // gameChips + hoi to 10 bonus 90 Chips 
+    // gameChips - hoi chips 100 
+    let finalGameChips = 0
+    if (gameChips > 0) {
+      finalGameChips = gameChips - Number((gameChips * 10) / 100);
+      bonusChips = gameChips - finalGameChips
+      let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips, bonusChips: bonusChips } }, { new: true });
+      logger.info('Update User Score =>', data);
+    } else {
+      let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips } }, { new: true });
+      logger.info('Update User Score =>', data);
+    }
 
-    let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips } }, { new: true });
-    logger.info('Update User Score =>', data);
 
     if (data) {
       return true;

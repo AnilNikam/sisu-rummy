@@ -114,6 +114,8 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
       await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
 
 
+      await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+
 
       //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
       if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
@@ -121,8 +123,8 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
 
         await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
 
-        //check reffreal date is validate or not
-        await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+        // //check reffreal date is validate or not
+        // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
 
       }
     } else {

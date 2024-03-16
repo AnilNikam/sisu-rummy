@@ -62,7 +62,7 @@ module.exports.roundFinish = async (tb) => {
               chips: Math.abs(remaningChip),
             };
 
-            //logger.info(' BORROW_USER_CHIPS Result ==>', result);
+            logger.info(' BORROW_USER_CHIPS Result ==>', result);
             commandAcions.sendDirectEvent(player.sck.toString(), CONST.BORROW_USER_CHIPS, result);
 
             let wh = {
@@ -83,7 +83,9 @@ module.exports.roundFinish = async (tb) => {
             });
             logger.info('roundFinish update the gameChips -> ', tbInfo);
 
+
             let data = await Users.findOneAndUpdate(whr, { $inc: { chips: -diff } }, { new: true });
+
             logger.info('Deduct diff from User chips =>', data);
           } else {
             logger.info(' Insufficient Balance..Please Add Wallet!!');
