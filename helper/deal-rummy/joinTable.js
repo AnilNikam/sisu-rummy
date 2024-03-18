@@ -11,6 +11,7 @@ const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { sendEvent, sendDirectEvent, clearJob } = require('../socketFunctions');
+const { userReconnect } = require('../common-function/reConnectFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {

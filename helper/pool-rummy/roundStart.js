@@ -12,6 +12,7 @@ const botCtrl = require('./poolBotFunction');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable, sendDirectEvent } = require('../socketFunctions');
+const { playerDrop } = require('./gamePlay');
 
 module.exports.roundStarted = async (tbid) => {
   try {
@@ -255,7 +256,8 @@ module.exports.handleTimeOut = async (turnIndex, tbid) => {
   };
 
   // logger.info("requestData, client ==> ", requestData, client);
-  const res = await leaveTableAction.leaveTable(requestData, client);
+  // const res = await leaveTableAction.leaveTable(requestData, client);
+  const res = await playerDrop(requestData, client);
   if (!res) {
     logger.info('roundStart.js leave table : user turn miss 3 times res : ', res);
   }

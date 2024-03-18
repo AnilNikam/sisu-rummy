@@ -143,7 +143,7 @@ module.exports.getBetTable = async (betInfo) => {
 module.exports.createTable = async (betInfo) => {
   try {
     let insertobj = {
-      maxSeat: 6,
+      maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
       gameType: parseInt(betInfo.type),
       commission: betInfo.commission,

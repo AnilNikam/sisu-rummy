@@ -11,6 +11,7 @@ const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { getPlayingUserInRound, getUserTurnSeatIndex } = require('../common-function/manageUserFunction');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable } = require('../socketFunctions');
 const { pic, mycardGroup } = require('./botFunction');
+const gamePlayAction = require('./gamePlay');
 
 module.exports.roundStarted = async (tbid) => {
   try {
@@ -251,7 +252,9 @@ module.exports.handleTimeOut = async (turnIndex, tbid) => {
   };
 
   // logger.info("requestData, client ==> ", requestData, client);
-  const res = await leaveTableAction.leaveTable(requestData, client);
+  // const res = await leaveTableAction.leaveTable(requestData, client);
+  const res = await gamePlayAction.playerDrop(requestData, client);
+
   if (!res) {
     logger.info('roundStart.js leave table : user turn miss 3 times res : ', res);
   }

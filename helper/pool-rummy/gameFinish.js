@@ -101,7 +101,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
       const GSBResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType };
       tableInfo.lastGameScoreBoard.push(GSBResponse);
-      //logger.info('lastUserWinnerDeclareCallTemp addLastScoreBoard ==>', addLastScoreBoard);
+      logger.info('lastUserWinnerDeclareCallTemp addLastScoreBoard ==>', addLastScoreBoard);
 
       const qu = {
         _id: MongoID(tbid),

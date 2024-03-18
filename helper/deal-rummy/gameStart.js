@@ -253,8 +253,8 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       // logger.info('Wallet after deduct coins update in user and counter ::', updateCounters);
 
-      console.log("bonuswalletdeduct ", bonuswalletdeduct)
-      console.log("mainwalletdeduct ", mainwalletdeduct)
+      logger.log("deal bonuswalletdeduct ", bonuswalletdeduct)
+      logger.log("deal mainwalletdeduct ", mainwalletdeduct)
 
 
       if (bonuswalletdeduct && mainwalletdeduct) {

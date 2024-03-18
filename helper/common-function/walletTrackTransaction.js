@@ -106,7 +106,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
       };
       await this.trackUserWallet(walletTrack);
     }
-    console.log("tbl.sckId ", tbl.sckId)
+    // console.log("tbl.sckId ", tbl.sckId)
 
     commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
 
@@ -242,7 +242,7 @@ module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, tabInfo) => 
       };
       await this.trackUserWallet(walletTrack);
     }
-    console.log("tbl.sckId ", tbl.sckId)
+    // console.log("tbl.sckId ", tbl.sckId)
 
     commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
 
@@ -314,7 +314,7 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
       };
       await this.trackUserWallet(walletTrack);
     }
-    console.log("tbl.sckId ", tbl.sckId)
+    // console.log("tbl.sckId ", tbl.sckId)
 
     commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 
@@ -406,7 +406,7 @@ module.exports.locktounlockbonus = async (id, addCoins, tType, t, tabInfo) => {
       };
       await this.trackUserWallet(walletTrack);
     }
-    console.log("tbl.sckId ", tbl.sckId)
+    // console.log("tbl.sckId ", tbl.sckId)
 
     commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 
@@ -574,7 +574,7 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t) => {
       };
       await this.trackUserWallet(walletTrack);
     }
-    console.log("tbl.sckId ", tbl.sckId)
+    // console.log("tbl.sckId ", tbl.sckId)
 
     commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 

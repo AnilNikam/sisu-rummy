@@ -312,8 +312,8 @@ module.exports.RoundFinishdeduct = async (tbInfo, playerInfo, diff) => {
     }
 
 
-    console.log("bonuswalletdeduct ", bonuswalletdeduct)
-    console.log("mainwalletdeduct ", mainwalletdeduct)
+    logger.info("point bonuswalletdeduct ", bonuswalletdeduct)
+    logger.info("point mainwalletdeduct ", mainwalletdeduct)
 
 
     if (bonuswalletdeduct && mainwalletdeduct) {
