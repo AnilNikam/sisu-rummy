@@ -72,7 +72,8 @@ module.exports.collectBoot = async (tbId) => {
 
     let tableInfo = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
 
-    let playerUgcInfo = await this.deduct(tableInfo, playerInfo);
+    //remove await bcz more time dealy 
+    let playerUgcInfo =  this.deduct(tableInfo, playerInfo);
     logger.info('Player Deduct Coins', playerUgcInfo);
 
     await cardDealActions.cardDealStart(tableInfo._id);
