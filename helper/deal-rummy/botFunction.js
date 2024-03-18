@@ -69,10 +69,10 @@ const findDealRoom = async (tableInfo, betInfo) => {
             return false
         }
 
-        let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
+        let up = await GameUser.updateOne({ _id: MongoID(robotInfo[0]._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
-        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo[0].isBot });
 
     } catch (error) {
         logger.info("Robot Logic Join", error);

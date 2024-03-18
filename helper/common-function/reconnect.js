@@ -58,6 +58,7 @@ module.exports.reconnect = async (requestData, client) => {
         tableid: tabInfo._id,
         gamePlayType: tabInfo.gamePlayType,
         sceneName: CONST.GAMEPLAY,
+        wildCard:tabInfo.wildCard
       };
 
       if (tabInfo.gameState === CONST.ROUND_STARTED) {
@@ -73,6 +74,7 @@ module.exports.reconnect = async (requestData, client) => {
           closeDeck: tabInfo.closeDeck,
           openDecks: tabInfo.openDeck,
           tableAmount: tabInfo.tableAmount,
+          wildCard:tabInfo.wildCard,
           currentTurnUserSeatIndex: tabInfo.currentPlayerTurnIndex,
           currentTurnTimer: diff,
         };
