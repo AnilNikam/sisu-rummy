@@ -57,28 +57,34 @@ const findRoom = async (tableInfo, betInfo) => {
         logger.info(" JoinRobot ROBOT Not user_wh   : ", user_wh)
 
 
-        let robotInfo = await GameUser.findOne(user_wh, {});
-        logger.info("JoinRobot ROBOT Info : ", robotInfo)
+        //let robotInfo = await GameUser.findOne(user_wh, {});
 
-        if (robotInfo == null) {
+        let robotInfo = await GameUser.aggregate([
+            { $match: user_wh },
+            { $sample: { size: 1 } }
+          ]).exec()
+
+        console.log("JoinRobot ROBOT Info : ", robotInfo)
+
+        if (robotInfo == null || robotInfo.length == 0) {
             logger.info("JoinRobot ROBOT Not Found  : ")
             return false
         }
 
-        let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
+        let up = await GameUser.updateOne({ _id: MongoID(robotInfo[0]._id.toString()) }, { $set: { "isfree": false } });
         logger.info("update robot isfree", up)
 
         if (tableInfo.gamePlayType == 'pointrummy') {
 
-            await pointTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+            await pointTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo[0].isBot });
 
         } else if (tableInfo.gamePlayType == 'poolrummy') {
 
-            await poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+            await poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo[0].isBot });
 
         } else if (tableInfo.gamePlayType == 'dealrummy') {
 
-            await dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+            await dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo[0].isBot });
         }
 
 

@@ -55,10 +55,16 @@ const findDealRoom = async (tableInfo, betInfo) => {
         logger.info(" JoinRobot ROBOT Not user_wh   : ", user_wh)
 
 
-        let robotInfo = await GameUser.findOne(user_wh, {});
-        logger.info("JoinRobot ROBOT Info : ", robotInfo)
+        //let robotInfo = await GameUser.findOne(user_wh, {});
 
-        if (robotInfo == null) {
+        let robotInfo = await GameUser.aggregate([
+            { $match: user_wh },
+            { $sample: { size: 1 } }
+          ]).exec()
+
+        console.log("JoinRobot ROBOT Info : ", robotInfo)
+
+        if (robotInfo == null || robotInfo.length == 0) {
             logger.info("JoinRobot ROBOT Not Found  : ")
             return false
         }

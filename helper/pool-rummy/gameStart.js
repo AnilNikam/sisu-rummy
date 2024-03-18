@@ -73,7 +73,7 @@ module.exports.collectBoot = async (tbId) => {
     let tableInfo = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
     logger.info(' pull Player tableInfo=>', tableInfo);
 
-    let playerUgcInfo = await this.deduct(tableInfo, playerInfo);
+    let playerUgcInfo =  this.deduct(tableInfo, playerInfo);
     logger.info('Pull Player UGC details =>', playerUgcInfo);
 
     let response = {
