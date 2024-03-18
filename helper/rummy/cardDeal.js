@@ -48,12 +48,17 @@ module.exports.cardDealStart = async (tbid) => {
     };
 
     logger.info("cardDealStart tableInfo.playerInfo ->", tableInfo.playerInfo)
+    logger.info("cardDealStart tableInfo.playerInfo ->", new Date())
+
     tableInfo.playerInfo.forEach((player) => {
       if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
         eventResponse.card = player.cards;
+        logger.info("cardDealStart tableInfo.playerInfo -> send Time ", new Date())
+
         commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
       }
     });
+    logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
 
     let tbId = tableInfo._id;
     // let jobId = commandAcions.GetRandomString(10);
