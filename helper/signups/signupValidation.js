@@ -389,19 +389,19 @@ const addBankAccount = async (requestBody, socket) => {
         userId: userId,
         accountNumber: accountNumber,
       });
-    logger.error('mainController.js registerUser deletedOtp => ', deletedOtp);
+      logger.error('mainController.js registerUser deletedOtp => ', deletedOtp);
 
-/*
-      //pass the data for account verification
-      resData = this.accountVerifyAPI({ account_number: accountNumber, ifsccode: IFSC, userId: userId })
-
-      if (resData) {
-        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, resData);
-      } else {
-        // Account not verify 
-        commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, {}, false, "Your bank account information is not correct");
-      }
-      */
+      /*
+            //pass the data for account verification
+            resData = this.accountVerifyAPI({ account_number: accountNumber, ifsccode: IFSC, userId: userId })
+      
+            if (resData) {
+              commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, resData);
+            } else {
+              // Account not verify 
+              commandAcions.sendEvent(socket, CONST.BANK_ACCOUNT_VERIFY, {}, false, "Your bank account information is not correct");
+            }
+            */
     }
 
   } catch (error) {
@@ -446,8 +446,8 @@ const accountVerifyAPI = async (data) => {
       new: true,
     });
 
-    logger.info("Update status account verfiy",res);
-    return  response.data;
+    logger.info("Update status account verfiy", res);
+    return response.data;
   } else {
     return response.data
   }
@@ -483,8 +483,8 @@ const OKYCRequest = async (requestBody, socket) => {
       task_id = isverified[0]._id.toString()
 
     }
-    console.log("findadharcard[0].userId ", findadharcard)
-    console.log("isverified[0].userId.toString() ", isverified)
+    logger.info("findadharcard[0].userId ", findadharcard)
+    logger.info("isverified[0].userId.toString() ", isverified)
 
     if (findadharcard.length != 0 && isverified.length != 0 && findadharcard[0].userId.toString() != isverified[0].userId.toString()) {
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: "001", statusText: "Already Adharcad Use ...!!!" });
@@ -492,7 +492,7 @@ const OKYCRequest = async (requestBody, socket) => {
       return false;
     }
 
-    console.log("task_id ", task_id)
+    logger.info("task_id ", task_id)
 
     let body = {
       "data": {
@@ -528,7 +528,7 @@ const OKYCRequest = async (requestBody, socket) => {
     });
 
 
-    console.log("response::::::::::::::::::", response.data);
+    logger.info("response::::::::::::::::::", response.data);
 
     if (response.data.success) {
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
@@ -541,7 +541,6 @@ const OKYCRequest = async (requestBody, socket) => {
 
 
   } catch (error) {
-    console.log('mainController.js OKYCRequest error=> ', error);
 
     if (error.response)
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
@@ -561,6 +560,19 @@ const OKYCRequest = async (requestBody, socket) => {
 const OKYCverifyRequest = async (requestBody, socket) => {
   try {
 
+    /*
+    let { customer_aadhaar_number } = requestBody
+    let ress = await otpAdharkyc.countDocuments({ adharcard: customer_aadhaar_number });
+    logger.info(" Result get otpAdharkyc", ress)
+
+    if (ress > 0) {
+      commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { status: 0, msg: "User already exists" });
+      return {
+        message: 'User already exists',
+        status: 0,
+      };
+    }
+    */
 
     let body = {
       "data": {
