@@ -573,6 +573,8 @@ myIo.init = function (server) {
             try {
               if (payload.data.gamePlayType === CONST.GAME_TYPE.POOL_RUMMY) {
                 await poolGamePlayActions.reJoinUser(payload.data, socket);
+              } else if (payload.data.gamePlayType === CONST.GAME_TYPE.DEAL_RUMMY) {
+                await dealGamePlayActions.reJoinUser(payload.data, socket);
               }
             } catch (error) {
               logger.error('socketServer.js RE_JOIN error => ', error);
