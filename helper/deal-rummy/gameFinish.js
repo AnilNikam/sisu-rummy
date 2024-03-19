@@ -315,7 +315,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
 
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.RESTART_GAME_TABLE, { status: 0 });
 
-      let roundTime = CONST.restartTimer;
+      let roundTime = 10;
       let tableId = tableInfo._id;
       let fnsJobId = CONST.RESTART_GAME_TABLE + ':' + tableId;
       delay = commandAcions.AddTime(roundTime);
