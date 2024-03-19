@@ -91,7 +91,7 @@ module.exports.joinTable = async (requestData, socket) => {
       delete socket.JT;
       return false;
     } else {
-      return await this.findTable(betInfo, socket,userInfo);
+      return await this.findTable(betInfo, socket, userInfo);
     }
   } catch (error) {
     sendEvent(socket, CONST.JOIN_TABLE, requestData, {
@@ -103,9 +103,9 @@ module.exports.joinTable = async (requestData, socket) => {
   }
 };
 
-module.exports.findTable = async (betInfo, socket,userInfo) => {
+module.exports.findTable = async (betInfo, socket, userInfo) => {
   try {
-    let tableInfo = await this.getBetTable(betInfo,userInfo);
+    let tableInfo = await this.getBetTable(betInfo, userInfo);
 
     if (tableInfo.gameTimer !== null && tableInfo.gameTimer !== undefined) {
       let currentDateTime = new Date();
@@ -131,13 +131,13 @@ module.exports.findTable = async (betInfo, socket,userInfo) => {
   }
 };
 
-module.exports.getBetTable = async (betInfo,userInfo) => {
+module.exports.getBetTable = async (betInfo, userInfo) => {
   try {
     logger.info("getBetTable betinfo =>", betInfo);
     logger.info("getBetTable userInfo =>", userInfo);
 
     let wh = {
-      _id:{$nin:userInfo.lastTableId},
+      _id: { $nin: userInfo.lastTableId },
       entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: betInfo.gamePlayType,
@@ -327,12 +327,12 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     await Users.updateOne(
       { _id: MongoID(userInfo._id) },
       {
-          $push: {
-              "lastTableId": {
-                  $each: [MongoID(tableInfo._id.toString())],
-                  $slice: -3
-              }
+        $push: {
+          "lastTableId": {
+            $each: [MongoID(tableInfo._id.toString())],
+            $slice: -3
           }
+        }
       })
 
     if (tableInfo.activePlayer === 2 && tableInfo.gameState === '') {
@@ -347,7 +347,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     // let delay = AddTime(7);
     // await setDelay(botJobId, new Date(delay));
 
-    
+
 
 
     if (tableInfo.activePlayer == 1) {
