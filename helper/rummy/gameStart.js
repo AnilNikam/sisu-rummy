@@ -59,7 +59,8 @@ module.exports.collectBoot = async (tbId) => {
     if (playerInfo.length < 2) {
       return false;
     }
-
+    
+    
     let gameId = await this.getCount('gameId');
 
     let update = {

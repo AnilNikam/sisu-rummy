@@ -45,7 +45,9 @@ const GameUserSchema = new Schema(
     createdAt: { type: Date, default: Date.now },
     modifiedAt: { type: Date, default: Date.now },
     isBot: { type: Boolean, default: false },
-    isfree: { type: Boolean, default: true }
+    isfree: { type: Boolean, default: true },
+    lastTableId: []
+
 
   },
   { versionKey: false }

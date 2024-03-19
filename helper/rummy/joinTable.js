@@ -44,6 +44,8 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let condition = { _id: MongoID(socket.uid) };
     let userInfo = await Users.findOne(condition, {}).lean();
+    logger.info("userInfo", userInfo)
+
 
     let gameChips = parseFloat(requestData.entryFee) * 80;
     logger.info("gameChips", gameChips)
@@ -89,7 +91,7 @@ module.exports.joinTable = async (requestData, socket) => {
       delete socket.JT;
       return false;
     } else {
-      return await this.findTable(betInfo, socket);
+      return await this.findTable(betInfo, socket,userInfo);
     }
   } catch (error) {
     sendEvent(socket, CONST.JOIN_TABLE, requestData, {
@@ -101,9 +103,9 @@ module.exports.joinTable = async (requestData, socket) => {
   }
 };
 
-module.exports.findTable = async (betInfo, socket) => {
+module.exports.findTable = async (betInfo, socket,userInfo) => {
   try {
-    let tableInfo = await this.getBetTable(betInfo);
+    let tableInfo = await this.getBetTable(betInfo,userInfo);
 
     if (tableInfo.gameTimer !== null && tableInfo.gameTimer !== undefined) {
       let currentDateTime = new Date();
@@ -129,14 +131,17 @@ module.exports.findTable = async (betInfo, socket) => {
   }
 };
 
-module.exports.getBetTable = async (betInfo) => {
+module.exports.getBetTable = async (betInfo,userInfo) => {
   try {
     logger.info("getBetTable betinfo =>", betInfo);
+    logger.info("getBetTable userInfo =>", userInfo);
+
     let wh = {
+      _id:{$nin:userInfo.lastTableId},
       entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: betInfo.gamePlayType,
-      maxSeat: parseInt(betInfo.maxSeat),
+      maxSeat: parseInt(betInfo.maxSeat)
     };
 
     let tableInfo = await PlayingTables.find(wh, {}).sort({ activePlayer: 1 }).lean();
@@ -319,6 +324,17 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     delete socket.JT;
 
+    await Users.updateOne(
+      { _id: MongoID(userInfo._id) },
+      {
+          $push: {
+              "lastTableId": {
+                  $each: [MongoID(tableInfo._id.toString())],
+                  $slice: -3
+              }
+          }
+      })
+
     if (tableInfo.activePlayer === 2 && tableInfo.gameState === '') {
       let jobId = 'LEAVE_SINGLE_USER:' + tableInfo._id;
       clearJob(jobId);
@@ -330,6 +346,9 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     // let botJobId = 'WAITING' + ':' + tableInfo._id;
     // let delay = AddTime(7);
     // await setDelay(botJobId, new Date(delay));
+
+    
+
 
     if (tableInfo.activePlayer == 1) {
       setTimeout(() => {
