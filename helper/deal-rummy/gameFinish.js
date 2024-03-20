@@ -138,7 +138,6 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       //save table history
       const tableHistory = { ...rest, tableId: tableInfo._id };
       await commonHelper.insert(TableHistory, tableHistory);
-      logger.info('Deal lastUserWinnerDeclareCallTemp gameFinish.js tableHistory Data => ', tableHistoryData);
 
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.RESTART_GAME_TABLE, { status: 0 });
 
@@ -148,7 +147,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       let delayed = commandAcions.AddTime(roundTime);
 
       await commandAcions.setDelay(fnsJobId, new Date(delayed));
-      await roundEndActions.restartTable(tableInfo);
+      // await roundEndActions.restartTable(tableInfo);
 
     } else if (tb.activePlayer >= 2) {
       this.winnerDeclareCall(tblInfo);

@@ -25,9 +25,11 @@ router.get('/UserList', async (req, res) => {
     try {
         //console.info('requet => ', req);
 
-        const userList = await Users.find({isBot:false}, { username: 1,avatar:1,profileUrl:1,winningChips:1,bonusChips:1, id: 1,email:1,uniqueId:1,name:1,
-            "blackandwhite.totalMatch":1,"aviator.totalMatch":1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
-            
+        const userList = await Users.find({ isBot: false }, {
+            username: 1, avatar: 1, profileUrl: 1, winningChips: 1, bonusChips: 1, id: 1, email: 1, uniqueId: 1, name: 1,
+            "blackandwhite.totalMatch": 1, "aviator.totalMatch": 1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1
+        })
+
         logger.info('admin/dahboard.js post dahboard  error => ', userList);
 
         res.json({ userList });
@@ -50,66 +52,68 @@ router.get('/UserData', async (req, res) => {
     try {
         console.info('requet => ', req.query);
         //userInfo
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1,location:1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        console.log("userInfo :::::::::::::::::::",userInfo)
+        console.log("userInfo :::::::::::::::::::", userInfo)
 
-        let UserOKYC = await otpAdharkyc.findOne({userId: new mongoose.Types.ObjectId(req.query.userId)},
-                                                    {adharcard:1,verified:1,"userInfo":1,"DOB":1,adharcardfrontimages:1,adharcardbackimages:1,
-                                                    pancardname:1,pancardfrontimages:1,pancard:1,"panInfo":1,pancardverified:1})
-        console.log("UserOKYC",UserOKYC)
+        let UserOKYC = await otpAdharkyc.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) },
+            {
+                adharcard: 1, verified: 1, "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
+                pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1
+            })
+        console.log("UserOKYC", UserOKYC)
 
-        UserOKYCData = {
-            adharcard:" - ",
-            full_name:"",
-            verified:"",
-            userInfo:"",
-            DOB:"",
-            gender:"",
-            pincode:"",
-            adharcardfrontimages:"",
-            adharcardbackimages:""
+        let UserOKYCData = {
+            adharcard: " - ",
+            full_name: "",
+            verified: "",
+            userInfo: "",
+            DOB: "",
+            gender: "",
+            pincode: "",
+            adharcardfrontimages: "",
+            adharcardbackimages: ""
 
         }
-        UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ?UserOKYC.adharcard : "-";
-        UserOKYCData.full_name = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ?UserOKYC.userInfo.user_full_name : "-";
+        UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ? UserOKYC.adharcard : "-";
+        UserOKYCData.full_name = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ? UserOKYC.userInfo.user_full_name : "-";
 
-        UserOKYCData.verified = (UserOKYC != undefined && UserOKYC.verified != undefined) ?UserOKYC.verified : "-";
-        UserOKYCData.adharcardfrontimages = (UserOKYC != undefined && UserOKYC.adharcardfrontimages != undefined) ?UserOKYC.adharcardfrontimages : "-";
-        UserOKYCData.adharcardbackimages = (UserOKYC != undefined && UserOKYC.adharcardbackimages != undefined) ?UserOKYC.adharcardbackimages : "-";
+        UserOKYCData.verified = (UserOKYC != undefined && UserOKYC.verified != undefined) ? UserOKYC.verified : "-";
+        UserOKYCData.adharcardfrontimages = (UserOKYC != undefined && UserOKYC.adharcardfrontimages != undefined) ? UserOKYC.adharcardfrontimages : "-";
+        UserOKYCData.adharcardbackimages = (UserOKYC != undefined && UserOKYC.adharcardbackimages != undefined) ? UserOKYC.adharcardbackimages : "-";
 
-        
-        UserOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
-        UserOKYCData.gender = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_gender != undefined) ?UserOKYC.userInfo.user_gender : "-";
-        UserOKYCData.userInfo  =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
-         ""+UserOKYC.userInfo.user_address.house+","+UserOKYC.userInfo.user_address.street+","+UserOKYC.userInfo.user_address.po+","+UserOKYC.userInfo.user_address.loc+","
-         +UserOKYC.userInfo.user_address.vtc+","+UserOKYC.userInfo.user_address.dist+","+UserOKYC.userInfo.user_address.state+","+UserOKYC.userInfo.user_address.country+"" :"Not Available";
 
-         UserOKYCData.pincode =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
+        UserOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ? UserOKYC.userInfo.user_dob : "-";
+        UserOKYCData.gender = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_gender != undefined) ? UserOKYC.userInfo.user_gender : "-";
+        UserOKYCData.userInfo = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
+            "" + UserOKYC.userInfo.user_address.house + "," + UserOKYC.userInfo.user_address.street + "," + UserOKYC.userInfo.user_address.po + "," + UserOKYC.userInfo.user_address.loc + ","
+            + UserOKYC.userInfo.user_address.vtc + "," + UserOKYC.userInfo.user_address.dist + "," + UserOKYC.userInfo.user_address.state + "," + UserOKYC.userInfo.user_address.country + "" : "Not Available";
+
+        UserOKYCData.pincode = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
 
         PanOKYCData = {
-            pancardname:"",
-            pancard:"",
-            verified:"",
-            DOB:"",
-            full_name:"",
-            pancardfrontimages:""
-        }   
+            pancardname: "",
+            pancard: "",
+            verified: "",
+            DOB: "",
+            full_name: "",
+            pancardfrontimages: ""
+        }
 
-        PanOKYCData.pancard = ( UserOKYC.pancard != undefined) ?UserOKYC.pancard : "-";
-        PanOKYCData.pancardname = ( UserOKYC.pancardname != undefined) ?UserOKYC.pancardname : "-";
-        PanOKYCData.pancardfrontimages = ( UserOKYC.pancardfrontimages != undefined) ?UserOKYC.pancardfrontimages : "-";
-        PanOKYCData.verified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined) ?UserOKYC.pancardverified : "-";
-        PanOKYCData.full_name = (UserOKYC != undefined &&  UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ?UserOKYC.panInfo.user_full_name : "-";
-        PanOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
+        PanOKYCData.pancard = (UserOKYC.pancard != undefined) ? UserOKYC.pancard : "-";
+        PanOKYCData.pancardname = (UserOKYC.pancardname != undefined) ? UserOKYC.pancardname : "-";
+        PanOKYCData.pancardfrontimages = (UserOKYC.pancardfrontimages != undefined) ? UserOKYC.pancardfrontimages : "-";
+        PanOKYCData.verified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined) ? UserOKYC.pancardverified : "-";
+        PanOKYCData.full_name = (UserOKYC != undefined && UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ? UserOKYC.panInfo.user_full_name : "-";
+        PanOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ? UserOKYC.userInfo.user_dob : "-";
 
-       
-        
+
+
         console.log('admin/dahboard.js post dahboard  error => :::::::: UserOKYCData ', UserOKYCData);
         console.log('admin/dahboard.js post dahboard  error => :::::::: PanOKYCData ', PanOKYCData);
 
 
-        res.json({ userInfo,UserOKYCData,PanOKYCData });
+        res.json({ userInfo, UserOKYCData, PanOKYCData });
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -129,9 +133,9 @@ router.get('/BankData', async (req, res) => {
     try {
         console.info('requet => BankData ', req.query);
         //userInfo
-        const userBankInfo = await BankDetails.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) }, { })
+        const userBankInfo = await BankDetails.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) }, {})
 
-        console.log("userBankInfo :::::::::::::::::::",userBankInfo)
+        console.log("userBankInfo :::::::::::::::::::", userBankInfo)
 
         res.json({ userBankInfo });
     } catch (error) {
@@ -152,49 +156,49 @@ router.post('/AddUser', async (req, res) => {
     try {
 
         //currently send rendom number and generate 
-        console.log("req ::::::::::::",req.body)
+        console.log("req ::::::::::::", req.body)
         let response = {
-            mobileNumber:req.body.mobileNumber,
-            name:req.body.name,
-            email:req.body.email,
-            password:req.body.password,
+            mobileNumber: req.body.mobileNumber,
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
             isVIP: 1,
-            country:req.body.country
+            country: req.body.country
         }
 
-        console.log("response  :::::::::::: response ",response)
+        console.log("response  :::::::::::: response ", response)
 
         logger.info('Register User Request Body =>', response);
         const { mobileNumber } = response;
-    
+
         let query = { mobileNumber: mobileNumber };
         let result = await Users.findOne(query, {});
-        console.log("result ",result)
+        console.log("result ", result)
         if (!result) {
             let defaultData = await getUserDefaultFields(response);
             logger.info('registerUser defaultData : ', defaultData);
-    
+
             let userInsertInfo = await saveGameUser(defaultData);
             logger.info('registerUser userInsertInfo : ', userInsertInfo);
-            
-            if(userInsertInfo){
+
+            if (userInsertInfo) {
                 console.log("dfdddddddffff")
-                res.json({ restatus: true,msg:'User Register Successfully!'});
-            }else{
-                res.json({ restatus: false,msg:'User already Register Successfully!'});
+                res.json({ restatus: true, msg: 'User Register Successfully!' });
+            } else {
+                res.json({ restatus: false, msg: 'User already Register Successfully!' });
             }
-        }else{
+        } else {
             console.log("HLELLLL")
-            res.json({ restatus: false,msg:'User already Register Successfully!'});
-        } 
-        
+            res.json({ restatus: false, msg: 'User already Register Successfully!' });
+        }
+
     } catch (error) {
-        console.log("errrrrr ",error)
+        console.log("errrrrr ", error)
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
         //res.status(config.INTERNAL_SERVER_ERROR).json(error);
 
-        res.json({ restatus: false,msg:error});
+        res.json({ restatus: false, msg: error });
         //res.status(config.INTERNAL_SERVER_ERROR).json(error);
 
     }
@@ -243,25 +247,25 @@ router.put('/addMoney', async (req, res) => {
         //userId
         // 
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
-        if(req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined){
+        if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
 
-            const UserData = await Users.find({_id:new mongoose.Types.ObjectId(req.body.userId)}, { sckId:1 })
-            console.log("UserData ",UserData)
-            if(UserData != undefined &&  UserData[0].sckId != undefined){
+            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
+            console.log("UserData ", UserData)
+            if (UserData != undefined && UserData[0].sckId != undefined) {
 
-                
-                await walletActions.addWalletAdmin(req.body.userId,Number(req.body.money),3,req.body.type,{},{id:UserData.sckId},-1);
+
+                await walletActions.addWalletAdmin(req.body.userId, Number(req.body.money), 3, req.body.type, {}, { id: UserData.sckId }, -1);
             }
 
             res.json({ status: "ok" });
-        }else{
+        } else {
             console.log("false")
             res.json({ status: false });
         }
 
         logger.info('admin/dahboard.js post dahboard  error => ');
 
-        
+
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
@@ -283,18 +287,18 @@ router.put('/deductMoney', async (req, res) => {
         console.log("deductMoney ", req.body)
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
 
-        if(req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined){
+        if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
 
-            const UserData = await Users.find({_id:new mongoose.Types.ObjectId(req.body.userId)}, { sckId:1 })
-            console.log("UserData ",UserData)
-            if(UserData != undefined &&  UserData[0].sckId != undefined){
+            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
+            console.log("UserData ", UserData)
+            if (UserData != undefined && UserData[0].sckId != undefined) {
 
-                
-                await walletActions.deductWalletAdmin(req.body.userId,-Number(req.body.money),4,req.body.type,{},{id:UserData.sckId},-1);
+
+                await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
             }
 
             res.json({ status: "ok" });
-        }else{
+        } else {
             console.log("false")
             res.json({ status: false });
         }
@@ -321,22 +325,22 @@ router.put('/deductMoney', async (req, res) => {
 router.get('/kycInfoList', async (req, res) => {
     try {
         console.log("kycInfo ", req.query)
-        let wh = {} 
+        let wh = {}
 
-        if(req.query != undefined && req.query.status != undefined && req.query.status == "Pendding"){
-            wh = {$or:[{verified:false},{pancardverified:false}],adharcard:"",Pancard:""}
-        }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
-            wh = {verified:true,pancardverified:true}
-        }else{
-            wh = {$or:[{verified:false,adharcard:{$ne:""}},{pancardverified:false,Pancard:{$ne:""}}]}
-        }    
+        if (req.query != undefined && req.query.status != undefined && req.query.status == "Pendding") {
+            wh = { $or: [{ verified: false }, { pancardverified: false }], adharcard: "", Pancard: "" }
+        } else if (req.query != undefined && req.query.status != undefined && req.query.status == "Approved") {
+            wh = { verified: true, pancardverified: true }
+        } else {
+            wh = { $or: [{ verified: false, adharcard: { $ne: "" } }, { pancardverified: false, Pancard: { $ne: "" } }] }
+        }
 
-        console.log("wh ::::::::",wh)
-        let kycInfoList = await otpAdharkyc.find(wh,{})
+        console.log("wh ::::::::", wh)
+        let kycInfoList = await otpAdharkyc.find(wh, {})
 
-     
-        console.log("kycInfoList ",kycInfoList)
-        logger.info('admin/dahboard.js post dahboard  error => ',kycInfoList);
+
+        console.log("kycInfoList ", kycInfoList)
+        logger.info('admin/dahboard.js post dahboard  error => ', kycInfoList);
 
         res.json({ kycInfoList });
     } catch (error) {
@@ -365,7 +369,7 @@ router.put('/KycUpdate', async (req, res) => {
         let response = {
             $set: {
                 adminremark: req.body.adminremark,
-                adminremarkcd:new Date()
+                adminremarkcd: new Date()
             }
         }
 

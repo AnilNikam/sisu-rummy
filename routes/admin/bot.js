@@ -21,13 +21,13 @@ router.get('/BotList', async (req, res) => {
     try {
         //console.info('requet => ', req);
 
-        const userList = await Users.find({ isBot: true }, { username: 1, id: 1, mobileNumber: 1,avatar:1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
-        console.log("BotList  ",userList)
+        const userList = await Users.find({ isBot: true }, { username: 1, id: 1, mobileNumber: 1, avatar: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        console.log("BotList  ", userList)
         logger.info('admin/dahboard.js post dahboard  error => ', userList);
 
         res.json({ userList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('BotList list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -79,11 +79,11 @@ router.post('/BotAdd', async (req, res) => {
             username: req.body.name,
             isBot: true,
             avatar: req.body.profileUrl,
-            status:req.body.status,
-            loginType:"Guest",
-            name:req.body.name,
-            chips:150000,
-            winningChips:0
+            status: req.body.status,
+            loginType: "Guest",
+            name: req.body.name,
+            chips: 150000,
+            winningChips: 0
 
         }
 
@@ -97,15 +97,15 @@ router.post('/BotAdd', async (req, res) => {
 
         logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
         if (RecentUser.username != undefined) {
-            res.json({ status: 1,message:"" });
+            res.json({ status: 1, message: "" });
         } else {
-            res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
+            res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
         }
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         //res.send("error");
 
-        res.status(config.INTERNAL_SERVER_ERROR).json({status: 1,message:"Data Proper Enter..!!" });
+        res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
     }
 });
 
@@ -122,7 +122,7 @@ router.post('/BotAdd', async (req, res) => {
 var multer = require('multer')
 var storage1 = multer.diskStorage({
     destination: function (req, file, cb) {
-        console.log("req",req.file)
+        console.log("req", req.file)
         cb(null, 'public/upload/BotUpload')
     },
     filename: function (req, file, cb) {
@@ -236,7 +236,7 @@ router.get('/Getbotconfig', async (req, res) => {
         console.info('requet => ', req.query);
         console.info('Getbotconfig => ', GAMELOGICCONFIG);
 
- 
+
         res.json({
             botversion: GAMELOGICCONFIG.BOTVERSION,
             botmode: GAMELOGICCONFIG.BOTMODE,
@@ -277,7 +277,7 @@ router.put('/Botconfigset', async (req, res) => {
             && req.body.botmode != undefined
             && req.body.botdifficulty != undefined
         ) {
-            GAMELOGICCONFIG.BOTVERSION =parseInt(req.body.botversion)
+            GAMELOGICCONFIG.BOTVERSION = parseInt(req.body.botversion)
             GAMELOGICCONFIG.BOTMODE = req.body.botmode
             GAMELOGICCONFIG.BOTDIFFICULTY = req.body.botdifficulty
 

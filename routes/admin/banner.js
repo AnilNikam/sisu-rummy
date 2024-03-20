@@ -23,12 +23,12 @@ router.get('/bannerList', async (req, res) => {
         //let res = await getBannerList();
 
         const bannerListData = await Banners.find({}, {})
-       
-        logger.info('admin/dahboard.js post dahboard  error => ', bannerListData);
+
+        logger.info('bannerList dahboard  error => ', bannerListData);
 
         res.json({ bannerListData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('bannerList -list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -54,20 +54,20 @@ var storage1 = multer.diskStorage({
 });
 var upload = multer({ storage: storage1 })
 
-router.post('/BannerUpload',upload.single('image'), async (req, res) => {
+router.post('/BannerUpload', upload.single('image'), async (req, res) => {
     try {
-        
-        console.log("(req.file ",req.file)
 
-    
+        console.log("(req.file ", req.file)
+
+
         if (req.file.path != 'undefined' && req.file.path != '' && req.file.path != null) {
 
             res.json({ flag: true, path: req.file.path.substr(7) });
         } else {
             res.json({ flag: false, path: "" });
         }
-        
-        logger.info('admin/dahboard.js post dahboard  inf o::: => ' );
+
+        logger.info('admin/dahboard.js post dahboard  inf o::: => ');
 
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
@@ -97,13 +97,13 @@ router.post('/bannerAdd', async (req, res) => {
         const data = await newObj.save();
 
         if (data) {
-            return  res.json({
-                flags:true,
+            return res.json({
+                flags: true,
                 message: 'record added',
                 data: JSON.parse(JSON.stringify(data)),
             });
         } else {
-            return  res.json({flags:false, status: 0, message: 'record not added', data: null });
+            return res.json({ flags: false, status: 0, message: 'record not added', data: null });
         }
 
     } catch (error) {
@@ -126,7 +126,7 @@ router.delete('/bannerdelete/:id', async (req, res) => {
 
         const RecentUser = await Banners.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
 
-        logger.info('admin/dahboard.js post dahboard  error => ');
+        logger.info('/bannerdelete/:id error => ');
 
         res.json({ falgs: true });
     } catch (error) {

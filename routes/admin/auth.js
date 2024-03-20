@@ -217,7 +217,7 @@ router.post('/BotAdd', async (req, res) => {
     const user = new Users(response);
     const RecentUser = await user.save();
 
-    logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+    logger.info('admBotAdd  error => ', RecentUser);
     if (RecentUser.username != undefined) {
       res.json({ status: 1, message: "" });
     } else {

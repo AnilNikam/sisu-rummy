@@ -120,7 +120,7 @@ module.exports.resetTable = async (tb) => {
           $set: {
             'playerInfo.$.finished': false,
             'playerInfo.$.currentGamePoint': 0,
-            'playerInfo.$.point': 0,
+            // 'playerInfo.$.point': 0,
           },
         };
 
@@ -426,6 +426,11 @@ module.exports.reJoinUser = async (requestData, client) => {
       });
 
       logger.info('Re Join User table Info', tbInfo);
+
+      if (!tbInfo) {
+        return;
+      }
+
       let activePlayerInRound = await getPlayingUserInRound(tbInfo.playerInfo);
 
       let response = {
