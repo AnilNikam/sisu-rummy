@@ -269,7 +269,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
       totalLostChips: tableInfo.tableAmount,
     };
 
-    const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType };
+    const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType, gameStartStatus: gameStartStatus };
     commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.WIN, response);
 
     const addLastScoreBoard = tableInfo.lastGameScoreBoard.push(gsbResponse);
@@ -321,7 +321,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
       delay = commandAcions.AddTime(roundTime);
 
       await commandAcions.setDelay(fnsJobId, new Date(delay));
-      await roundEndActions.restartTable(tableInfo);
+      // await roundEndActions.restartTable(tableInfo);
 
     } else {
       logger.info('winnerDeclareCall resetTable ---> ');
