@@ -152,6 +152,7 @@ module.exports.createTable = async (betInfo) => {
       entryFee: betInfo.entryFee,
       commission: betInfo.commission,
       deal: parseInt(betInfo.deal),
+      gameType: parseInt(betInfo.deal),
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
       playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
