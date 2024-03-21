@@ -334,8 +334,8 @@ module.exports.playerSwitch = async (requestInfo, client) => {
     updateData.$set['playerInfo.$.lostChips'] = playerLostChips;
     updateData.$inc['playerInfo.$.gameChips'] = -playerLostChips;
 
-    let updetUserChips = await gameFinishActions.updateUserScore(client.id, -playerLostChips);
-    logger.info('upate Switch user chips =>', updetUserChips);
+    // let updetUserChips = await gameFinishActions.updateUserScore(client.id, -playerLostChips);
+    // logger.info('upate Switch user chips =>', updetUserChips);
 
     let tableUpdate = await PlayingTables.findOneAndUpdate(wh, updateData, {
       new: true,

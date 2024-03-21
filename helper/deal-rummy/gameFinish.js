@@ -53,8 +53,10 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       });
       logger.info('\n table info ==>', tbInfo);
 
-      await this.updateUserScore(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, tbInfo.tableAmount);
+      //await this.updateUserScore(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, tbInfo.tableAmount);
       //logger.info('lastUserWinnerDeclareCallTemp  after declare upate user chips =>', updetUserChips);
+
+      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tableInfo);
 
       const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
 
@@ -218,8 +220,8 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
       });
       logger.info(' Table --->', tableInfo);
 
-      let updetUserChips = await this.updateUserScore(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, tableInfo.tableAmount);
-      logger.info('Declare upate user chips =>', updetUserChips);
+      // let updetUserChips = await this.updateUserScore(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, tableInfo.tableAmount);
+      // logger.info('Declare upate user chips =>', updetUserChips);
       gameStartStatus = true;
     }
 
@@ -364,8 +366,8 @@ module.exports.waitingWinnerDeclareCall = async (tbInfo, seatIndex) => {
       new: true,
     });
 
-    let updetUserChips = await this.updateUserScore(tableInfo.playerInfo[seatIndex].playerId, tableInfo.tableAmount);
-    logger.info('last winner Declare after declare upate user chips =>', updetUserChips);
+    // let updetUserChips = await this.updateUserScore(tableInfo.playerInfo[seatIndex].playerId, tableInfo.tableAmount);
+    // logger.info('last winner Declare after declare upate user chips =>', updetUserChips);
 
     const playerInGame = await getPlayingUserInRound(tableInfo.playerInfo);
 
@@ -465,12 +467,26 @@ module.exports.updateLostCounter = async (playerId) => {
   }
 };
 
-module.exports.updateUserScore = async (playerId, chips) => {
+module.exports.updateUserScore = async (playerId, gameChips) => {
   try {
-    logger.info(' \n playerIdata ==>', playerId);
-    logger.info('\n  chips ==>', chips);
-    let data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: chips } });
-    logger.info(' updateUserScore data ==>', data);
+    logger.info('Deal update User Score payload =>', gameChips);
+    logger.info('playerId payload =>', playerId);
+
+    let data;
+    if (gameChips > 0) {
+      let bonusChips = Number((gameChips * 10) / 100);
+      let finalGameChips = gameChips - bonusChips
+
+      logger.info('Deal bonusChips  =>', bonusChips);
+      logger.info('Deal finalGameChips', finalGameChips);
+
+      data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: finalGameChips, bonusChips: bonusChips } }, { new: true });
+      logger.info('Update User Score =>', data);
+    } else {
+      data = await Users.findOneAndUpdate({ _id: MongoID(playerId) }, { $inc: { chips: gameChips } }, { new: true });
+      logger.info('Update User Score =>', data);
+    }
+
     if (data) {
       return true;
     } else {

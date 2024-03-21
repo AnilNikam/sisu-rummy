@@ -201,6 +201,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     let userInfo = await Users.findOne(wh, {}).lean();
     let totalWallet = Number(userInfo.chips);
 
+    let playerGameChips = table.entryFee
+    totalWallet -= playerGameChips;
+
+
+
     let playerDetail = {
       seatIndex: seatIndex,
       _id: userInfo._id,
