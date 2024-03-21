@@ -19,7 +19,7 @@ const { userReconnect, takeSeat } = require('../helper/common-function/reConnect
 const { initiatePayment } = require('./paymentController,js');
 const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
-const { checkReferral } = require('../helper/signups/appStart');
+const { checkReferral, activePlayerCounter } = require('../helper/signups/appStart');
 
 const walletActions = require('../helper/common-function/walletTrackTransaction');
 
@@ -242,7 +242,9 @@ myIo.init = function (server) {
           }
 
           case CONST.PING: {
-            sendEvent(socket, CONST.PONG, {});
+
+            let res = await activePlayerCounter(socket)
+            sendEvent(socket, CONST.PONG, res);
             break;
           }
 

@@ -51,6 +51,26 @@ module.exports.appLunchDetails = async (requestData, client) => {
   }
 };
 
+module.exports.activePlayerCounter = async (client) => {
+  try {
+
+    let findCountPlayer = await PlayingTables.aggregate([
+      {
+        $project: {
+          numberOfPlayers: { $size: "$playerInfo" }
+        }
+      }
+    ])
+    logger.info("activePlayerCounter  =>", findCountPlayer)
+    let res = {
+      activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
+    };
+    return res;
+  } catch (error) {
+    logger.error("Check APP launch Deatils", error)
+  }
+};
+
 module.exports.referralReward = async (referralCode, userData) => {
 
   let wh = {};
@@ -253,14 +273,14 @@ module.exports.userSesssionSet = async (userData, client) => {
 
 module.exports.filterBeforeSendSPEvent = async (userData) => {
   //logger.info('filter Before Send SP Event filterBeforeSendSPEvent -->', userData);
-  let findCountPlayer = await PlayingTables.aggregate([
-    {
-      $project: {
-        numberOfPlayers: { $size: "$playerInfo" }
-      }
-    }
-  ])
-  logger.info("\n findCountPlayer => ", findCountPlayer)
+  // let findCountPlayer = await PlayingTables.aggregate([
+  //   {
+  //     $project: {
+  //       numberOfPlayers: { $size: "$playerInfo" }
+  //     }
+  //   }
+  // ])
+  // logger.info("\n findCountPlayer => ", findCountPlayer)
 
   let res = {
     _id: userData._id,
@@ -274,7 +294,7 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
     deviceId: userData.deviceId,
     chips: userData.chips,
     winningChips: userData.winningChips,
-    activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
+    // activePlayerCounter: findCountPlayer.length > 0 ? findCountPlayer[0].numberOfPlayers : 0,
     tableId: userData.tableId || 0,
     createdAt: userData.createdAt,
   };
