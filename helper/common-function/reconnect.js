@@ -64,11 +64,15 @@ module.exports.reconnect = async (requestData, client) => {
 
       if (tabInfo.gameState === CONST.ROUND_STARTED) {
         let currentDateTime = new Date();
-        let time = currentDateTime.getSeconds();
+        let currentTime = currentDateTime.getTime(); // Get current time in milliseconds
 
         let turnTime = new Date(tabInfo.gameTimer.ttimer);
-        let Gtime = turnTime.getSeconds();
-        let diff = Gtime - time;
+        let turnTimeMillis = turnTime.getTime(); // Get turn time in milliseconds
+
+        let diffMillis = turnTimeMillis - currentTime; // Calculate time difference in milliseconds
+        let diff = Math.floor(diffMillis / 1000); // Convert milliseconds to seconds
+
+        logger.info("RE Time difference in seconds:", diff);
 
         const responseRS = {
           ...response,
