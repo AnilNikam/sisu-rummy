@@ -266,9 +266,10 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     const response = {
       playersScoreBoard: winnerViewResponse.userInfo,
       totalLostChips: tableInfo.tableAmount,
+      gameStartStatus: gameStartStatus
     };
 
-    const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType, gameStartStatus: gameStartStatus };
+    const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType };
     commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.WIN, response);
 
     const addLastScoreBoard = tableInfo.lastGameScoreBoard.push(gsbResponse);
