@@ -1,6 +1,117 @@
 const _ = require("underscore");
 //const { RemainCardTounusecardThrow } = require("./helper/botFunction");
 
+
+const checkImpureSequence = (card, wildCard) => {
+    const joker = [];
+    let cardType = [];
+    let cardNumber = [];
+    let status = false;
+
+    if (card.length > 2) {
+        for (let i = 0; i < card.length; i++) {
+            const words = card[i].split('-');
+            if (words[0] === 'J' || wildCard.split('-')[1] === words[1]) {
+                joker.push(words[0]);
+            } else {
+                cardType.push(words[0]);
+                cardNumber.push(parseInt(words[1]));
+            }
+        }
+
+        if (joker.length == 0) {
+            status = false
+            return status
+        }
+
+        cardNumber.sort(function (a, b) {
+            return a - b;
+        });
+
+        joker.concat(wildCard);
+        let statusFirst = true;
+        for (let i = 0; i < cardType.length - 1; i++) {
+            if (cardType[i] === cardType[i + 1]) {
+                status = true;
+            } else {
+                status = false;
+            }
+        }
+
+
+        let cardgroupCard = _.groupBy(cardNumber, function (num) { return Math.floor(num); })
+        console.log("cardgroupCard", cardgroupCard);
+
+        let cardLengthwise = _.mapObject(cardgroupCard, function (val, key) {
+            return val.length;
+        });
+
+        let cardvalues = _.flatten(_.values(cardLengthwise));
+
+        console.log("cardvalues", cardvalues)
+        console.log("::::::::::", _.filter(cardvalues, function (num) { return num > 1; }))
+
+        if (_.filter(cardvalues, function (num) { return num > 1; }).length > 0) {
+            status = false
+            return status
+        }
+
+        console.log("statusFirst", statusFirst)
+        console.log("status", status)
+
+        if (status === true) {
+            for (let i = 0; i < cardNumber.length - 1; i++) {
+                let dif = cardNumber[i] - cardNumber[i + 1];
+
+                if (dif === -1) {
+                    status = true;
+                } else if (joker.length != 0 && Math.abs(dif) - 1 <= joker.length) {
+                    status = true;
+                    joker.splice(Math.abs(dif) - 1);
+                } else {
+                    statusFirst = false;
+                }
+            }
+        }
+
+        if (statusFirst === false) {
+            for (let i = 0; i < cardNumber.length; i++) {
+                if (cardNumber[i] === 1) {
+                    cardNumber[i] = 14;
+                }
+            }
+            cardNumber.sort(function (a, b) {
+                return a - b;
+            });
+            console.log(cardNumber)
+            for (let i = 0; i < cardNumber.length - 1; i++) {
+                let dif = cardNumber[i] - cardNumber[i + 1];
+
+                if (dif === -1) {
+                    status = true;
+                } else if (joker.length != 0 && Math.abs(dif) - 1 <= joker.length) {
+                    status = true;
+                    joker.splice(Math.abs(dif) - 1);
+                } else {
+                    status = false;
+                    break;
+                }
+            }
+        }
+    }
+    return status;
+};
+
+// Test cases
+let res1 = checkImpureSequence(["S-11-1", "S-12-0", "S-12-1", "S-3-1", "S-12-1"], 'C-3-1');
+console.log("Res1:", res1); // Expected output: false
+
+//let res2 = checkImpureSequence(["S-11-1","S-12-0","S-3-1","S-13-1"],'C-3-1');
+//console.log("Res2:", res2); // Expected output: true
+
+
+
+return false
 let deckOne = _.shuffle([
     'H-1-0', 'H-2-0', 'H-3-0', 'H-4-0', 'H-5-0', 'H-6-0', 'H-7-0', 'H-8-0', 'H-9-0', 'H-10-0', 'H-11-0', 'H-12-0', 'H-13-0',
     'S-1-0', 'S-2-0', 'S-3-0', 'S-4-0', 'S-5-0', 'S-6-0', 'S-7-0', 'S-8-0', 'S-9-0', 'S-10-0', 'S-11-0', 'S-12-0', 'S-13-0',

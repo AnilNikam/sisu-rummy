@@ -137,7 +137,8 @@ module.exports.getBetTable = async (betInfo, userInfo) => {
     logger.info("getBetTable userInfo =>", userInfo);
 
     let wh = {
-      _id: { $nin: userInfo.lastTableId },
+      // _id: { $nin: userInfo.lastTableId },
+      _id: { $nin: userInfo && userInfo.lastTableId ? userInfo.lastTableId : [] },
       entryFee: betInfo.entryFee,
       activePlayer: { $gte: 0, $lt: betInfo.maxSeat },
       gamePlayType: betInfo.gamePlayType,
