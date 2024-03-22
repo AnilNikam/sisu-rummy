@@ -519,6 +519,17 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.WALLET_TRANSACTION_HISTORY: {
+            try {
+              let res = await mainCtrl.getTransactiobDetailByUserId(payload.data, socket);
+              sendEvent(socket, CONST.WALLET_TRANSACTION_HISTORY, res.data);
+
+            } catch (error) {
+              logger.error('socketServer.js GET_BANK_DETAILS => ', error);
+            }
+            break;
+          }
+
           case CONST.OPEN_CHAT_PANEL: {
             try {
               await gamePlayActions.openChatPanel(payload.data, socket);

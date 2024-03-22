@@ -646,11 +646,11 @@ module.exports.getWalletDetailsNew = async (obj, client) => {
     //+ walletDetails.withdrawableChips //+ walletDetails.referralChips
     if (walletDetails !== null) {
       response = {
-        tb: Number(walletDetails.chips + walletDetails.winningChips + walletDetails.bonusChips).toFixed(2),
+        tb: Number(Number(walletDetails.chips + walletDetails.winningChips + walletDetails.bonusChips).toFixed(2)),
         mb: Number(walletDetails.chips.toFixed(2)),
         sb_db: Number(walletDetails.bonusChips.toFixed(2)),
-        wb: walletDetails.winningChips.toFixed(2),
-        ulb: walletDetails.lockbonusChips
+        wb: Number(walletDetails.winningChips.toFixed(2)),
+        ulb: Number(walletDetails.lockbonusChips)
         //wc: (walletDetails.withdrawableChips.toFixed(2)),
       };
       logger.info('get MYWALLET Wallet Details Response : ', response);
