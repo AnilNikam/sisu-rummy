@@ -1042,7 +1042,7 @@ async function getTransactiobDetailByUserId(requestBody) {
   try {
     logger.info("get transaction requestBody ==>", requestBody)
     let { playerId } = requestBody
-    const responseData = await WalletTrackTransaction.findOne({ userId: MongoID(playerId) }).lean();
+    const responseData = await WalletTrackTransaction.find({ userId: MongoID(playerId) }).lean();
     logger.info("transaction ==>", responseData)
     if (responseData) {
       return { status: 1, message: 'result sucessfully ', data: responseData };

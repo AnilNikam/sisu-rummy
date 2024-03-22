@@ -151,6 +151,7 @@ module.exports.roundFinish = async (tb) => {
         tableAmount: 0,
         turnDone: false,
         playersScoreBoard: [],
+        gameTracks: [],
         jobId: '',
         isLastUserFinish: false,
         isFinalWinner: false,
