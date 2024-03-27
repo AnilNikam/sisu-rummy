@@ -258,11 +258,11 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
 
       if (bonuswalletdeduct && mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Deal Playing Entry Deposit');
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Deal Playing Entry Deduct bonus');
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Deal Playing Entry Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Deal Playing Entry Deduct bonus');
 
       } else if (mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Deal Playing Entry Deposit');
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Deal Playing Entry Deposit');
       }
 
 

@@ -73,7 +73,7 @@ module.exports.collectBoot = async (tbId) => {
     let tableInfo = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
     logger.info(' pull Player tableInfo=>', tableInfo);
 
-    let playerUgcInfo =  this.deduct(tableInfo, playerInfo);
+    let playerUgcInfo = this.deduct(tableInfo, playerInfo);
     logger.info('Pull Player UGC details =>', playerUgcInfo);
 
     let response = {
@@ -260,11 +260,11 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
 
       if (bonuswalletdeduct && mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Pool Playing Entry Deposit');
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Pool Playing Entry Deduct bonus');
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Pool Playing Entry Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
 
       } else if (mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Pool Playing Entry Deposit');
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Pool Playing Entry Deposit');
       }
 
       if (bonuswalletdeduct || mainwalletdeduct) {
