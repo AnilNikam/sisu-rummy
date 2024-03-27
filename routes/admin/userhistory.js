@@ -30,7 +30,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
         //         "Name": "Alice",
         //         "PhoneNumber": "123-456-7890",
         //         "RoomId": "RHRoom1",
-        //         "Amount": 100, // Amount in this example (can be credit or debit)
+        //         "Amount": 100, // Amount in this example (can be credit or Debit)
         //         "Type": "Credit", // "Credit" or "Debit"
         //         "Club": "Club A"
         //     },
@@ -40,7 +40,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club B"
         //     },
@@ -50,7 +50,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club Bd"
         //     }, {
@@ -59,7 +59,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club Bd"
         //     },
@@ -72,7 +72,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
             return false
         }
         const BlackandWhiteData = await GameHistory.find({ userId: MongoID(req.query.userId), "game": "BlackandWhite" },
-            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game:1 }).sort({ DateTime: -1 })
+            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game: 1 }).sort({ DateTime: -1 })
 
 
         console.log("completeWithdrawalData ", BlackandWhiteData)
@@ -97,7 +97,7 @@ router.get('/BackandWhiteHistory', async (req, res) => {
 */
 router.get('/aviatorHistory', async (req, res) => {
     try {
-       
+
         // const aviatorHistoryData =  [
         //     {
         //         "SrNo": 1,
@@ -105,7 +105,7 @@ router.get('/aviatorHistory', async (req, res) => {
         //         "Name": "Alice",
         //         "PhoneNumber": "123-456-7890",
         //         "RoomId": "RHRoom1",
-        //         "Amount": 100, // Amount in this example (can be credit or debit)
+        //         "Amount": 100, // Amount in this example (can be credit or Debit)
         //         "Type": "Credit", // "Credit" or "Debit"
         //         "Club": "Club A"
         //     },
@@ -115,7 +115,7 @@ router.get('/aviatorHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club B"
         //     },
@@ -125,7 +125,7 @@ router.get('/aviatorHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club Bd"
         //     }, {
@@ -134,7 +134,7 @@ router.get('/aviatorHistory', async (req, res) => {
         //         "Name": "Bob",
         //         "PhoneNumber": "987-654-3210",
         //         "RoomId": "RHRoom2",
-        //         "Amount": 50, // Amount in this example (can be credit or debit)
+        //         "Amount": 50, // Amount in this example (can be credit or Debit)
         //         "Type": "Debit", // "Credit" or "Debit"
         //         "Club": "Club Bd"
         //     },
@@ -147,7 +147,7 @@ router.get('/aviatorHistory', async (req, res) => {
             return false
         }
         const aviatorHistoryData = await GameHistory.find({ userId: MongoID(req.query.userId), "game": "aviator" },
-            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game:1 }).sort({ DateTime: -1 })
+            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game: 1 }).sort({ DateTime: -1 })
 
         console.log("aviatorHistoryData ", aviatorHistoryData)
 
@@ -201,7 +201,7 @@ router.get('/completeWithdrawal', async (req, res) => {
 */
 router.get('/completeDeposite', async (req, res) => {
     try {
-        
+
         if (req.query.userId == undefined) {
             res.json({ completeDepositeData: [] });
             return false
@@ -240,7 +240,7 @@ router.get('/registerRaferralBonus', async (req, res) => {
                 "Name": "Alice",
                 "PhoneNumber": "123-456-7890",
                 "RoomId": "RRRoom1",
-                "Amount": 100, // Amount in this example (can be credit or debit)
+                "Amount": 100, // Amount in this example (can be credit or Debit)
                 "Type": "Credit", // "Credit" or "Debit"
                 "Club": "Club A"
             },
@@ -250,7 +250,7 @@ router.get('/registerRaferralBonus', async (req, res) => {
                 "Name": "Bob",
                 "PhoneNumber": "987-654-3210",
                 "RoomId": "RRRoom2",
-                "Amount": 50, // Amount in this example (can be credit or debit)
+                "Amount": 50, // Amount in this example (can be credit or Debit)
                 "Type": "Debit", // "Credit" or "Debit"
                 "Club": "Club B"
             },
@@ -260,7 +260,7 @@ router.get('/registerRaferralBonus', async (req, res) => {
                 "Name": "Bob",
                 "PhoneNumber": "987-654-3210",
                 "RoomId": "RRRoom2",
-                "Amount": 50, // Amount in this example (can be credit or debit)
+                "Amount": 50, // Amount in this example (can be credit or Debit)
                 "Type": "Debit", // "Credit" or "Debit"
                 "Club": "Club Bd"
             },
@@ -297,7 +297,7 @@ router.get('/myRaferrals', async (req, res) => {
                 "Name": "Alice",
                 "PhoneNumber": "123-456-7890",
                 "RoomId": "MRRoom1",
-                "Amount": 100, // Amount in this example (can be credit or debit)
+                "Amount": 100, // Amount in this example (can be credit or Debit)
                 "Type": "Credit", // "Credit" or "Debit"
                 "Club": "Club A"
             },
@@ -307,7 +307,7 @@ router.get('/myRaferrals', async (req, res) => {
                 "Name": "Bob",
                 "PhoneNumber": "987-654-3210",
                 "RoomId": "MRRoom2",
-                "Amount": 50, // Amount in this example (can be credit or debit)
+                "Amount": 50, // Amount in this example (can be credit or Debit)
                 "Type": "Debit", // "Credit" or "Debit"
                 "Club": "Club B"
             },
@@ -317,7 +317,7 @@ router.get('/myRaferrals', async (req, res) => {
                 "Name": "Bob",
                 "PhoneNumber": "987-654-3210",
                 "RoomId": "MRRoom2",
-                "Amount": 50, // Amount in this example (can be credit or debit)
+                "Amount": 50, // Amount in this example (can be credit or Debit)
                 "Type": "Debit", // "Credit" or "Debit"
                 "Club": "Club Bd"
             },
