@@ -166,6 +166,7 @@ module.exports.createTable = async (betInfo) => {
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
       playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
+      gameState: CONST.WAITING,
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
