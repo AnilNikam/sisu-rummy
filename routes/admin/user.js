@@ -72,20 +72,20 @@ router.get('/UserData', async (req, res) => {
 
         }
         UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ?UserOKYC.adharcard : "-";
-        UserOKYCData.full_name = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ?UserOKYC.userInfo.user_full_name : "-";
+        UserOKYCData.full_name = (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ?UserOKYC.userInfo.user_full_name : "-";
 
         UserOKYCData.verified = (UserOKYC != undefined && UserOKYC.verified != undefined) ?UserOKYC.verified : "-";
         UserOKYCData.adharcardfrontimages = (UserOKYC != undefined && UserOKYC.adharcardfrontimages != undefined) ?UserOKYC.adharcardfrontimages : "-";
         UserOKYCData.adharcardbackimages = (UserOKYC != undefined && UserOKYC.adharcardbackimages != undefined) ?UserOKYC.adharcardbackimages : "-";
 
         
-        UserOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
-        UserOKYCData.gender = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_gender != undefined) ?UserOKYC.userInfo.user_gender : "-";
-        UserOKYCData.userInfo  =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
+        UserOKYCData.DOB = (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
+        UserOKYCData.gender = (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_gender != undefined) ?UserOKYC.userInfo.user_gender : "-";
+        UserOKYCData.userInfo  =  (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_address != undefined) ?
          ""+UserOKYC.userInfo.user_address.house+","+UserOKYC.userInfo.user_address.street+","+UserOKYC.userInfo.user_address.po+","+UserOKYC.userInfo.user_address.loc+","
          +UserOKYC.userInfo.user_address.vtc+","+UserOKYC.userInfo.user_address.dist+","+UserOKYC.userInfo.user_address.state+","+UserOKYC.userInfo.user_address.country+"" :"Not Available";
 
-         UserOKYCData.pincode =  (UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
+         UserOKYCData.pincode =  (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
 
         PanOKYCData = {
             pancardname:"",
@@ -96,12 +96,12 @@ router.get('/UserData', async (req, res) => {
             pancardfrontimages:""
         }   
 
-        PanOKYCData.pancard = ( UserOKYC.pancard != undefined) ?UserOKYC.pancard : "-";
-        PanOKYCData.pancardname = ( UserOKYC.pancardname != undefined) ?UserOKYC.pancardname : "-";
-        PanOKYCData.pancardfrontimages = ( UserOKYC.pancardfrontimages != undefined) ?UserOKYC.pancardfrontimages : "-";
-        PanOKYCData.verified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined) ?UserOKYC.pancardverified : "-";
-        PanOKYCData.full_name = (UserOKYC != undefined &&  UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ?UserOKYC.panInfo.user_full_name : "-";
-        PanOKYCData.DOB = (UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
+        PanOKYCData.pancard = (UserOKYC && UserOKYC.pancard != undefined) ?UserOKYC.pancard : "-";
+        PanOKYCData.pancardname = (UserOKYC && UserOKYC.pancardname != undefined) ?UserOKYC.pancardname : "-";
+        PanOKYCData.pancardfrontimages = (UserOKYC && UserOKYC.pancardfrontimages != undefined) ?UserOKYC.pancardfrontimages : "-";
+        PanOKYCData.verified = (UserOKYC && UserOKYC != undefined && UserOKYC.pancardverified != undefined) ?UserOKYC.pancardverified : "-";
+        PanOKYCData.full_name = (UserOKYC && UserOKYC != undefined &&  UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ?UserOKYC.panInfo.user_full_name : "-";
+        PanOKYCData.DOB = (UserOKYC && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ?UserOKYC.userInfo.user_dob : "-";
 
        
         
