@@ -3,6 +3,7 @@ const MongoID = mongoose.Types.ObjectId;
 const PlayingTables = mongoose.model('playingTable');
 
 const logger = require('../../logger');
+const _ = require("underscore");
 const { getPlayingUserInRound } = require('./manageUserFunction');
 
 const checkPureSequence = (card) => {
@@ -81,6 +82,11 @@ const checkImpureSequence = (card, wildCard) => {
       }
     }
 
+    if (joker.length == 0) {
+      status = false
+      return status
+    }
+
     cardNumber.sort(function (a, b) {
       return a - b;
     });
@@ -94,13 +100,35 @@ const checkImpureSequence = (card, wildCard) => {
         status = false;
       }
     }
+
+
+    let cardgroupCard = _.groupBy(cardNumber, function (num) { return Math.floor(num); })
+    // logger.info("cardgroupCard", cardgroupCard);
+
+    let cardLengthwise = _.mapObject(cardgroupCard, function (val, key) {
+      return val.length;
+    });
+
+    let cardvalues = _.flatten(_.values(cardLengthwise));
+
+    // logger.info("cardvalues", cardvalues)
+    // logger.info("::::::::::", _.filter(cardvalues, function (num) { return num > 1; }))
+
+    if (_.filter(cardvalues, function (num) { return num > 1; }).length > 0) {
+      status = false
+      return status
+    }
+
+    // logger.info("statusFirst", statusFirst)
+    // logger.info("status", status)
+
     if (status === true) {
       for (let i = 0; i < cardNumber.length - 1; i++) {
         let dif = cardNumber[i] - cardNumber[i + 1];
 
         if (dif === -1) {
           status = true;
-        } else if (Math.abs(dif) - 1 <= joker.length) {
+        } else if (joker.length != 0 && Math.abs(dif) - 1 <= joker.length) {
           status = true;
           joker.splice(Math.abs(dif) - 1);
         } else {
@@ -123,7 +151,7 @@ const checkImpureSequence = (card, wildCard) => {
 
         if (dif === -1) {
           status = true;
-        } else if (Math.abs(dif) - 1 <= joker.length) {
+        } else if (joker.length != 0 && Math.abs(dif) - 1 <= joker.length) {
           status = true;
           joker.splice(Math.abs(dif) - 1);
         } else {

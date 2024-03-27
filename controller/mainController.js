@@ -14,6 +14,8 @@ const OtpMobile = mongoose.model('otpMobile');
 const Friend = mongoose.model('friends');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
 const BankDetails = mongoose.model('bankDetails');
+const WalletTrackTransaction = mongoose.model('walletTrackTransaction');
+
 
 const config = require('../config');
 const CONST = require('../constant');
@@ -1032,16 +1034,37 @@ async function getBankDetailByUserId(requestBody) {
 }
 
 /**
+ * @description . getBankDetails
+ * @param {Object} requestBody
+ * @returns {Object}
+ */
+async function getTransactiobDetailByUserId(requestBody) {
+  try {
+    logger.info("get transaction requestBody ==>", requestBody)
+    let { playerId } = requestBody
+    const responseData = await WalletTrackTransaction.find({ userId: MongoID(playerId) }).lean();
+    logger.info("transaction ==>", responseData)
+    if (responseData) {
+      return { status: 1, message: 'result sucessfully ', data: responseData };
+    } else {
+      return { status: 0, message: 'data not find' };
+    }
+  } catch (error) {
+    logger.error('mainController.js getBankDetailByUserId error=> ', error, requestBody);
+  }
+}
+
+/**
  * @description . getBetDetails
  * @param {Object} requestBody
  * @returns {Object}
  */
 async function getBetDetails(requestBody) {
   // console.info('request Body  Send  => ', requestBody);
-  const { id } = requestBody;
+  const { userId } = requestBody;
   try {
     const responseData = await BetLists.findOne({
-      _id: commonHelper.strToMongoDb(id),
+      _id: commonHelper.strToMongoDb(userId),
     }).lean();
 
     //logger.info('responseData => ', responseData);
@@ -1082,6 +1105,7 @@ module.exports = {
   getBetDetails,
   registerProblemReport,
   getBankDetailByUserId,
+  getTransactiobDetailByUserId,
   registerAdminUpdate,
   registerAdminProfileUpdate
 };

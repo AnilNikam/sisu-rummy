@@ -152,6 +152,7 @@ module.exports.createTable = async (betInfo) => {
       entryFee: betInfo.entryFee,
       commission: betInfo.commission,
       deal: parseInt(betInfo.deal),
+      gameType: parseInt(betInfo.deal),
       activePlayer: 0,
       gamePlayType: betInfo.gamePlayType,
       playerInfo: this.makeObjects(Number(betInfo.maxSeat)),
@@ -199,6 +200,11 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     let wh = { _id: socket.uid };
     let userInfo = await Users.findOne(wh, {}).lean();
     let totalWallet = Number(userInfo.chips);
+
+    let playerGameChips = table.entryFee
+    totalWallet -= playerGameChips;
+
+
 
     let playerDetail = {
       seatIndex: seatIndex,

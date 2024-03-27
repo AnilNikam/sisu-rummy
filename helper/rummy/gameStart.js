@@ -59,8 +59,8 @@ module.exports.collectBoot = async (tbId) => {
     if (playerInfo.length < 2) {
       return false;
     }
-    
-    
+
+
     let gameId = await this.getCount('gameId');
 
     let update = {
@@ -74,7 +74,7 @@ module.exports.collectBoot = async (tbId) => {
     let tableInfo = await PlayingTables.findOneAndUpdate(wh, update, { new: true });
 
     //remove await bcz more time dealy 
-    let playerUgcInfo =  this.deduct(tableInfo, playerInfo);
+    let playerUgcInfo = this.deduct(tableInfo, playerInfo);
     logger.info('Player Deduct Coins', playerUgcInfo);
 
     await cardDealActions.cardDealStart(tableInfo._id);
@@ -243,11 +243,11 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
 
         if (bonuswalletdeduct && mainwalletdeduct) {
-          await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry Deposit');
+          await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry Deduct Deposit');
           await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Point Playing Entry Deduct bonus');
 
         } else if (mainwalletdeduct) {
-          await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry Deposit');
+          await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry Deduct Deposit');
         }
 
         const upWh = {
@@ -305,11 +305,11 @@ module.exports.RoundFinishdeduct = async (tbInfo, playerInfo, diff) => {
     let mainwalletdeduct = false;
 
 
-    if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
+    if (bonuscutchips != 0 && mainchipscut != 0 && totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
       bonuswalletdeduct = true
       mainwalletdeduct = true
 
-    } else if (totalWallet >= mainchipscut) {
+    } else if (mainchipscut != 0 && totalWallet >= mainchipscut) {
       mainwalletdeduct = true
     }
 
@@ -319,11 +319,11 @@ module.exports.RoundFinishdeduct = async (tbInfo, playerInfo, diff) => {
 
 
     if (bonuswalletdeduct && mainwalletdeduct) {
-      await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry Deposit');
-      await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Point Playing Entry Deduct bonus');
+      await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'debit', 'Point Playing Entry ReDeduct  Deposit');
+      await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'debit', 'Point Playing Entry ReDeduct bonus');
 
     } else if (mainwalletdeduct) {
-      await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry Deposit');
+      await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'debit', 'Point Playing Entry ReDeduct Deposit');
     }
 
     let wh = {

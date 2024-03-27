@@ -62,6 +62,8 @@ module.exports.roundFinish = async (tb) => {
               chips: Math.abs(remaningChip),
             };
 
+
+
             logger.info(' BORROW_USER_CHIPS Result ==>', result);
             commandAcions.sendDirectEvent(player.sck.toString(), CONST.BORROW_USER_CHIPS, result);
 
@@ -149,6 +151,7 @@ module.exports.roundFinish = async (tb) => {
         tableAmount: 0,
         turnDone: false,
         playersScoreBoard: [],
+        gameTracks: [],
         jobId: '',
         isLastUserFinish: false,
         isFinalWinner: false,

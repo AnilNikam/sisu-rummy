@@ -262,6 +262,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     const response = {
       playersScoreBoard: winnerViewResponse.userInfo,
       totalLostChips: tableInfo.tableAmount,
+      gameStartStatus: gameStartStatus
     };
 
     const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tabInfo.gamePlayType };

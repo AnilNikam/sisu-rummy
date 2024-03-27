@@ -30,7 +30,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       $inc: {},
     };
 
-    let amount = (tb.tableAmount * CONST.commission) / 100;
+    let amount = (tb.tableAmount * tb.commission) / 100;
     //tb.tableAmount -= Math.round(amount);
     tb.tableAmount -= parseFloat(amount.toFixed(2));
 
@@ -38,7 +38,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
     updateData.$set['gameState'] = CONST.ROUND_END;
     updateData.$set['tableAmount'] = tb.tableAmount;
     updateData.$set['playerInfo.$.playerStatus'] = CONST.WON;
-    updateData.$inc['playerInfo.$.gameChips'] = tb.tableAmount;
+    //updateData.$inc['playerInfo.$.gameChips'] = tb.tableAmount;
 
     const upWh = {
       _id: MongoID(tbid),
@@ -71,7 +71,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
     for (let i = 0; i < tableInfo.gameTracks.length; i++) {
       if (tableInfo.gameTracks[i].result === CONST.WON) {
-        await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
       }
     }
 
