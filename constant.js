@@ -197,7 +197,7 @@ const CONST = {
   BANK_ACCOUNT_VERIFY: 'BANKVERIFY',
 
   // Timer
-  userTurnTimer: 30,
+  userTurnTimer: 29,
   gameStartTime: 15,
   gameCardDistributeDelayTime: 1,
   finishTimer: 20,
