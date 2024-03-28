@@ -56,7 +56,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       //await this.updateUserScore(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, tbInfo.tableAmount);
       //logger.info('lastUserWinnerDeclareCallTemp  after declare upate user chips =>', updetUserChips);
 
-      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tableInfo);
+      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tbInfo);
 
       const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
 
