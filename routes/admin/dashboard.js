@@ -9,7 +9,8 @@ const Users = mongoose.model('users');
 const config = require('../../config');
 const commonHelper = require('../../helper/commonHelper');
 const logger = require('../../logger');
-
+const UserWalletTracks = mongoose.model("walletTrackTransaction");
+const otpAdharkyc = mongoose.model('otpAdharkyc');
 /**
  * @api {get} /admin/dashboard
  * @apiName  get all playing List details
@@ -254,20 +255,99 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    console.log('requet => ', req);
+    console.log('requet => ');
     const totalUser = await Users.find().count()
-    const totalDeposit = 0;
-    const totalWithdraw = 0;
-    const todayDeposit = 0;
-    const todayWithdraw = 0;
-    const todayKYC = 0;
-    const totalGamePay = 0;
+    let lastdate = AddTime(-86000)
+    console.log("lastdate ",new Date(lastdate))
+    var totalDepositData = await UserWalletTracks.aggregate([
+      {
+        $match: {
+          "trnxTypeTxt": "PayIn" 
+        }
+      },
+      {
+        $group: {
+          _id: 'null',
+          total: {
+            $sum: '$transAmount'
+          }
+        }
+      }
+    ]);
+    console.log("totalDepositData ", totalDepositData)
+
+    const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
+
+    var totalWithdrawData = await UserWalletTracks.aggregate([
+      {
+        $match: {
+          "trnxTypeTxt":  "PayOut" 
+        }
+      },
+      {
+        $group: {
+          _id: 'null',
+          total: {
+            $sum: '$transAmount'
+          }
+        }
+      }
+    ]);
+    console.log("totalWithdrawData ", totalWithdrawData)
+
+
+    const totalWithdraw = totalWithdrawData.length > 0 ? totalWithdrawData[0].total : 0
+
+    var todayDepositDataToday = await UserWalletTracks.aggregate([
+      {
+        $match: {
+          "createdAt":{$gte:new Date(lastdate),$lte:new Date()},
+          "trnxTypeTxt":  "PayIn" 
+        }
+      },
+      {
+        $group: {
+          _id: 'null',
+          total: {
+            $sum: '$transAmount'
+          }
+        }
+      }
+    ]);
+    console.log("todayDepositDataToday ", todayDepositDataToday)
+
+    const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total : 0;
+
+    var todayWithdrawDataToday = await UserWalletTracks.aggregate([
+      {
+        $match: {
+          "createdAt":{$gte:new Date(lastdate),$lte:new Date()},
+          "trnxTypeTxt":  "PayOut" 
+        }
+      },
+      {
+        $group: {
+          _id: 'null',
+          total: {
+            $sum: '$transAmount'
+          }
+        }
+      }
+    ]);
+    console.log("todayWithdrawDataToday ", todayWithdrawDataToday)
+
+    const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total : 0
+
+    const todayKYC = await otpAdharkyc.find({ "createdAt":{$gte:new Date(lastdate),$lte:new Date()} }).count();
+    const totalGamePay = await TableHistory.find({ "date":{$gte:new Date(lastdate),$lte:new Date()} }).count();;
     const totalCommission = 0;
 
 
     logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
 
-    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay,totalCommission });
+    console.log("ggggggggg", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
+
+    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission });
   } catch (error) {
     logger.error('admin/dahboard.js post bet-list error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -319,19 +399,26 @@ router.get('/latatestUserStatewise', async (req, res) => {
 
     // logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
 
-    res.json({ statelist:[{
-      _id:12563,
-      statename:"Goa",
-      users:100
-    },{
-      _id:122563,
-      statename:"Gujarat",
-      users:59
-    }] });
+    res.json({
+      statelist: [{
+        _id: 12563,
+        statename: "Goa",
+        users: 100
+      }, {
+        _id: 122563,
+        statename: "Gujarat",
+        users: 59
+      }]
+    });
   } catch (error) {
     logger.error('admin/dahboard.js post bet-list error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
   }
 });
+
+function AddTime (sec) {
+  var t = new Date();
+  return t.setSeconds(t.getSeconds() + sec);
+}
 
 module.exports = router;
