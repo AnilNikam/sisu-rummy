@@ -128,11 +128,15 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.WIN, response);
 
-      const jobId = commandAcions.GetRandomString(10);
-      const delay = commandAcions.AddTime(4);
+      let jobId = commandAcions.GetRandomString(10);
+      let delay = commandAcions.AddTime(4);
       await commandAcions.setDelay(jobId, new Date(delay));
 
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.GAME_SCORE_BOARD, GSBResponse);
+
+      jobId = commandAcions.GetRandomString(10);
+      delay = commandAcions.AddTime(5);
+      await commandAcions.setDelay(jobId, new Date(delay));
 
       const gamePlayData = JSON.parse(JSON.stringify(tableInfo));
       const rest = omit(gamePlayData, ['_id']);
@@ -299,9 +303,9 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
 
     //const playerInRound = await getPlayingUserInRound(tableInfo.playerInfo);
 
-    // jobId = commandAcions.GetRandomString(10);
-    // delay = commandAcions.AddTime(5);
-    // await commandAcions.setDelay(jobId, new Date(delay));
+    jobId = commandAcions.GetRandomString(10);
+    delay = commandAcions.AddTime(5);
+    await commandAcions.setDelay(jobId, new Date(delay));
 
     //tableInfo = await this.updateExpeledPlayer(playerInRound, tableInfo);
 
@@ -313,13 +317,13 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     logger.info('gameFinish.js winnerDeclareCall tableHistory Data => ', tableHistoryData);
 
 
-    let jobId1 = commandAcions.GetRandomString(10);
-    let delay1 = commandAcions.AddTime(5);
-    await commandAcions.setDelay(jobId1, new Date(delay1));
+    // let jobId1 = commandAcions.GetRandomString(10);
+    // let delay1 = commandAcions.AddTime(5);
+    // await commandAcions.setDelay(jobId1, new Date(delay1));
 
     if (gameStartStatus) {
       logger.info('winnerDeclareCall roundFinish ---->');
-      
+
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.RESTART_GAME_TABLE, { status: 0 });
 
       let roundTime = 10;
