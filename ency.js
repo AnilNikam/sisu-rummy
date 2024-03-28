@@ -1,30 +1,28 @@
 const crypto = require('crypto');
 
 // Function to encrypt data using AES/CBC/PKCS5PADDING
-function encrypt(key, initVector, value) {
+function encrypt(data, key, iv) {
     try {
-        const iv = Buffer.from(initVector, 'utf-8');
-        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'utf-8'), iv);
-        let encrypted = cipher.update(JSON.stringify(value), 'utf-8', 'base64');
+        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+        let encrypted = cipher.update(data, 'utf8', 'base64'); // Update with base64 encoding
         encrypted += cipher.final('base64');
         return encrypted;
-    } catch (ex) {
-        console.error("Encryption error:", ex);
-        return null;
+    } catch (error) {
+        console.error('Encryption error:', error);
+        throw error; // Re-throw for handling in caller
     }
 }
 
 // Function to decrypt data using AES/CBC/PKCS5PADDING
-function decrypt(key, initVector, encryptedValue) {
+function decrypt(encryptedData, key, iv) {
     try {
-        const iv = Buffer.from(initVector, 'utf-8');
-        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'utf-8'), iv);
-        let decrypted = decipher.update(encryptedValue, 'base64', 'utf-8');
-        decrypted += decipher.final('utf-8');
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+        let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+        decrypted += decipher.final('utf8');
         return decrypted;
-    } catch (ex) {
-        console.error("Decryption error:", ex);
-        return null;
+    } catch (error) {
+        console.error('Decryption error:', error);
+        throw error; // Re-throw for handling in caller
     }
 }
 
@@ -32,10 +30,10 @@ function decrypt(key, initVector, encryptedValue) {
 const value = {
     "AuthID": "M00006477",
     "AuthKey": "bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC",
-    "CustRefNum": "2308201815464535031467206781",
+    "CustRefNum": "2308546fs453fdsf5031467206781",
     "txn_Amount": "15.00",
     "PaymentDate": "2024-03-26 14:59:02",
-    "ContactNo": "8653826902",
+    "ContactNo": "8128154143", // Ensure this is a string
     "EmailId": "test@test.com",
     "IntegrationType": "seamless",
     "CallbackURL": "http://rummylegit.com:3000/api/PayinAPI/Payinnotify",
@@ -47,14 +45,15 @@ const value = {
     "MOPDetails": "I"
 };
 
-// Secret key and IV (first 16 characters of AuthKey)
-const key = 'bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC';
-const initVector = Buffer.from(value.AuthKey.slice(0, 16), 'utf-8');
+const yourData = JSON.stringify(value); // Convert object to string
+const yourSecretKey = 'bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC'; // Replace with your secret key
+const yourInitializationVector = 'bT2hi6oE4Tk4SX6p'; // Replace with your IV
 
-// Encrypt the JSON data
-const encryptedValue = encrypt(key, initVector, value);
-console.log("Encrypted string: =>", encryptedValue);
+const encryptedData = encrypt(yourData, yourSecretKey, yourInitializationVector);
+console.log('Encrypted data:', encryptedData);
 
-// Decrypt the encrypted data
-const decryptedValue = decrypt(key, initVector, encryptedValue);
-console.log("\n Decrypted string: =>", decryptedValue);
+// JSON data to be decrypted
+const receivedEncryptedData = encryptedData; // Replace with the actual encrypted data you received
+
+const decryptedData = decrypt(receivedEncryptedData, yourSecretKey, yourInitializationVector);
+console.log('Decrypted data:', decryptedData);

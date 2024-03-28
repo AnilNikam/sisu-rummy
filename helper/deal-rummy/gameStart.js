@@ -51,6 +51,9 @@ module.exports.collectBoot = async (tbId) => {
     let wh = { _id: tbId };
 
     let tb = await PlayingTables.findOne(wh, {}).lean();
+    if(!tb){
+      return 
+    }
 
     let resetPlayerInfo = await this.resetUserData(tb._id, tb.playerInfo);
     let playerInfo = await this.checkUserInRound(resetPlayerInfo, tb);

@@ -56,7 +56,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       //await this.updateUserScore(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, tbInfo.tableAmount);
       //logger.info('lastUserWinnerDeclareCallTemp  after declare upate user chips =>', updetUserChips);
 
-      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tableInfo);
+      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tbInfo);
 
       const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
 
@@ -299,9 +299,9 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
 
     //const playerInRound = await getPlayingUserInRound(tableInfo.playerInfo);
 
-    jobId = commandAcions.GetRandomString(10);
-    delay = commandAcions.AddTime(2);
-    await commandAcions.setDelay(jobId, new Date(delay));
+    // jobId = commandAcions.GetRandomString(10);
+    // delay = commandAcions.AddTime(5);
+    // await commandAcions.setDelay(jobId, new Date(delay));
 
     //tableInfo = await this.updateExpeledPlayer(playerInRound, tableInfo);
 
@@ -312,9 +312,14 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     let tableHistoryData = await commonHelper.insert(TableHistory, tableHistory);
     logger.info('gameFinish.js winnerDeclareCall tableHistory Data => ', tableHistoryData);
 
+
+    let jobId1 = commandAcions.GetRandomString(10);
+    let delay1 = commandAcions.AddTime(5);
+    await commandAcions.setDelay(jobId1, new Date(delay1));
+
     if (gameStartStatus) {
       logger.info('winnerDeclareCall roundFinish ---->');
-
+      
       commandAcions.sendEventInTable(tableInfo._id.toString(), CONST.RESTART_GAME_TABLE, { status: 0 });
 
       let roundTime = 10;
