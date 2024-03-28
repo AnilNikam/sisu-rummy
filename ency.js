@@ -26,17 +26,19 @@ function decrypt(encryptedData, key, iv) {
     }
 }
 
+
+
 // JSON data to be encrypted
 const value = {
     "AuthID": "M00006477",
     "AuthKey": "bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC",
-    "CustRefNum": "2308546fs453fdsf5031467206781",
-    "txn_Amount": "15.00",
+    "CustRefNum": "379638433345596826",
+    "txn_Amount": "25.00",
     "PaymentDate": "2024-03-26 14:59:02",
-    "ContactNo": "8128154143", // Ensure this is a string
-    "EmailId": "test@test.com",
+    "ContactNo": "8128154143",
+    "EmailId": "anil@gmail.com",
     "IntegrationType": "seamless",
-    "CallbackURL": "http://rummylegit.com:3000/api/PayinAPI/Payinnotify",
+    "CallbackURL": "http://localhost:3000/api/PayinAPI/Payinnotify",
     "adf1": "NA",
     "adf2": "NA",
     "adf3": "NA",

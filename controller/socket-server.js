@@ -16,7 +16,7 @@ const { sendEvent, sendDirectEvent } = require('../helper/socketFunctions');
 const { getPaymentHistory, updateWallet } = require('../helper/walletFunction');
 const { registerUser, addBankAccount } = require('../helper/signups/signupValidation');
 const { userReconnect, takeSeat } = require('../helper/common-function/reConnectFunction');
-const { initiatePayment } = require('./paymentController,js');
+const paymentAction = require('./paymentController,js');
 const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
 const { checkReferral, activePlayerCounter } = require('../helper/signups/appStart');
@@ -701,7 +701,8 @@ myIo.init = function (server) {
           case CONST.PAY_IN: {
             try {
               console.log("PAY_IN ", payload.data)
-              await initiatePayment(payload.data, socket)
+              // await initiatePayment(payload.data, socket)
+              await paymentAction.newInitiatePayment(payload.data, socket)
             } catch (error) {
               logger.error("Error in pay in ->", error)
             }

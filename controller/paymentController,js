@@ -4,10 +4,11 @@ const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
 const paymentout = mongoose.model('paymentout');
 const BankDetails = mongoose.model('bankDetails');
-
+const crypto = require('crypto');
 const axios = require('axios');
 const commandAcions = require('../helper/socketFunctions');
 const CONST = require('../constant');
+const logger = require('../logger');
 
 const PaymentInOrderCreate = {
     url: 'https://api.wowpe.in/api/GOrders/generateorder',
@@ -89,6 +90,117 @@ async function initiatePayment(requestData, socket) {
 }
 
 
+async function newInitiatePayment(requestData, socket) {
+    try {
+        logger.info("initiatePayment requestData ", requestData)
+        const reference = generateReferenceNumber()
+        logger.info("reference ", reference)
+
+
+        const paymentindata = await paymentin.create({
+            userId: requestData.playerId,
+            transactionId: reference,
+            name: requestData.customerName,
+            email: requestData.customerEmail,
+            phone: requestData.customerPhone,
+            amount: requestData.amount,
+            paymentStatus: "Pending"
+        });
+
+        if (paymentindata) {
+
+            logger.info("paymentindata =>", paymentindata)
+
+            const payload = {
+                "AuthID": "M00006477",
+                "AuthKey": "bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC",
+                "CustRefNum": reference,
+                "txn_Amount": requestData.amount,
+                "PaymentDate": new Date().toISOString(),
+                "ContactNo": requestData.customerPhone,
+                "EmailId": requestData.customerEmail,
+                "IntegrationType": "seamless",
+                "CallbackURL": "http://localhost:3000/api/PayinAPI/Payinnotify",
+                "adf1": "NA",
+                "adf2": "NA",
+                "adf3": "NA",
+                "MOP": "UPI",
+                "MOPType": "UPI",
+                "MOPDetails": "I"
+            };
+
+            // const stringifiedPayload = {};
+            // Object.entries(payload).forEach(([key, value]) => {
+            //     stringifiedPayload[key.toString()] = value;
+            // });
+            const stringifiedPayload = JSON.stringify(payload, null, 2)
+            logger.info("payload =>", stringifiedPayload);
+
+            const yourData = JSON.stringify(stringifiedPayload); // Convert object to string
+            const yourSecretKey = 'bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC'; // Replace with your secret key
+            const yourInitializationVector = 'bT2hi6oE4Tk4SX6p'; // Replace with your IV
+
+            const encryptedData = encrypt(yourData, yourSecretKey, yourInitializationVector);
+            logger.info('Encrypted data:', encryptedData);
+
+            const response = await axios.post('https://uat.paylotus.in/pay/paymentinit', {
+                params: {
+                    AuthID: 'M00006477',
+                    encData: encryptedData
+                }
+            }).then((response) => {
+                logger.info('Response:', response);
+            }).catch((error) => {
+                logger.error('Error:', error);
+            });
+
+            logger.info("response ====>   ", response)
+            logger.info("response.respData ====>   ", response.respData)
+            // const receivedEncryptedData = encryptedData; // Replace with the actual encrypted data you received
+
+            // const decryptedData = decrypt(receivedEncryptedData, yourSecretKey, yourInitializationVector);
+            // console.log('Decrypted data:', decryptedData);
+
+            if (response.data.code == "OK") {
+                //add amount in coins
+
+                //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+                if (response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined) {
+
+                    const Updatedata = await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": response.data.body.orderID } }, {
+                        new: true,
+                    });
+                    console.log("Updatedata ", Updatedata)
+                    const payloaddeeplink = {
+                        "note": "rechargeMoney_103",
+                        "OrderID": response.data.body.orderID,
+                        "token": PaymentInOrderCreate.token
+                    }
+
+                    const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
+                    console.log("response Deeplink ", responseDeep.data)
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
+
+                } else {
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+                }
+            } else {
+                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+            }
+        } else {
+            console.log("Data Not Insert ")
+            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+        }
+
+    } catch (error) {
+        console.error('Error initiating payment:', error.response ? error.response.data : error.message);
+
+        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+
+        throw error; // Throw the error to be caught by the caller
+    }
+}
+
 
 const Account_WOWPE_PAYOUT = {
     base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',
@@ -97,18 +209,6 @@ const Account_WOWPE_PAYOUT = {
 };
 
 
-
-
-
-/*
-playerId
-customerName
-customerEmail
-customerPhone
-amount
-accountNo
-ifscCode
-*/
 
 async function PayOutTransfer(requestData, socket) {
     try {
@@ -205,54 +305,6 @@ async function PayOutTransfer(requestData, socket) {
     }
 }
 
-// const FRENZOPAY_PAYOUT = {
-//     base_url: 'https://api.frenzopay.com/api/v1',
-//     add_beneficiary_endpoint: '/payout/beneficiary',
-//     create_payout_endpoint: '/payout/',
-//     check_payout_status_endpoint: '/payout',
-//     account_balance_endpoint: '/payout/balance',
-//     access_key: '188dda4667a6b9f0873f87a98cb29074',
-//     secret_key: '9ddfe1310dd91ad14996f6c5d64deb3b',
-//     business_id: 204
-// };
-
-// async function addBeneficiary(beneficiaryData) {
-//     try {
-//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.add_beneficiary_endpoint}`;
-//         const response = await axios.post(url, beneficiaryData, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-//             }
-//         });
-//         return response.data;
-//     } catch (error) {
-//         throw error.response ? error.response.data : error.message;
-//     }
-// }
-
-// //payoutData (amount,payment_method_name,account_number,ifsc,name,address,email,bank_name,mobile_number)
-// async function createPayout(payoutData) {
-//     try {
-//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.create_payout_endpoint}`;
-//         const response = await axios.post(url, payoutData, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-//             }
-//         });
-//         if (response.data) {
-//             //Deduct a coin
-//         }
-//         return response.data;
-//     } catch (error) {
-//         throw error.response ? error.response.data : error.message;
-//     }
-// }
-
-//
 
 const Account_WOWPE_VERIFICATION = {
     base_url: 'https://api.wowpe.in/PayoutAPI/accountverification',
@@ -284,53 +336,54 @@ async function checkPayoutStatus(requestData, callback) {
     }
 }
 
-// async function getAccountBalance() {
-//     try {
-//         const url = `${FRENZOPAY_PAYOUT.base_url}${FRENZOPAY_PAYOUT.account_balance_endpoint}`;
-//         const response = await axios.get(url, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-Access-Key': FRENZOPAY_PAYOUT.access_key,
-//                 'X-Secret-Key': FRENZOPAY_PAYOUT.secret_key
-//             }
-//         });
-//         return response.data;
-//     } catch (error) {
-//         throw error.response ? error.response.data : error.message;
-//     }
-// }
 
-// Example usage:
-// (async () => {
-//     try {
-//         // Add beneficiary
-//         const beneficiaryData = { /* Add beneficiary data here */ };
-//         const addedBeneficiary = await addBeneficiary(beneficiaryData);
-//         console.log('Added beneficiary:', addedBeneficiary);
+function generateReferenceNumber() {
+    // Create a string of all digits (0-9)
+    const digits = '0123456789';
 
-//         // Create payout
-//         const payoutData = { /* Add payout data here */ };
-//         const createdPayout = await createPayout(payoutData);
-//         console.log('Created payout:', createdPayout);
+    // Generate a random string of 10 characters from the digits string
+    let referenceNumber = '';
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * digits.length);
+        referenceNumber += digits[randomIndex];
+    }
 
-//         // Check payout status
-//         const payoutId = '123'; // Replace with actual payout ID
-//         const payoutStatus = await checkPayoutStatus(payoutId);
-//         console.log('Payout status:', payoutStatus);
+    return referenceNumber;
+}
 
-//         // Get account balance
-//         const accountBalance = await getAccountBalance();
-//         console.log('Account balance:', accountBalance);
-//     } catch (error) {
-//         console.error('Error:', error);
-//     }
-// })();
+function encrypt(data, key, iv) {
+    try {
+        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+        let encrypted = cipher.update(data, 'utf8', 'base64'); // Update with base64 encoding
+        encrypted += cipher.final('base64');
+        return encrypted;
+    } catch (error) {
+        console.error('Encryption error:', error);
+        throw error; // Re-throw for handling in caller
+    }
+}
 
+// Function to decrypt data using AES/CBC/PKCS5PADDING
+function decrypt(encryptedData, key, iv) {
+    try {
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+        let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    } catch (error) {
+        console.error('Decryption error:', error);
+        throw error; // Re-throw for handling in caller
+    }
+}
 
 module.exports = {
     initiatePayment,
     PayOutTransfer,
-    checkPayoutStatus
+    checkPayoutStatus,
+    newInitiatePayment,
+    generateReferenceNumber,
+    encrypt,
+    decrypt
     // createPayout,
     // checkPayoutStatus,
     // getAccountBalance
