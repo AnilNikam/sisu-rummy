@@ -344,14 +344,6 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     }
 
 
-    // waiting for real player
-    // let botJobId = 'WAITING' + ':' + tableInfo._id;
-    // let delay = AddTime(7);
-    // await setDelay(botJobId, new Date(delay));
-
-
-
-
     if (tableInfo.activePlayer == 1) {
       setTimeout(() => {
         if (tableInfo.maxSeat === 2 && tableInfo.activePlayer < 2) {
@@ -376,24 +368,6 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       }
     }
 
-    //let counter = 0;
-
-    // const intervalId = setInterval(() => {
-    //   counter++;
-    //   logger.info(`Function called ${counter} times.`);
-    //   botLogic.findRoom(tableInfo, betInfo)
-    //   if (tableInfo.maxSeat === 2) {
-    //     logger.info("Check 1", counter)
-    //     if (counter === 1) {
-    //       clearInterval(intervalId); // Stop the interval after 2 calls
-    //     }
-    //   } else {
-    //     logger.info("Check 2", counter)
-    //     if (counter === 5) {
-    //       clearInterval(intervalId); // Stop the interval after 5 calls
-    //     }
-    //   }
-    // }, 1200);
 
   } catch (error) {
     logger.error('joinTable.js findEmptySeatAndUserSeat error=> ', error, table);

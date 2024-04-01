@@ -114,11 +114,11 @@ async function newInitiatePayment(requestData, socket) {
 
         if (paymentindata) {
 
-            logger.info("paymentindata =>", paymentindata)
+            logger.info("payload paymentindata =>", paymentindata)
 
             const payload = {
-                "AuthID": "M00006477",
-                "AuthKey": "bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC",
+                "AuthID": "M00006500",
+                "AuthKey": "WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF",
                 "CustRefNum": reference,
                 "txn_Amount": amountNumber.toFixed(2),
                 "PaymentDate": formateDate,
@@ -146,14 +146,8 @@ async function newInitiatePayment(requestData, socket) {
             const encryptedData = encrypt(data, secretKey, initializationVector);
             logger.info('Encrypted data:', encryptedData);
 
-            const response = await axios.post('https://uat.paylotus.in/pay/paymentinit?AuthID=M00006477&encData=' + encryptedData + '').then(async (response) => {
+            const response = await axios.post('https://live.paylotus.in/pay/paymentinit?AuthID=M00006477&encData=' + encryptedData + '').then(async (response) => {
                 logger.info('Response:~~~~>', response);
-                logger.info("response ====>   ", response.data)
-                logger.info("response.respData ====>   ", response.data.respData)
-                const receivedEncryptedData = response.data.respData; // Replace with the actual encrypted data you received
-
-                const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
-                logger.info('Decrypted data:', decryptedData);
 
                 // {
                 //     "adf2":"NA",
@@ -175,8 +169,13 @@ async function newInitiatePayment(requestData, socket) {
                 //     "adf3":"NA"
                 //  }
 
-                if (response.data != undefined && response.data.respData != undefined && decryptedData != undefined && decryptedData.AggRefNo != undefined) {
+                if (response.data != undefined && response.data.respData != undefined /*&& decryptedData != undefined && decryptedData.AggRefNo != undefined*/) {
                     //add amount in coins
+
+                    const receivedEncryptedData = response.data.respData;
+
+                    const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
+                    logger.info('Decrypted data:', decryptedData);
 
                     //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
                     if (decryptedData != undefined && decryptedData != null && decryptedData.AggRefNo != undefined) {
@@ -199,7 +198,7 @@ async function newInitiatePayment(requestData, socket) {
                         commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
                     }
                 } else {
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, "Something Went Wrong");
                 }
 
             }).catch((error) => {

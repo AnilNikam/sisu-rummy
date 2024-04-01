@@ -5,6 +5,7 @@ const Transaction = mongoose.model('Transaction');
 const playingTables = mongoose.model('playingTable');
 const GamePlayTrack = mongoose.model('gamePlayTracks');
 const TableHistory = mongoose.model('tableHistory');
+const Commission = mongoose.model('commissions');
 const Users = mongoose.model('users');
 const config = require('../../config');
 const commonHelper = require('../../helper/commonHelper');
@@ -258,11 +259,12 @@ router.get('/', async (req, res) => {
     console.log('requet => ');
     const totalUser = await Users.find().count()
     let lastdate = AddTime(-86000)
-    console.log("lastdate ",new Date(lastdate))
-    var totalDepositData = await UserWalletTracks.aggregate([
+    console.log("lastdate ", new Date(lastdate))
+
+    let totalDepositData = await UserWalletTracks.aggregate([
       {
         $match: {
-          "trnxTypeTxt": "PayIn" 
+          "trnxTypeTxt": "PayIn"
         }
       },
       {
@@ -278,10 +280,10 @@ router.get('/', async (req, res) => {
 
     const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
 
-    var totalWithdrawData = await UserWalletTracks.aggregate([
+    let totalWithdrawData = await UserWalletTracks.aggregate([
       {
         $match: {
-          "trnxTypeTxt":  "PayOut" 
+          "trnxTypeTxt": "PayOut"
         }
       },
       {
@@ -298,11 +300,11 @@ router.get('/', async (req, res) => {
 
     const totalWithdraw = totalWithdrawData.length > 0 ? totalWithdrawData[0].total : 0
 
-    var todayDepositDataToday = await UserWalletTracks.aggregate([
+    let todayDepositDataToday = await UserWalletTracks.aggregate([
       {
         $match: {
-          "createdAt":{$gte:new Date(lastdate),$lte:new Date()},
-          "trnxTypeTxt":  "PayIn" 
+          "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
+          "trnxTypeTxt": "PayIn"
         }
       },
       {
@@ -318,11 +320,11 @@ router.get('/', async (req, res) => {
 
     const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total : 0;
 
-    var todayWithdrawDataToday = await UserWalletTracks.aggregate([
+    let todayWithdrawDataToday = await UserWalletTracks.aggregate([
       {
         $match: {
-          "createdAt":{$gte:new Date(lastdate),$lte:new Date()},
-          "trnxTypeTxt":  "PayOut" 
+          "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
+          "trnxTypeTxt": "PayOut"
         }
       },
       {
@@ -338,9 +340,16 @@ router.get('/', async (req, res) => {
 
     const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total : 0
 
-    const todayKYC = await otpAdharkyc.find({ "createdAt":{$gte:new Date(lastdate),$lte:new Date()} }).count();
-    const totalGamePay = await TableHistory.find({ "date":{$gte:new Date(lastdate),$lte:new Date()} }).count();;
-    const totalCommission = 0;
+    const todayKYC = await otpAdharkyc.find({ "createdAt": { $gte: new Date(lastdate), $lte: new Date() } }).count();
+    const totalGamePay = await TableHistory.find({ "date": { $gte: new Date(lastdate), $lte: new Date() } }).count();;
+    const totalCommission = await Commission.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalCommission: { $sum: "$CommisonAmount" }
+        }
+      }
+    ]);
 
 
     logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
@@ -416,8 +425,8 @@ router.get('/latatestUserStatewise', async (req, res) => {
   }
 });
 
-function AddTime (sec) {
-  var t = new Date();
+function AddTime(sec) {
+  let t = new Date();
   return t.setSeconds(t.getSeconds() + sec);
 }
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const PlayingTables = mongoose.model('playingTable');
+const Commission = mongoose.model('commissions');
 const Users = mongoose.model('users');
 const TableHistory = mongoose.model('tableHistory');
 const MongoID = mongoose.Types.ObjectId;
@@ -31,6 +32,15 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       };
 
       let amount = (tb.tableAmount * CONST.POOL_COMMISSION) / 100;
+
+      let insertobj = {
+        tableId: tb._id,
+        gamePlayType: tb.gamePlayType,
+        CommisonAmount: amount,
+      };
+
+      let insertInfo = await Commission.create(insertobj);
+      logger.info('lastUserWinnerDeclareCall poll Commison ->', insertInfo);
 
       tb.tableAmount -= amount;
 
@@ -191,6 +201,16 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     if (tableInfo.activePlayer - lostPlayerInTable.length === 1) {
       let amount = (tableInfo.tableAmount * CONST.POOL_COMMISSION) / 100;
       //logger.info('Amount deduct ->', amount);
+
+      let insertobj = {
+        tableId: tableInfo._id,
+        gamePlayType: tableInfo.gamePlayType,
+        CommisonAmount: amount,
+      };
+
+      let insertInfo = await Commission.create(insertobj);
+      logger.info('Commison ->', insertInfo);
+
       tableInfo.tableAmount -= amount;
 
       //logger.info('tableInfo.tableAmount deduct ->', tableInfo.tableAmount);
