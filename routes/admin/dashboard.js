@@ -341,8 +341,10 @@ router.get('/', async (req, res) => {
     const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total : 0
 
     const todayKYC = await otpAdharkyc.find({ "createdAt": { $gte: new Date(lastdate), $lte: new Date() } }).count();
-    const totalGamePay = await TableHistory.find({ "date": { $gte: new Date(lastdate), $lte: new Date() } }).count();;
-    const totalCommission = await Commission.aggregate([
+    const totalGamePay = await TableHistory.find({ "date": { $gte: new Date(lastdate), $lte: new Date() } }).count();
+
+
+    let commissionData =  await Commission.aggregate([
       {
         $group: {
           _id: null,
@@ -350,6 +352,8 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
+    console.log("commissionData ",commissionData)
+    const totalCommission = commissionData[0].totalCommission;
 
 
     logger.info('admin/dahboard.js post dahboard  error => ', totalUser);

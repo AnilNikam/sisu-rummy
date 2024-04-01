@@ -62,7 +62,7 @@ router.post('/user-register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    console.log("fffffffffffffffffffffffffffffffff")
+    console.log("fwwwwwwwwwffffffffffffffffffffffffffffffff")
     // res.json(await mainCtrl.adminLogin(req.body));
     const data = await mainCtrl.adminLogin(req.body);
     console.log('data => ', data);
