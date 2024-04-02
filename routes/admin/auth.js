@@ -94,7 +94,65 @@ router.get('/responce', async (req, res) => {
   res.send("ok")
 });
 
-//===================== Payment 
+//=====================New Pay In Payment 
+router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
+  logger.info("/api/PayinAPI/newPayInNotify", req.body)
+  logger.info('::::::::::::: Response ::::::::::::::::> ', req.body);
+
+  //Find Any reacod here 
+  // {
+  //   "EmailId": "test@gmail.com",
+  //   "adf2": "NA",
+  //   "CustRefNum": "4567898765456789098",
+  //   "adf1": "NA",
+  //   "PaymentDate": "2024-04-02 16:07:22",
+  //   "PayAmount": "100.00",
+  //   "resp_message": "Transaction Successful.",
+  //   "serviceRRN": "9876545678987",
+  //   "MOP": "UPI",
+  //   "AuthID": "M00001234",
+  //   "ContactNo": "1234567890",
+  //   "AggRefNo": "10000987654567",
+  //   "resp_code": "00000",
+  //   "payrespDate": "2024-04-02 16:09:22",
+  //   "payStatus": "Ok",
+  //   "adf3": "1234567@axl"
+  // }
+
+  if (req.body != undefined && req.body.payStatus != undefined) {
+    logger.info("res.body. ", req.body.OrderId)
+    const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, {
+      new: true,
+    });
+    logger.info("PaymentIndata ", PaymentIndata)
+    if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
+
+      await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+
+
+      await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+
+
+      //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
+      if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
+        const depositbonus = ((Number(req.body.Amount) * 5) / 100)
+
+        await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+
+        // //check reffreal date is validate or not
+        // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+
+      }
+    } else {
+      logger.info("PaymentIndata ", PaymentIndata)
+      logger.info("req.body Faild  ", req.body)
+    }
+  } else {
+    logger.info("req.body ", req.body)
+  }
+  res.send("ok")
+});
+
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   console.log("sdddddddddddddddddddddd", req.body)
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);

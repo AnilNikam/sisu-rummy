@@ -125,7 +125,7 @@ async function newInitiatePayment(requestData, socket) {
                 "ContactNo": requestData.customerPhone,
                 "EmailId": requestData.customerEmail,
                 "IntegrationType": "seamless",
-                "CallbackURL": "http://rummylegit.com:3000/api/PayinAPI/Payinnotify",
+                "CallbackURL": "http://rummylegit.com:3000/api/PayinAPI/newPayInNotify",
                 "adf1": "NA",
                 "adf2": "NA",
                 "adf3": "NA",
