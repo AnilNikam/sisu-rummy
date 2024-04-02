@@ -140,13 +140,13 @@ async function newInitiatePayment(requestData, socket) {
 
 
             const data = stringifiedPayload;
-            const secretKey = 'bT2hi6oE4Tk4SX6pR3xC7QQ4rD3ci7XC';
-            const initializationVector = 'bT2hi6oE4Tk4SX6p';
+            const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
+            const initializationVector = 'WW0DN9DY8ji8mE0s';
 
             const encryptedData = encrypt(data, secretKey, initializationVector);
             logger.info('Encrypted data:', encryptedData);
 
-            const response = await axios.post('https://live.paylotus.in/pay/paymentinit?AuthID=M00006477&encData=' + encryptedData + '').then(async (response) => {
+            const response = await axios.post('https://live.paylotus.in/pay/paymentinit?AuthID=M00006500&encData=' + encryptedData + '').then(async (response) => {
                 logger.info('Response:~~~~>', response);
 
                 // {
