@@ -145,67 +145,29 @@ async function newInitiatePayment(requestData, socket) {
 
             const encryptedData = encrypt(data, secretKey, initializationVector);
             logger.info('Encrypted data:', encryptedData);
+            try {
+                const response = await axios.post('https://live.paylotus.in/pay/paymentinit?AuthID=M00006500&encData=' + encryptedData + '');
+                logger.info('Response:', response);
 
-            const response = await axios.post('https://live.paylotus.in/pay/paymentinit?AuthID=M00006500&encData=' + encryptedData + '').then(async (response) => {
-                logger.info('Response:~~~~>', response);
-
-                // {
-                //     "adf2":"NA",
-                //     "CustRefNum":"0774397650",
-                //     "adf1":"NA",
-                //     "PayAmount":"25.00",
-                //     "resp_message":"SUCCESS",
-                //     "serviceRRN":"NA",
-                //     "MOP":"UPI",
-                //     "AuthID":"M00006477",
-                //     "ContactNo":"8128154143",
-                //     "userEmailID":"anil@gmail.com",
-                //     "Paymentdate":"2024-03-29 12:51:49",
-                //     "AggRefNo":"1002408912510509109",
-                //     "qrString":"upi:\/\/pay?ver=01&mode=05&tr=1002408912510509109&am=25.00&pa=demo@DEMO&pn=DEMO-test-UPI",
-                //     "resp_code":"PPPP",
-                //     "payrespDate":"2024-03-29 12:51:50",
-                //     "payStatus":"Pending",
-                //     "adf3":"NA"
-                //  }
-
-                if (response.data != undefined && response.data.respData != undefined /*&& decryptedData != undefined && decryptedData.AggRefNo != undefined*/) {
-                    //add amount in coins
-
+                if (response.data && response.data.respData) {
                     const receivedEncryptedData = response.data.respData;
-
                     const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
                     logger.info('Decrypted data:', decryptedData);
 
-                    //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                    if (decryptedData != undefined && decryptedData != null && decryptedData.AggRefNo != undefined) {
-
-                        const Updatedata = await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, {
-                            new: true,
-                        });
-                        logger.info("Updatedata ", Updatedata)
-                        // const payloaddeeplink = {
-                        //     "note": "rechargeMoney_103",
-                        //     "OrderID": decryptedData.AggRefNo,
-                        //     "token": PaymentInOrderCreate.token
-                        // }
-
-                        // const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
-                        // logger.info("response Deeplink ", responseDeep.data)
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, response.data.respData);
-
+                    if (decryptedData && decryptedData.AggRefNo !== undefined && decryptedData.AggRefNo !== null) {
+                        logger.info('check if  data:', decryptedData);
+                        commandAcions.sendEvent(socket, CONST.PAY_IN, decryptedData);
+                        await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
                     } else {
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+                        logger.info('check else  data:');
+                        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, decryptedData);
                     }
                 } else {
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, "Something Went Wrong");
+                    logger.info('Response data or respData not found:', response);
                 }
-
-            }).catch((error) => {
-                logger.error('Error:', error);
-            });
-
-
+            } catch (error) {
+                logger.error("check Payin error =>", error)
+            }
         } else {
             logger.info("Data Not Insert ")
             commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
