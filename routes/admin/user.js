@@ -50,7 +50,7 @@ router.get('/UserData', async (req, res) => {
     try {
         console.info('requet => ', req.query);
         //userInfo
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1,location:1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name:1,winningChips:1,bonusChips:1,username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1,location:1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1,avatar:1 })
 
         console.log("userInfo :::::::::::::::::::",userInfo)
 
@@ -324,11 +324,11 @@ router.get('/kycInfoList', async (req, res) => {
         let wh = {} 
 
         if(req.query != undefined && req.query.status != undefined && req.query.status == "Pendding"){
-            wh = {$or:[{verified:false},{pancardverified:false}],adharcard:"",Pancard:""}
+            wh = {$or:[{verified:false},{pancardverified:false}],adharcard:"",pancard:""}
         }else if(req.query != undefined && req.query.status != undefined && req.query.status == "Approved"){
             wh = {verified:true,pancardverified:true}
         }else{
-            wh = {$or:[{verified:false,adharcard:{$ne:""}},{pancardverified:false,Pancard:{$ne:""}}]}
+            wh = {$or:[{verified:false,adharcard:{$ne:""}},{pancardverified:false,pancard:{$ne:""}}]}
         }    
 
         console.log("wh ::::::::",wh)
@@ -365,7 +365,9 @@ router.put('/KycUpdate', async (req, res) => {
         let response = {
             $set: {
                 adminremark: req.body.adminremark,
-                adminremarkcd:new Date()
+                adminremarkcd:new Date(),
+                verified:req.body.verified == "false"?false:true,
+                pancardverified:req.body.Pancardverified == "false"?false:true,
             }
         }
 
