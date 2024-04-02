@@ -151,19 +151,17 @@ async function newInitiatePayment(requestData, socket) {
 
                 if (response.data && response.data.respData) {
                     const receivedEncryptedData = response.data.respData;
-                    const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
-                    logger.info('Decrypted data:', decryptedData);
+                    const decryptedData1 = decrypt(receivedEncryptedData, secretKey, initializationVector);
+                    logger.info('Decrypted data:', decryptedData1);
+                    const decryptedData = JSON.parse(decryptedData1);
+                    logger.info("final Response -> ", decryptedData);
 
                     if (decryptedData && decryptedData.AggRefNo !== undefined && decryptedData.AggRefNo !== null) {
-                        logger.info('check if  data:', decryptedData);
                         commandAcions.sendEvent(socket, CONST.PAY_IN, decryptedData);
                         await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
                     } else {
-                        logger.info('check else  data:');
-                        const jsonObject = JSON.parse(decryptedData);
 
-                        console.log(jsonObject);
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, jsonObject);
+                        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, decryptedData);
                     }
                 } else {
                     logger.info('Response data or respData not found:', response);
