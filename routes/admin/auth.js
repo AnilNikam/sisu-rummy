@@ -96,8 +96,9 @@ router.get('/responce', async (req, res) => {
 
 //=====================New Pay In Payment 
 router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
-  logger.info("/api/PayinAPI/newPayInNotify", req.body)
-  logger.info('::::::::::::: Response ::::::::::::::::> ', req.body);
+  logger.info("/api/PayinAPI/newPayInNotify", req)
+  logger.info('::::::::::::: Response BODY ::::::::::::::::> ', req.body);
+  logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.params);
 
   //Find Any reacod here 
   // {
@@ -119,7 +120,7 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
   //   "adf3": "1234567@axl"
   // }
 
-  if (req.body != undefined && req.body.payStatus != undefined) {
+  if (req.params != undefined && req.body.payStatus != undefined) {
     logger.info("res.body. ====>", req.body.OrderId)
     const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, {
       new: true,
