@@ -160,7 +160,10 @@ async function newInitiatePayment(requestData, socket) {
                         await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
                     } else {
                         logger.info('check else  data:');
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, decryptedData);
+                        const jsonObject = JSON.parse(decryptedData);
+
+                        console.log(jsonObject);
+                        commandAcions.sendEvent(socket, CONST.PAY_IN, jsonObject);
                     }
                 } else {
                     logger.info('Response data or respData not found:', response);
