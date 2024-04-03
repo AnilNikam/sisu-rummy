@@ -16,11 +16,17 @@ const { getPlayingUserInTable, getPlayingUserInRound, filterBeforeSendSPEvent, g
 module.exports.leaveTable = async (requestInfo, client) => {
   let requestData = requestInfo;
   try {
+
     requestData = requestData !== null ? requestData : {};
 
     if (!ifSocketDefine(requestData, client, CONST.LEAVE_TABLE)) {
       return false;
     }
+
+    // rejoin user 
+    // if (requestInfo.reason == "userDisconnect") {
+    //   return false
+    // }
 
     let wh = {
       _id: MongoID(client.tbid.toString()),

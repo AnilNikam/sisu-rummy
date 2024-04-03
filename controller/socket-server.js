@@ -287,8 +287,6 @@ myIo.init = function (server) {
                 case CONST.GAME_TYPE.POOL_RUMMY:
                   await poolGamePlayActions.disCard(payload.data, socket);
                   break;
-
-
               }
             } catch (error) {
               logger.error('Disk card Card error => ', error);
