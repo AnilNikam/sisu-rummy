@@ -157,12 +157,10 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
 
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
-
-
-    logger.info("sdddddddddddddddddddddd", req.body)
-    logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
     logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req);
-    logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req.query);
+    // logger.info(":::::::::::::::::::::::::::::::::::::response Body => ", req.body)
+    // logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
+    logger.info(':::::::::::::::::::::::::::::::::::::response query => ', req.query);
 
     // query: {
     //   AuthID: 'M00006500',
