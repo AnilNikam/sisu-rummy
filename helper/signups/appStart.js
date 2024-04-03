@@ -250,22 +250,27 @@ module.exports.getCountDetails = async (type) => {
 module.exports.userSesssionSet = async (userData, client) => {
   //logger.info('Redis User Session ', userData);
   try {
-    // client.uid = userData._id.toString();
-    // client.uniqueId = userData.uniqueId;
+    if (client) {
 
-    // eslint-disable-next-line no-unused-vars
-    let redisSet = {
-      _id: userData._id.toString(),
-      uid: userData.id,
-      mobileNumber: userData.mobileNumber,
-      uniqueId: userData.uniqueId,
-    };
+      client.uid = userData._id.toString();
+      client.uniqueId = userData.uniqueId;
 
-    const { _id, uniqueId, mobileNumber, email } = userData;
+      // eslint-disable-next-line no-unused-vars
+      let redisSet = {
+        _id: userData._id.toString(),
+        uid: userData.id,
+        mobileNumber: userData.mobileNumber,
+        uniqueId: userData.uniqueId,
+      };
 
-    rClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
+      const { _id, uniqueId, mobileNumber, email } = userData;
 
-    return true;
+      rClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
+
+      return true;
+    } else {
+      logger.info("not get socket data")
+    }
   } catch (e) {
     logger.info('user Session -->', e);
   }
