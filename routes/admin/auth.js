@@ -155,45 +155,52 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
 });
 
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
-  console.log("sdddddddddddddddddddddd", req.body)
-  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
-
-  //Find Any reacod here 
-
-  // if there 
-
-  if (req.body != undefined && req.body.Status != undefined) {
-    console.log("res.body. ", req.body.OrderId)
-    const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.OrderId }, { $set: { webhook: req.body } }, {
-      new: true,
-    });
-    console.log("PaymentIndata ", PaymentIndata)
-    if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
-
-      await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+  try {
 
 
-      await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+    logger.info("sdddddddddddddddddddddd", req.body)
+    logger.info(':::::::::::::::::::::::::::::::::::::responce params => ', req.params);
+    logger.info(':::::::::::::::::::::::::::::::::::::responce request => ', req);
+
+    //Find Any reacod here 
+
+    // if there 
+
+    if (req.body != undefined && req.body.Status != undefined) {
+      console.log("res.body. ", req.body.OrderId)
+      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.OrderId }, { $set: { webhook: req.body } }, {
+        new: true,
+      });
+      console.log("PaymentIndata ", PaymentIndata)
+      if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
+
+        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
 
 
-      //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
-      if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
-        const depositbonus = ((Number(req.body.Amount) * 5) / 100)
+        await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 
-        await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
 
-        // //check reffreal date is validate or not
-        // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+        //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
+        if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
+          const depositbonus = ((Number(req.body.Amount) * 5) / 100)
 
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+
+          // //check reffreal date is validate or not
+          // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+
+        }
+      } else {
+        logger.info("PaymentIndata ", PaymentIndata)
+        logger.info("req.body Faild  ", req.body)
       }
     } else {
-      console.log("PaymentIndata ", PaymentIndata)
-      console.log("req.body Faild  ", req.body)
+      logger.info("req.body ", req.body)
     }
-  } else {
-    console.log("req.body ", req.body)
+    res.send("check API ok")
+  } catch (error) {
+    res.send("check API ok / try catch error")
   }
-  res.send("ok")
 });
 
 
@@ -302,6 +309,7 @@ router.post('/BotAdd', async (req, res) => {
 
 var multer = require('multer');
 const bankDetails = require('../../models/bankDetails');
+const { tryEach } = require('async');
 var storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
 
