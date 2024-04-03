@@ -96,9 +96,10 @@ router.get('/responce', async (req, res) => {
 
 //=====================New Pay In Payment 
 router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
-  logger.info("/api/PayinAPI/newPayInNotify", req)
-  logger.info('::::::::::::: Response BODY ::::::::::::::::> ', req.body);
-  logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.params);
+  logger.info("/api/PayinAPI/newPayInNotify  ->", req)
+  // logger.info('::::::::::::: Response BODY ::::::::::::::::> ', req.body);
+  // logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.params);
+  logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.query);
 
   //Find Any reacod here 
   // {
@@ -120,7 +121,7 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
   //   "adf3": "1234567@axl"
   // }
 
-  if (req.params != undefined && req.body.payStatus != undefined) {
+  if (req.query != undefined && req.body.payStatus != undefined) {
     logger.info("res.body. ====>", req.body.OrderId)
     const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, {
       new: true,
@@ -159,11 +160,25 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
 
 
     logger.info("sdddddddddddddddddddddd", req.body)
-    logger.info(':::::::::::::::::::::::::::::::::::::responce params => ', req.params);
-    logger.info(':::::::::::::::::::::::::::::::::::::responce request => ', req);
+    logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
+    logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req);
+    logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req.query);
+
+    // query: {
+    //   AuthID: 'M00006500',
+    //     respData: 'wzYceJ1DRMkQy2t9lX pQyPqmMrsezMlnkO9NFZWu/xQzfTTWCF9WImLXXjyJn1TQ0LXE3GbYUTI67gQqGrGj00153Z43fN8mbelZVs2w17MLBIwkFAcIFlnCe31Mfk0SmeNv8KI0w4BO2bpE3OKfUDckD4VRq0HYFFBUagMonObe/jY/z7ZE axGQto1ATWpqeQj MeFaPExneAUz3DY4t3LCzZzNkK ZDKygDURc9W6om eegkwzjMsgIDfcGBPnTx6Mes7 DFFixrjouKL8A8A kmbIVprXlqsv6ciMy3IbOkT0Sv0nWYDCH4ccUP4ayoGNBF2GIlIFP1aDFz16TJGMo xR7DhCkUklwi4C2SAPq5v7wtxHHMGsPAXJJQ8HH6MlZjCU8rrVUqeIL0px0XdaFliUlWHWRLyTbC1ThSV2M0GqYweI9ujyYMl2ZWef5596SIVRTC1mhgdRHxpmwS71v6JwyZI1xVoghS3pZngDo9CsEGW5gi mI9QYtgoOD5fZHs/QuiHI3qS0G4p62pTakkHvHwgEahugF5lSc=',
+    //       AggRefNo: '1002409411270298546'
+    // },
+
+    const data = req.query.respData;
+    const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
+    const initializationVector = 'WW0DN9DY8ji8mE0s';
+
+    const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
+    logger.info("decryptedData   ==> API", decryptedData)
+
 
     //Find Any reacod here 
-
     // if there 
 
     if (req.body != undefined && req.body.Status != undefined) {
