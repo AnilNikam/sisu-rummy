@@ -100,9 +100,10 @@ GAMELOGICCONFIG = module.exports = require('./gamelogic.json')
 httpApp.use(express.static(path.join(__dirname, 'public')));
 httpApp.use('/reports', express.static(path.join(__dirname, 'reports')));
 
+
 const options = {
-    key: fs.readFileSync('/var/www/html/AdminPenalLegitRummy/SSL/www.rummylegit.com.key'),
-    cert: fs.readFileSync('/var/www/html/AdminPenalLegitRummy/SSL/www.rummylegit.com.crt')
+    key: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/fullchain.pem')
   };
 console.log("options ",options)
 const server = http.createServer(options,httpApp);
