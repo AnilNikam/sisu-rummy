@@ -46,9 +46,8 @@ const GameUserSchema = new Schema(
     modifiedAt: { type: Date, default: Date.now },
     isBot: { type: Boolean, default: false },
     isfree: { type: Boolean, default: true },
+    isBlock: { type: Boolean, default: false },
     lastTableId: []
-
-
   },
   { versionKey: false }
 );
