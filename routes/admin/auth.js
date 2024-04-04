@@ -158,10 +158,10 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
     logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req);
-    logger.info(':::::::::::::::::::::::::::::::::::::response request To String=> ', req.toString());
-    logger.info(":::::::::::::::::::::::::::::::::::::response Body String => ", req.body.toString())
-    // logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
-    logger.info(':::::::::::::::::::::::::::::::::::::response query => ', req.query);
+    logger.info(':::::::::::::::::::::::::::::::::::::response request To String=> ', JSON.stringify(req));
+    logger.info(":::::::::::::::::::::::::::::::::::::response Body String => ", req.body)
+    logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
+    logger.info(':::::::::::::::::::::::::::::::::::::response query => ', JSON.stringify(req.query));
 
     // query: {
     //   AuthID: 'M00006500',
