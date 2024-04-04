@@ -27,7 +27,7 @@ filesNames.forEach((file) => {
 });
 
 const SERVER_ID = (module.exports = 'HTTPServer');
-const SERVER_PORT = (module.exports = process.env.PORT || 3000);
+const SERVER_PORT = (module.exports = 3001);
 
 const RDS_HOST = REDIS_HOST
 const RDS_PWD = REDIS_PWD
