@@ -25,14 +25,14 @@ router.get('/BankList', async (req, res) => {
         //console.info('requet => ', req);
         let wh = {}
         if (req.query != undefined && req.query.status != undefined && req.query.status == "Pending") {
-            wh = { paymentStatus: "Pending" }
+            wh = {verify:false, paymentStatus: "Pending" }
         } else if (req.query != undefined && req.query.status != undefined && req.query.status == "Approved") {
-            wh = { paymentStatus: "Approved" }
+            wh = { verify:true }
         } else {
-            wh = { paymentStatus: "Rejected" }
+            wh = { verify:false }
         }
 
-        const bankList = await BankDetails.find(wh, { name: 1, email: 1, reMark: 1, phone: 1, accountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
+        const bankList = await BankDetails.find(wh, { name: 1, email: 1,adminStatus:1,paymentreMark:1,paymentStatus:1, reMark: 1, phone: 1, accountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
         logger.info('BankList => ', bankList);
 
         res.json({ bankList });
@@ -52,7 +52,7 @@ router.get('/BankList', async (req, res) => {
 */
 router.put('/BankUpdate', async (req, res) => {
     try {
-        if (req.body.reMark == null || req.body.paymentStatus == null) {
+        if (req.body.reMark == null || req.body.adminStatus == null) {
             res.json({ status: false });
             return false
         }
@@ -60,9 +60,17 @@ router.put('/BankUpdate', async (req, res) => {
         let response = {
             $set: {
                 reMark: req.body.reMark,
-                paymentStatus: req.body.paymentStatus
+                adminStatus: req.body.adminStatus
             }
         }
+        if(req.body.adminStatus == "Pending"){
+            response["$set"]["verify"] = false
+        }else if(req.body.adminStatus == "Approved"){
+            response["$set"]["verify"] = true
+        }else if(req.body.adminStatus == "Rejected"){
+            response["$set"]["verify"] = false
+        }
+        
         const userInfo = await BankDetails.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.body.Id) }, response, { new: true });
         logger.info('BankUpdate userInfo => ', userInfo);
 
