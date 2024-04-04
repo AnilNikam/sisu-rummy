@@ -11,9 +11,6 @@ const logger = require('../../logger');
 const UserWalletTracks = mongoose.model('walletTrackTransaction');
 const PaymentOut = mongoose.model('paymentout');
 
-
-
-
 /**
 * @api {post} /admin/DepositList
 * @apiName  add-bet-list
@@ -25,17 +22,16 @@ const PaymentOut = mongoose.model('paymentout');
 router.get('/DepositList', async (req, res) => {
     try {
         //console.info('requet => ', req);
-
         const DepositeList = await Userdeposit.find({ approve: 0, reject: 0 }, {
             name: 1, userId: 1, email: 1, "mobileno": 1, screenshort: 1, depositamount: 1, bankAc: 1, IFSCcode: 1,
             acname: 1, upi_id: 1, paymentmode: 1, status: 1, approve: 1, reject: 1, dateOfdeposit: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', DepositeList);
+        logger.info('DepositeList => ', DepositeList);
 
         res.json({ DepositeList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/DepositeList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -51,17 +47,16 @@ router.get('/DepositList', async (req, res) => {
 router.get('/AcceptList', async (req, res) => {
     try {
         //console.info('requet => ', req);
-
         const AcceptList = await Userdeposit.find({ approve: 1, reject: 0 }, {
             name: 1, userId: 1, email: 1, "mobileno": 1, screenshort: 1, depositamount: 1, bankAc: 1, IFSCcode: 1,
             acname: 1, upi_id: 1, paymentmode: 1, status: 1, approve: 1, reject: 1, dateOfdeposit: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', AcceptList);
+        logger.info('AcceptList=> ', AcceptList);
 
         res.json({ AcceptList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/AcceptList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -84,11 +79,11 @@ router.get('/RejectList', async (req, res) => {
             acname: 1, upi_id: 1, paymentmode: 1, status: 1, approve: 1, reject: 1, dateOfdeposit: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', RejectList);
+        logger.info('RejectList => ', RejectList);
 
         res.json({ RejectList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/RejectList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -108,11 +103,11 @@ router.get('/DepositData', async (req, res) => {
 
         const DepositeData = await Userdeposit.find({ _id: new mongoose.Types.ObjectId(req.query.id) }, { screenshort: 1, status: 1, approve: 1, reject: 1 })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', DepositeData);
+        logger.info('DepositeData => ', DepositeData);
 
         res.json({ DepositeData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/DepositeData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -150,14 +145,14 @@ router.post('/DepositeInsert', async (req, res) => {
 
         let RecentUser = await Userdeposit.create(response)
 
-        logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+        logger.info('DepositeInsert => ', RecentUser);
         if (RecentUser != undefined) {
             res.json({ status: "ok" });
         } else {
             res.status(config.INTERNAL_SERVER_ERROR).json(error);
         }
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/DepositeInsert error => ', error);
         //res.send("error");
 
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -221,7 +216,7 @@ router.put('/DepositeUpdate', async (req, res) => {
             res.json({ status: false });
             return false;
         }
-        console.log("req ", req.body)
+
         //currently send rendom number and generate 
         let response = {
             $set: {}
@@ -238,21 +233,14 @@ router.put('/DepositeUpdate', async (req, res) => {
 
         }
 
-        console.log("response ", response)
-
-        console.log("response ", req.body)
-
-
         const userInfo = await Userdeposit.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.body.trnsId) }, response, { new: true });
 
-        logger.info('admin/dahboard.js post dahboard  error => ', userInfo);
+        logger.info('userInfo => ', userInfo);
 
 
         res.json({ status: "ok" });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/userInfoerror => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -269,18 +257,18 @@ router.put('/DepositeUpdate', async (req, res) => {
 */
 router.get('/PayoutList', async (req, res) => {
     try {
-        console.log('PayoutList requet => ', req);
+        logger.info('PayoutList requet => ', req);
 
         const PayoutList = await Userpayout.find({ status: -1 }, {
             name: 1, userId: 1, email: 1, "mobileno": 1, screenshort: 1, payoutamount: 1, bankAc: 1, IFSCcode: 1,
             acname: 1, upi_id: 1, dateOfpayout: 1, paymentmode: 1, status: 1, approve: 1, reject: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', PayoutList);
+        logger.info('PayoutList =>', PayoutList);
 
         res.json({ PayoutList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/PayoutList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -325,18 +313,18 @@ router.get('/PayoutAcceptList', async (req, res) => {
 */
 router.get('/PayoutRejectList', async (req, res) => {
     try {
-        console.log('PayoutRejectList requet => ', req);
+        logger.info('PayoutRejectList requet => ', req);
 
         const RejectList = await Userpayout.find({ status: 0 }, {
             name: 1, userId: 1, email: 1, "mobileno": 1, screenshort: 1, payoutamount: 1, bankAc: 1, IFSCcode: 1,
             acname: 1, upi_id: 1, paymentmode: 1, status: 1, approve: 1, reject: 1, dateOfpayout: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', RejectList);
+        logger.info('PayoutRejectList => ', RejectList);
 
         res.json({ RejectList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/PayoutRejectList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -352,7 +340,6 @@ router.get('/PayoutRejectList', async (req, res) => {
 */
 router.post('/PayoutInsert', async (req, res) => {
     try {
-        console.log("req ", req.body)
         //currently send rendom number and generate 
         let response = {
             name: req.body.name,
@@ -373,16 +360,14 @@ router.post('/PayoutInsert', async (req, res) => {
 
         let RecentUser = await Userpayout.create(response)
 
-        logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+        logger.info('RecentUser => ', RecentUser);
         if (RecentUser != undefined) {
             res.json({ status: "ok" });
         } else {
             res.status(config.INTERNAL_SERVER_ERROR).json(error);
         }
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/PayoutInsert error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -398,15 +383,13 @@ router.post('/PayoutInsert', async (req, res) => {
 */
 router.get('/PayoutData', async (req, res) => {
     try {
-        //console.info('requet => ', req);
 
         const PayouteData = await Userpayout.find({ _id: new mongoose.Types.ObjectId(req.query.id) }, { screenshort: 1, status: 1, approve: 1, reject: 1 })
-
-        logger.info('admin/dahboard.js post dahboard  error => ', PayouteData);
+        logger.info('PayoutData => ', PayouteData);
 
         res.json({ PayouteData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/PayoutData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -468,7 +451,7 @@ router.put('/PayoutUpdate', async (req, res) => {
             res.json({ status: false });
             return false;
         }
-        console.log("req ", req.body)
+        logger.info("PayoutUpdate req ", req.body)
         //currently send rendom number and generate 
         let response = {
             $set: {}
@@ -490,16 +473,9 @@ router.put('/PayoutUpdate', async (req, res) => {
 
         }
 
-        console.log("response ", response)
-
-        console.log("response ", req.body)
-
 
         const userInfo = await Userpayout.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.body.trnsId) }, response, { new: true });
-
-        console.log("User INFO ", userInfo)
-
-        logger.info('admin/dahboard.js post dahboard  error => ', userInfo);
+        logger.info('User INFO  => ', userInfo);
 
         if (userInfo)
             res.json({ status: "ok" });
@@ -507,7 +483,7 @@ router.put('/PayoutUpdate', async (req, res) => {
             res.json({ status: "" });
 
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/PayoutUpdate error => ', error);
         //res.send("error");
 
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -533,11 +509,11 @@ router.get('/transactionData', async (req, res) => {
             totalBucket: 1, gameId: 1, createdAt: 1
         })
 
-        logger.info('admin/dahboard.js post transactionData  error => ', transactionData);
+        logger.info('transactionData => ', transactionData);
 
         res.json({ transactionData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/transactionData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -562,11 +538,11 @@ router.get('/PayoutListData', async (req, res) => {
             userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
         })
 
-        logger.info('admin/dahboard.js post dahboard PayoutList  error => ', PayoutList);
+        logger.info('PayoutList  error => ', PayoutList);
 
         res.json({ PayoutList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/PayoutListData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

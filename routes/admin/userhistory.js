@@ -29,7 +29,7 @@ router.get('/rummyHistory', async (req, res) => {
             return false
         }
         const BlackandWhiteData = await GameHistory.find({ userId: MongoID(req.query.userId), "game": "BlackandWhite" },
-            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game:1 }).sort({ DateTime: -1 })
+            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game: 1 }).sort({ DateTime: -1 })
 
 
         console.log("rummyHistory ", BlackandWhiteData)
@@ -56,21 +56,18 @@ router.get('/rummyHistory', async (req, res) => {
 */
 router.get('/completeWithdrawal', async (req, res) => {
     try {
-        console.info('completeWithdrawal  => ', req.query);
         if (req.query.userId == undefined) {
             res.json({ completeWithdrawalData: [] });
             return false
         }
-        const completeWithdrawalData = await UserWalletTracks.find({ userId: MongoID(req.query.userId),transTypeText:"PayOut" },
-        { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
+        const completeWithdrawalData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), transTypeText: "PayOut" },
+            { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
 
-        console.log("completeWithdrawalData ", completeWithdrawalData)
-
-        logger.info('admin/dahboard.js post dahboard  error => completeWithdrawalData ', completeWithdrawalData);
+        logger.info('completeWithdrawalData ', completeWithdrawalData);
 
         res.json({ completeWithdrawalData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin / completeWithdrawal error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -86,20 +83,20 @@ router.get('/completeWithdrawal', async (req, res) => {
 */
 router.get('/completeDeposite', async (req, res) => {
     try {
-        
+
         if (req.query.userId == undefined) {
             res.json({ completeDepositeData: [] });
             return false
         }
 
-        const completeDepositeData = await UserWalletTracks.find({ userId: MongoID(req.query.userId) , "trnxTypeTxt": "PayIn"},
-        { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1  }).sort({ createdAt: -1 })
+        const completeDepositeData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), "trnxTypeTxt": "PayIn" },
+            { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
 
-        logger.info('admin/dahboard.js post dahboard  error => ', completeDepositeData);
+        logger.info('completeDepositeData => ', completeDepositeData);
 
         res.json({ completeDepositeData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/completeDepositeData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -122,8 +119,8 @@ router.get('/registerRaferralBonus', async (req, res) => {
             return false
         }
 
-        const registerRaferralBonusData = await UserWalletTracks.find({ userId: MongoID(req.query.userId) , "trnxTypeTxt": "PayIn"},
-        { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1  }).sort({ createdAt: -1 })
+        const registerRaferralBonusData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), "trnxTypeTxt": "PayIn" },
+            { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
 
         logger.info('admin/dahboard.js post registerRaferralBonusData  error => ', registerRaferralBonusData);
 
@@ -183,11 +180,11 @@ router.get('/myRaferrals', async (req, res) => {
         ];
 
 
-        logger.info('admin/dahboard.js post dahboard  error => ', myRaferralsData);
+        logger.info('myRaferralsData =>', myRaferralsData);
 
         res.json({ myRaferralsData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/myRaferrals error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

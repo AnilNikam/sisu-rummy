@@ -21,13 +21,12 @@ const logger = require('../../logger');
 router.get('/socialURLsList', async (req, res) => {
     try {
         //console.info('requet => ', req);
-
         const socialURLs = await Sociales.find({}, {})
-        logger.info('admin/dahboard.js post dahboard  error => ', socialURLs);
+        // logger.info('socialURLs => ', socialURLs);
 
         res.json({ socialURLs });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/socialURLs  error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -44,20 +43,20 @@ router.get('/socialURLsList', async (req, res) => {
 router.post('/socialurl', async (req, res) => {
     try {
         console.info('requet => ', req.body);
-        
+
         //const insertres =  commonHelper.insert("social",req.body)
 
         const newObj = new Sociales(req.body);
         const data = await newObj.save();
 
         if (data) {
-        return  res.json({
-            flags:true,
-            message: 'record added',
-            data: JSON.parse(JSON.stringify(data)),
-        });
+            return res.json({
+                flags: true,
+                message: 'record added',
+                data: JSON.parse(JSON.stringify(data)),
+            });
         } else {
-        return  res.json({flags:false, status: 0, message: 'record not added', data: null });
+            return res.json({ flags: false, status: 0, message: 'record not added', data: null });
         }
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
@@ -76,16 +75,16 @@ router.post('/socialurl', async (req, res) => {
 router.delete('/socialurldelete/:id', async (req, res) => {
     try {
         console.info('requet => ', req.params);
-        
+
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
         const RecentUser = await Sociales.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
 
-        logger.info('admin/dahboard.js post dahboard  error => ',RecentUser);
+        logger.info('admin/socialurldelete/:id  RecentUser => ', RecentUser);
 
-        res.json({ falgs:true });
+        res.json({ falgs: true });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/dsocialurldelete/:id  error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

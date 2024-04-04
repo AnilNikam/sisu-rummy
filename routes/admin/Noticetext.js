@@ -21,11 +21,9 @@ router.get('/noticeTextList', async (req, res) => {
 
         const noticeText = await Noticetext.find({}, {})
 
-        logger.info('admin/dahboard.js post dahboard  error => ', noticeText);
-
         res.json({ noticeText });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/noticeTextList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -46,13 +44,13 @@ router.post('/noticeText', async (req, res) => {
         const data = await newObj.save();
 
         if (data) {
-        return  res.json({
-            flags:true,
-            message: 'record added',
-            data: JSON.parse(JSON.stringify(data)),
-        });
+            return res.json({
+                flags: true,
+                message: 'record added',
+                data: JSON.parse(JSON.stringify(data)),
+            });
         } else {
-        return  res.json({flags:false, status: 0, message: 'record not added', data: null });
+            return res.json({ flags: false, status: 0, message: 'record not added', data: null });
         }
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
@@ -70,14 +68,12 @@ router.post('/noticeText', async (req, res) => {
 */
 router.delete('/noticedelete/:id', async (req, res) => {
     try {
-        console.info('requet => ', req.params);
+        // logger.info('requet => ', req.params);
 
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
         const RecentUser = await Noticetext.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
-
-
-        logger.info('admin/dahboard.js post dahboard  error => ',RecentUser);
+        // logger.info('admin/noticedelete/:id => ', RecentUser);
 
         res.json({ falgs: true });
     } catch (error) {

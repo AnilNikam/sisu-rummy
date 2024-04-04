@@ -31,12 +31,11 @@ router.get('/UserList', async (req, res) => {
             username: 1, avatar: 1, profileUrl: 1, winningChips: 1, bonusChips: 1, id: 1, email: 1, uniqueId: 1, name: 1,
             "blackandwhite.totalMatch": 1, "aviator.totalMatch": 1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1
         })
-
-        logger.info('admin/dahboard.js post dahboard  error => ', userList);
+        // logger.info('UserList=> ', userList);
 
         res.json({ userList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/UserList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -52,20 +51,20 @@ router.get('/UserList', async (req, res) => {
 */
 router.get('/UserData', async (req, res) => {
     try {
-        console.info('requet => ', req.query);
+        logger.info('requet => ', req.query);
         //userInfo
         const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1, avatar: 1 })
 
-        console.log("userInfo :::::::::::::::::::", userInfo)
+        // console.log("userInfo :::::::::::::::::::", userInfo)
 
         let UserOKYC = await otpAdharkyc.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) },
             {
                 adharcard: 1, verified: 1, "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
                 pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1
             })
-        console.log("UserOKYC", UserOKYC)
+        // console.log("UserOKYC", UserOKYC)
 
-        UserOKYCData = {
+        let UserOKYCData = {
             adharcard: " - ",
             full_name: "",
             verified: "",
@@ -109,15 +108,12 @@ router.get('/UserData', async (req, res) => {
         PanOKYCData.full_name = (UserOKYC != undefined && UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ? UserOKYC.panInfo.user_full_name : "-";
         PanOKYCData.DOB = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ? UserOKYC.userInfo.user_dob : "-";
 
-
-
-        console.log('admin/dahboard.js post dahboard  error => :::::::: UserOKYCData ', UserOKYCData);
-        console.log('admin/dahboard.js post dahboard  error => :::::::: PanOKYCData ', PanOKYCData);
-
+        logger.info(':::::::: UserOKYCData ', UserOKYCData);
+        logger.info('PanOKYCData  => :::::::: PanOKYCData ', PanOKYCData);
 
         res.json({ userInfo, UserOKYCData, PanOKYCData });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/UserData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -133,15 +129,13 @@ router.get('/UserData', async (req, res) => {
 */
 router.get('/BankData', async (req, res) => {
     try {
-        console.info('requet => BankData ', req.query);
         //userInfo
         const userBankInfo = await BankDetails.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) }, {})
-
-        console.log("userBankInfo :::::::::::::::::::", userBankInfo)
+        logger.info("userBankInfo :::::::::::::::::::", userBankInfo)
 
         res.json({ userBankInfo });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/BankData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -158,7 +152,8 @@ router.post('/AddUser', async (req, res) => {
     try {
 
         //currently send rendom number and generate 
-        console.log("req ::::::::::::", req.body)
+        // logger.info("req AddUser::::::::::::", req.body)
+
         let response = {
             mobileNumber: req.body.mobileNumber,
             name: req.body.name,
@@ -168,14 +163,11 @@ router.post('/AddUser', async (req, res) => {
             country: req.body.country
         }
 
-        console.log("response  :::::::::::: response ", response)
-
         logger.info('Register User Request Body =>', response);
         const { mobileNumber } = response;
 
         let query = { mobileNumber: mobileNumber };
         let result = await Users.findOne(query, {});
-        console.log("result ", result)
         if (!result) {
             let defaultData = await getUserDefaultFields(response);
             logger.info('registerUser defaultData : ', defaultData);
@@ -184,25 +176,17 @@ router.post('/AddUser', async (req, res) => {
             logger.info('registerUser userInsertInfo : ', userInsertInfo);
 
             if (userInsertInfo) {
-                console.log("dfdddddddffff")
                 res.json({ restatus: true, msg: 'User Register Successfully!' });
             } else {
                 res.json({ restatus: false, msg: 'User already Register Successfully!' });
             }
         } else {
-            console.log("HLELLLL")
             res.json({ restatus: false, msg: 'User already Register Successfully!' });
         }
 
     } catch (error) {
-        console.log("errrrrr ", error)
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-        //res.status(config.INTERNAL_SERVER_ERROR).json(error);
-
+        logger.error('admin/AddUser error => ', error);
         res.json({ restatus: false, msg: error });
-        //res.status(config.INTERNAL_SERVER_ERROR).json(error);
-
     }
 });
 
@@ -218,17 +202,12 @@ router.post('/AddUser', async (req, res) => {
 */
 router.delete('/DeleteUser/:id', async (req, res) => {
     try {
-        console.log("req ", req.params.id)
-
         const RecentUser = await Users.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
-
-        logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+        logger.info('admin/DeleteUser/:id RecentUser => ', RecentUser);
 
         res.json({ status: "ok" });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/DeleteUser/:id error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -245,21 +224,13 @@ router.delete('/DeleteUser/:id', async (req, res) => {
 */
 router.put('/addMoney', async (req, res) => {
     try {
-        console.log("Add Money ", req.body)
-        //userId
-        // 
+        logger.info("Add Money =>", req.body)
+
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
         if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
-
             const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
-            console.log("UserData ", UserData)
             if (UserData != undefined && UserData[0].sckId != undefined) {
-
-
-                //await walletActions.addWalletAdmin(req.body.userId, Number(req.body.money), 3, req.body.type, {}, { id: UserData.sckId }, -1);
-
-                await walletActions.addWalletPayin(req.body.userId,Number(req.body.money),'Credit', 'Admin_PayIn');
-
+                await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', 'Admin_PayIn');
             }
 
             res.json({ status: "ok" });
@@ -268,13 +239,8 @@ router.put('/addMoney', async (req, res) => {
             res.json({ status: false });
         }
 
-        logger.info('admin/dahboard.js post dahboard  error => ');
-
-
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/addMoney => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -289,40 +255,29 @@ router.put('/addMoney', async (req, res) => {
 */
 router.put('/deductMoney', async (req, res) => {
     try {
-        console.log("deductMoney ", req.body)
+        logger.info("deductMoney ", req.body)
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
 
         if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
 
-            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1,winningChips:1 })
-            console.log("UserData ", UserData)
-            if(UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)){
-
-                console.log("false")
+            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1, winningChips: 1 })
+            if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
                 res.json({ status: false });
                 return false
             }
 
             if (UserData != undefined && UserData[0].sckId != undefined) {
-
-
                 //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
-
                 await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', 'Admin_PayOut');
             }
 
             res.json({ status: "ok" });
         } else {
-            console.log("false")
             res.json({ status: false });
         }
 
-        logger.info('admin/dahboard.js post dahboard  error => ');
-
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/deductMoney error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -338,7 +293,7 @@ router.put('/deductMoney', async (req, res) => {
 */
 router.get('/kycInfoList', async (req, res) => {
     try {
-        console.log("kycInfo ", req.query)
+        logger.info("kycInfo =>", req.query)
         let wh = {}
 
         if (req.query != undefined && req.query.status != undefined && req.query.status == "Pendding") {
@@ -349,16 +304,12 @@ router.get('/kycInfoList', async (req, res) => {
             wh = { $or: [{ verified: false, adharcard: { $ne: "" } }, { pancardverified: false, pancard: { $ne: "" } }] }
         }
 
-        console.log("wh ::::::::", wh)
         let kycInfoList = await otpAdharkyc.find(wh, {})
-
-
-        console.log("kycInfoList ", kycInfoList)
-        logger.info('admin/dahboard.js post dahboard  error => ', kycInfoList);
+        logger.info('kycInfoList => ', kycInfoList);
 
         res.json({ kycInfoList });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/kycInfoList error => ', error);
         //res.send("error");
 
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -423,7 +374,6 @@ router.get('/ReferralList', async (req, res) => {
         // const ReferralList = await UserReferTracks.find({isBot:false}, { username: 1,avatar:1,profileUrl:1,winningChips:1,bonusChips:1, id: 1,email:1,uniqueId:1,name:1,
         //     "blackandwhite.totalMatch":1,"aviator.totalMatch":1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        // logger.info('admin/dahboard.js post dahboard  error => ', ReferralList);
 
         let ReferralList = await UserReferTracks.aggregate([
             {
@@ -445,17 +395,17 @@ router.get('/ReferralList', async (req, res) => {
                 }
             },
             {
-                $project:{
-                    'total':1,
-                    'results.name':1
-                  }
+                $project: {
+                    'total': 1,
+                    'results.name': 1
+                }
             }
         ]);
-        
 
-        for(var i=0;i<ReferralList.length;i++){
-            console.log("ReferralList ::::::::::::::::",ReferralList[i])
-            ReferralList[i].userName = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].name != undefined)?ReferralList[i].results[0].name:""
+
+        for (var i = 0; i < ReferralList.length; i++) {
+            console.log("ReferralList ::::::::::::::::", ReferralList[i])
+            ReferralList[i].userName = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].name != undefined) ? ReferralList[i].results[0].name : ""
             delete ReferralList[i].results
         }
         console.log("ReferralList ", ReferralList)

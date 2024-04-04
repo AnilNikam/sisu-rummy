@@ -256,10 +256,8 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    console.log('requet => ');
     const totalUser = await Users.find().count()
     let lastdate = AddTime(-86000)
-    console.log("lastdate ", new Date(lastdate))
 
     let totalDepositData = await UserWalletTracks.aggregate([
       {
@@ -276,7 +274,7 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
-    console.log("totalDepositData ", totalDepositData)
+    logger.info("totalDepositData ", totalDepositData)
 
     const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
 
@@ -295,7 +293,7 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
-    console.log("totalWithdrawData ", totalWithdrawData)
+    logger.info("totalWithdrawData ", totalWithdrawData)
 
 
     const totalWithdraw = totalWithdrawData.length > 0 ? totalWithdrawData[0].total : 0
@@ -316,7 +314,7 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
-    console.log("todayDepositDataToday ", todayDepositDataToday)
+    logger.info("todayDepositDataToday ", todayDepositDataToday)
 
     const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total : 0;
 
@@ -336,7 +334,7 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
-    console.log("todayWithdrawDataToday ", todayWithdrawDataToday)
+    logger.info("todayWithdrawDataToday ", todayWithdrawDataToday)
 
     const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total : 0
 
@@ -344,7 +342,7 @@ router.get('/', async (req, res) => {
     const totalGamePay = await TableHistory.find({ "date": { $gte: new Date(lastdate), $lte: new Date() } }).count();
 
 
-    let commissionData =  await Commission.aggregate([
+    let commissionData = await Commission.aggregate([
       {
         $group: {
           _id: null,
@@ -352,13 +350,12 @@ router.get('/', async (req, res) => {
         }
       }
     ]);
-    console.log("commissionData ",commissionData)
+    logger.info("commissionData ", commissionData)
+
     const totalCommission = commissionData[0].totalCommission;
 
-
-    logger.info('admin/dahboard.js post dahboard  error => ', totalUser);
-
-    console.log("ggggggggg", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
+    logger.info('totalUser', totalUser);
+    logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
 
     res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission });
   } catch (error) {
@@ -380,15 +377,13 @@ router.get('/latatestUser', async (req, res) => {
   try {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-
-    logger.info('admin/dahboard.js post dahboard  error => ', t);
     const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 })
 
-    logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+    logger.info('admin/latatestUser => ', RecentUser);
 
     res.json({ RecentUser });
   } catch (error) {
-    logger.error('admin/dahboard.js post bet-list error => ', error);
+    logger.error('admin/latatestUser error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
   }
 });
@@ -407,10 +402,9 @@ router.get('/latatestUserStatewise', async (req, res) => {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
 
-    // logger.info('admin/dahboard.js post dahboard  error => ', t);
+    // logger.info('admin/latatestUserStatewise => ', t);
     // const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 })
-
-    // logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+    // logger.info('RecentUser => ', RecentUser);
 
     res.json({
       statelist: [{
@@ -424,7 +418,7 @@ router.get('/latatestUserStatewise', async (req, res) => {
       }]
     });
   } catch (error) {
-    logger.error('admin/dahboard.js post bet-list error => ', error);
+    logger.error('admin/latatestUserStatewise error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
   }
 });

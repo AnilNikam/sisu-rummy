@@ -45,19 +45,17 @@ router.get('/stateList', async (req, res) => {
 */
 router.put('/statemanagemetput', async (req, res) => {
     try {
-        console.info('requet statemanagemetput => ', req.body);
+        logger.info('requet statemanagemetput => ', req.body);
         const { Id, active } = req.body;
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        const updateData = await statemanagemet.updateOne({ _id: new mongoose.Types.ObjectId(Id) },{$set:{active:active}})
+        const updateData = await statemanagemet.updateOne({ _id: new mongoose.Types.ObjectId(Id) }, { $set: { active: active } })
+        logger.info('admin/statemanagemetput error => ', updateData);
 
-
-        console.log('admin/dahboard.js post dahboard  error => ',updateData);
-       
         res.json({ falgs: true });
-        
+
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/statemanagemetput error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

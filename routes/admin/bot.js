@@ -19,15 +19,11 @@ const fs = require("fs")
 */
 router.get('/BotList', async (req, res) => {
     try {
-        //console.info('requet => ', req);
-
         const userList = await Users.find({ isBot: true }, { username: 1, id: 1, mobileNumber: 1, avatar: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
-        console.log("BotList  ", userList)
-        logger.info('admin/dahboard.js post dahboard  error => ', userList);
-
+        logger.info('admin/BotList => ', userList);
         res.json({ userList });
     } catch (error) {
-        logger.error('BotList list error => ', error);
+        logger.error('BotList  error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -43,15 +39,13 @@ router.get('/BotList', async (req, res) => {
 */
 router.get('/BotData', async (req, res) => {
     try {
-        console.info('requet => ', req.query);
-        //
         const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { username: 1, id: 1, loginType: 1, avatar: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        logger.info('admin/dahboard.js post dahboard  info => ', userInfo);
+        logger.info('admin/BotData => ', userInfo);
 
         res.json({ userInfo });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/BotData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -87,24 +81,19 @@ router.post('/BotAdd', async (req, res) => {
 
         }
 
-
-        console.log("response ", response)
         // let RecentUser = await registerUser(response)
         //let RecentUser = await registerUser(response)
 
         const user = new Users(response);
         const RecentUser = await user.save();
 
-        logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
         if (RecentUser.username != undefined) {
             res.json({ status: 1, message: "" });
         } else {
             res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
         }
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/BotAdd => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json({ status: 1, message: "Data Proper Enter..!!" });
     }
 });
@@ -165,8 +154,6 @@ router.post('/ProfileUpload', upload.single('image'), async (req, res) => {
 */
 router.put('/BotUpdate', async (req, res) => {
     try {
-
-        console.log("req ", req.body)
         //currently send rendom number and generate 
         let response = {
             $set: {
@@ -177,20 +164,12 @@ router.put('/BotUpdate', async (req, res) => {
             }
         }
 
-        console.log("response ", response)
-
-        console.log("response ", req.body)
-
-
         const userInfo = await Users.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
-
-        logger.info('admin/dahboard.js post dahboard  error => ', userInfo);
+        logger.info('admin/dBotUpdate userInfo=> ', userInfo);
 
         res.json({ status: "ok" });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/BotUpdate error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -206,21 +185,15 @@ router.put('/BotUpdate', async (req, res) => {
 */
 router.delete('/BotDelete/:id', async (req, res) => {
     try {
-        console.log("req ", req.params.id)
-
         const RecentUser = await Users.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
-
-        logger.info('admin/dahboard.js post dahboard  error => ', RecentUser);
+        logger.info(' => ', RecentUser);
 
         res.json({ status: "ok" });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/BotDelete/:id error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
-
 
 
 /**
@@ -233,20 +206,15 @@ router.delete('/BotDelete/:id', async (req, res) => {
 */
 router.get('/Getbotconfig', async (req, res) => {
     try {
-        console.info('requet => ', req.query);
-        console.info('Getbotconfig => ', GAMELOGICCONFIG);
-
-
+        logger.info('Getbotconfig => ', GAMELOGICCONFIG);
         res.json({
             botversion: GAMELOGICCONFIG.BOTVERSION,
             botmode: GAMELOGICCONFIG.BOTMODE,
             botdifficulty: GAMELOGICCONFIG.BOTDIFFICULTY
         });
 
-
-
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/Getbotconfig error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -262,9 +230,7 @@ router.get('/Getbotconfig', async (req, res) => {
 */
 router.put('/Botconfigset', async (req, res) => {
     try {
-        console.info('Botconfigset requet => ', req.body);
-
-        console.log("req.body.game.gamename  1", req.body)
+        // logger.info('Botconfigset requet => ', req.body);
 
         // res.json({
         //     botversion: GAMELOGICCONFIG.BOTVERSION,
@@ -281,14 +247,13 @@ router.put('/Botconfigset', async (req, res) => {
             GAMELOGICCONFIG.BOTMODE = req.body.botmode
             GAMELOGICCONFIG.BOTDIFFICULTY = req.body.botdifficulty
 
-
-            console.log("GAMELOGICCONFIG ", GAMELOGICCONFIG)
+            // logger.info("GAMELOGICCONFIG ", GAMELOGICCONFIG)
             let link = "./gamelogic.json"
-            console.log("link ", link)
+            // logger.info("link ", link)
             fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
-                console.log("erre", err)
+                // logger.info("erre", err)
                 if (err) {
-                    console.log(err);
+                    // logger.info(err);
                 }
             });
             res.json({ falgs: true });
@@ -296,9 +261,8 @@ router.put('/Botconfigset', async (req, res) => {
             res.json({ falgs: false });
         }
 
-
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/Botconfigset error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -307,10 +271,8 @@ router.put('/Botconfigset', async (req, res) => {
 
 async function createPhoneNumber() {
     const countryCode = "91";
-
     // Generate a random 9-digit mobile number
     const randomMobileNumber = Math.floor(Math.random() * 9000000000) + 1000000000;
-
     // Concatenate the country code and the random mobile number
     const indianMobileNumber = countryCode + randomMobileNumber;
 

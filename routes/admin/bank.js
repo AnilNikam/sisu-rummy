@@ -32,13 +32,12 @@ router.get('/BankList', async (req, res) => {
             wh = { paymentStatus: "Rejected" }
         }
 
-        const bankList = await BankDetails.find(wh, { name: 1, email: 1,reMark:1, phone: 1, accountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
-
-        logger.info('admin/dahboard.js post BankList  error => ', bankList);
+        const bankList = await BankDetails.find(wh, { name: 1, email: 1, reMark: 1, phone: 1, accountNumber: 1, IFSC: 1, createdAt: 1, userId: 1, BeneficiaryName: 1, paymentStatus: 1 })
+        logger.info('BankList => ', bankList);
 
         res.json({ bankList });
     } catch (error) {
-        logger.error('admin/dahboard.js post BankList error => ', error);
+        logger.error('admin/BankList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -53,9 +52,7 @@ router.get('/BankList', async (req, res) => {
 */
 router.put('/BankUpdate', async (req, res) => {
     try {
-
-        console.log("req ", req.body)
-        if(req.body.reMark == null || req.body.paymentStatus == null){
+        if (req.body.reMark == null || req.body.paymentStatus == null) {
             res.json({ status: false });
             return false
         }
@@ -63,21 +60,15 @@ router.put('/BankUpdate', async (req, res) => {
         let response = {
             $set: {
                 reMark: req.body.reMark,
-                paymentStatus:req.body.paymentStatus
+                paymentStatus: req.body.paymentStatus
             }
         }
-
-
-
         const userInfo = await BankDetails.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.body.Id) }, response, { new: true });
-
-        logger.info('admin/dahboard.js post dahboard  error => ', userInfo);
+        logger.info('BankUpdate userInfo => ', userInfo);
 
         res.json({ status: "ok" });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
-        //res.send("error");
-
+        logger.error('admin/dBankUpdate error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

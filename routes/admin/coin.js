@@ -23,11 +23,11 @@ router.get('/coinlist', async (req, res) => {
         //console.info('requet => ', req);
 
         const coinlist = await ShopTable.find({}, {})
-        logger.info('admin/dahboard.js post dahboard  error => ', coinlist);
+        // logger.info('admin/coinlist => ', coinlist);
 
         res.json({ coinlist });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/coinlist error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -43,24 +43,21 @@ router.get('/coinlist', async (req, res) => {
 */
 router.post('/coinadded', async (req, res) => {
     try {
-        console.info('requet => ', req.body);
-        
-        //const insertres =  commonHelper.insert("social",req.body)
-
-        const newObj = new  ShopTable(req.body);
+        logger.info('requet => ', req.body);
+        const newObj = new ShopTable(req.body);
         const data = await newObj.save();
 
         if (data) {
-        return  res.json({
-            flags:true,
-            message: 'record added',
-            data: JSON.parse(JSON.stringify(data)),
-        });
+            return res.json({
+                flags: true,
+                message: 'record added',
+                data: JSON.parse(JSON.stringify(data)),
+            });
         } else {
-        return  res.json({flags:false, status: 0, message: 'record not added', data: null });
+            return res.json({ flags: false, status: 0, message: 'record not added', data: null });
         }
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/coinadded  error=> ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -75,15 +72,15 @@ router.post('/coinadded', async (req, res) => {
 */
 router.delete('/coindelete/:id', async (req, res) => {
     try {
-        console.info('requet => ', req.params);
-    
+        // console.info('requet => ', req.params);
+
         const RecentUser = await ShopTable.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
 
-        logger.info('admin/dahboard.js post dahboard  error => ',RecentUser);
+        // logger.info('admin/coindelete/:id => ', RecentUser);
 
-        res.json({ falgs:true });
+        res.json({ falgs: true });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/coindelete/:iderror => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });

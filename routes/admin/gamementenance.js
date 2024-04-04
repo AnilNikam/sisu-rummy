@@ -18,12 +18,11 @@ const logger = require('../../logger');
 */
 router.get('/getMentenanceStatus', async (req, res) => {
     try {
-        
+
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
+        // logger.info('admin/getMentenanceStatus');
 
-        logger.info('admin/dahboard.js post dahboard  error => ');
-
-        res.json({version:20,mentenance:true});
+        res.json({ version: 20, mentenance: true });
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -45,7 +44,7 @@ router.put('/mentenanceStatusUpdate', async (req, res) => {
 
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
-        logger.info('admin/dahboard.js post dahboard  error => ');
+        // logger.info('mentenanceStatusUpdate ');
 
         res.json(req.body);
     } catch (error) {

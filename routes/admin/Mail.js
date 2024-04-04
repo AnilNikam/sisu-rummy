@@ -19,15 +19,12 @@ const mailTable = mongoose.model('mailTable');
 */
 router.get('/mailList', async (req, res) => {
     try {
-        //console.info('requet => ', req);
-
         const maillist = await mailTable.find({}, {})
-
-        logger.info('admin/dahboard.js post dahboard  error => ', maillist);
+        // logger.info('maillist => ', maillist);
 
         res.json({ maillist });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/maillist error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -43,21 +40,20 @@ router.get('/mailList', async (req, res) => {
 */
 router.post('/mailInsert', async (req, res) => {
     try {
-        console.info('requet => ', req.body);
         const newObj = new mailTable(req.body);
         const data = await newObj.save();
 
         if (data) {
-        return  res.json({
-            flags:true,
-            message: 'record added',
-            data: JSON.parse(JSON.stringify(data)),
-        });
+            return res.json({
+                flags: true,
+                message: 'record added',
+                data: JSON.parse(JSON.stringify(data)),
+            });
         } else {
-        return  res.json({flags:false, status: 0, message: 'record not added', data: null });
+            return res.json({ flags: false, status: 0, message: 'record not added', data: null });
         }
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin / mailInsert error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
@@ -72,18 +68,15 @@ router.post('/mailInsert', async (req, res) => {
 */
 router.delete('/maildelete/:id', async (req, res) => {
     try {
-        console.info('requet => ', req.params);
-
+        // logger.info('requet => ', req.params);
         //await Users.find({}, { username: 1, id: 1, mobileNumber: 1, "counters.totalMatch": 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
 
         const RecentUser = await mailTable.deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) })
-
-
-        logger.info('admin/dahboard.js post dahboard  error => ',RecentUser);
+        // logger.info('admin/maildelete/:id ', RecentUser);
 
         res.json({ falgs: true });
     } catch (error) {
-        logger.error('admin/dahboard.js post bet-list error => ', error);
+        logger.error('admin/maildelete error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
