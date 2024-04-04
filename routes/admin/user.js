@@ -13,6 +13,7 @@ const { registerUser } = require('../../helper/signups/signupValidation');
 //const walletActions = require("../../aviator/updateWallet");
 const { getUserDefaultFields, saveGameUser } = require('../../helper/signups/appStart');
 const UserReferTracks = mongoose.model('userReferTracks');
+const walletActions = require('../../helper/common-function/walletTrackTransaction');
 
 /**
 * @api {post} /admin/lobbies
@@ -255,7 +256,10 @@ router.put('/addMoney', async (req, res) => {
             if (UserData != undefined && UserData[0].sckId != undefined) {
 
 
-                await walletActions.addWalletAdmin(req.body.userId, Number(req.body.money), 3, req.body.type, {}, { id: UserData.sckId }, -1);
+                //await walletActions.addWalletAdmin(req.body.userId, Number(req.body.money), 3, req.body.type, {}, { id: UserData.sckId }, -1);
+
+                await walletActions.addWalletPayin(req.body.userId,Number(req.body.money),'Credit', 'Admin_PayIn');
+
             }
 
             res.json({ status: "ok" });
@@ -290,12 +294,21 @@ router.put('/deductMoney', async (req, res) => {
 
         if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
 
-            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
+            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1,winningChips:1 })
             console.log("UserData ", UserData)
+            if(UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)){
+
+                console.log("false")
+                res.json({ status: false });
+                return false
+            }
+
             if (UserData != undefined && UserData[0].sckId != undefined) {
 
 
-                await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
+                //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
+
+                await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', 'Admin_PayOut');
             }
 
             res.json({ status: "ok" });

@@ -65,6 +65,9 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
     if (upReps === null) {
       return false;
     }
+    if(upReps.winningChips > deductChips){
+      return false
+    }
 
     let setInfo = {
       $inc: {
