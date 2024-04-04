@@ -157,10 +157,17 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
 
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
-    logger.info(':::::::::::::::::::::::::::::::::::::response request => ', req);
-    // logger.info(":::::::::::::::::::::::::::::::::::::response Body => ", req.body)
-    // logger.info(':::::::::::::::::::::::::::::::::::::response params => ', req.params);
-    logger.info(':::::::::::::::::::::::::::::::::::::response query => ', req.query);
+
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Request => ', req);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Headers => ', req.headers);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Body => ', req.body);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Params => ', req.params);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Query => ', req.query);
+
+    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response request => ', req);
+    logger.info("\n:::::::::::::::::::::::::::::::::::::JSON response Body  => ", JSON.stringify(req.body))
+    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response params => ', JSON.stringify(req.params));
+    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response query => ', JSON.stringify(req.query));
 
     // query: {
     //   AuthID: 'M00006500',
