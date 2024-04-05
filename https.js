@@ -1,6 +1,7 @@
 // load configuration data
 const loadbalancer = require('./routes/chooseServer');
 const fs = (module.exports = require('graceful-fs'));
+const bodyParser = require('body-parser');
 module.exports = require('https');
 const express = (module.exports = require('express'));
 require('./newrelic');
