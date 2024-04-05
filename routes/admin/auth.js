@@ -90,93 +90,48 @@ router.get('/responce', async (req, res) => {
 
 //=====================New Pay In Payment 
 router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
-  logger.info("/api/PayinAPI/newPayInNotify  ->", req)
-  // logger.info('::::::::::::: Response BODY ::::::::::::::::> ', req.body);
-  // logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.params);
-  logger.info('::::::::::::: Response PARAMS::::::::::::::::> ', req.query);
+  try {
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Request => ', req);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Body => ', req.body);
 
-  //Find Any reacod here 
-  // {
-  //   "EmailId": "test@gmail.com",
-  //   "adf2": "NA",
-  //   "CustRefNum": "4567898765456789098",
-  //   "adf1": "NA",
-  //   "PaymentDate": "2024-04-02 16:07:22",
-  //   "PayAmount": "100.00",
-  //   "resp_message": "Transaction Successful.",
-  //   "serviceRRN": "9876545678987",
-  //   "MOP": "UPI",
-  //   "AuthID": "M00001234",
-  //   "ContactNo": "1234567890",
-  //   "AggRefNo": "10000987654567",
-  //   "resp_code": "00000",
-  //   "payrespDate": "2024-04-02 16:09:22",
-  //   "payStatus": "Ok",
-  //   "adf3": "1234567@axl"
-  // }
+    if (req.body && req.body.respData && req.body.payStatus) {
+      const data = req.body.respData;
+      const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
+      const initializationVector = 'WW0DN9DY8ji8mE0s';
 
-  if (req.query != undefined && req.body.payStatus != undefined) {
-    logger.info("res.body. ====>", req.body.OrderId)
-    const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, {
-      new: true,
-    });
-    logger.info("PaymentIndata ", PaymentIndata)
-    if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
+      const decryptedData = decrypt(data, secretKey, initializationVector);
+      logger.info("decryptedData   ==> API", decryptedData);
 
-      await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, { new: true });
+      logger.info("PaymentIndata ", PaymentIndata);
 
+      if (PaymentIndata && PaymentIndata.userId && req.body.Status === "Success") {
+        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+        await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 
-      await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
-
-
-      //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
-      if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
-        const depositbonus = ((Number(req.body.Amount) * 5) / 100)
-
-        await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
-
-        // //check reffreal date is validate or not
-        // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
-
+        if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
+          const depositbonus = ((Number(req.body.Amount) * 5) / 100);
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+        }
+      } else {
+        logger.info("PaymentIndata ", PaymentIndata);
+        logger.info("req.body Failed ", req.body);
       }
     } else {
-      logger.info("PaymentIndata ", PaymentIndata)
-      logger.info("req.body Faild  ", req.body)
+      logger.info("Invalid request body: ", req.body);
     }
-  } else {
-    logger.info("req.body ", req.body)
+
+    res.send("ok");
+  } catch (error) {
+    logger.error("Error processing webhook request: ", error);
+    res.status(500).send("Internal Server Error");
   }
-  res.send("ok")
 });
+
 
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
-
-    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Request => ', req);
-    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Headers => ', req.headers);
-    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Body => ', req.body);
-    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Params => ', req.params);
-    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Query => ', req.query);
-
-    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response request => ', req);
-    logger.info("\n:::::::::::::::::::::::::::::::::::::JSON response Body  => ", JSON.stringify(req.body))
-    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response params => ', JSON.stringify(req.params));
-    logger.info('\n:::::::::::::::::::::::::::::::::::::JSON response query => ', JSON.stringify(req.query));
-
-    // query: {
-    //   AuthID: 'M00006500',
-    //     respData: 'wzYceJ1DRMkQy2t9lX pQyPqmMrsezMlnkO9NFZWu/xQzfTTWCF9WImLXXjyJn1TQ0LXE3GbYUTI67gQqGrGj00153Z43fN8mbelZVs2w17MLBIwkFAcIFlnCe31Mfk0SmeNv8KI0w4BO2bpE3OKfUDckD4VRq0HYFFBUagMonObe/jY/z7ZE axGQto1ATWpqeQj MeFaPExneAUz3DY4t3LCzZzNkK ZDKygDURc9W6om eegkwzjMsgIDfcGBPnTx6Mes7 DFFixrjouKL8A8A kmbIVprXlqsv6ciMy3IbOkT0Sv0nWYDCH4ccUP4ayoGNBF2GIlIFP1aDFz16TJGMo xR7DhCkUklwi4C2SAPq5v7wtxHHMGsPAXJJQ8HH6MlZjCU8rrVUqeIL0px0XdaFliUlWHWRLyTbC1ThSV2M0GqYweI9ujyYMl2ZWef5596SIVRTC1mhgdRHxpmwS71v6JwyZI1xVoghS3pZngDo9CsEGW5gi mI9QYtgoOD5fZHs/QuiHI3qS0G4p62pTakkHvHwgEahugF5lSc=',
-    //       AggRefNo: '1002409411270298546'
-    // },
-
-    const data = req.query.respData;
-    const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
-    const initializationVector = 'WW0DN9DY8ji8mE0s';
-
-    const decryptedData = decrypt(receivedEncryptedData, secretKey, initializationVector);
-    logger.info("decryptedData   ==> API", decryptedData)
-
-
+    logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
     //Find Any reacod here 
     // if there 
 
