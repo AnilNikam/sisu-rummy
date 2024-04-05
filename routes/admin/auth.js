@@ -106,8 +106,12 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
       const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
       const initializationVector = 'WW0DN9DY8ji8mE0s';
 
-      const decryptedData = decrypt(modifiedRespData, secretKey, initializationVector);
-      logger.info("decryptedData   ==> API", decryptedData);
+      const decryptedData1 = decrypt(modifiedRespData, secretKey, initializationVector);
+      logger.info("decryptedData   ==> API", decryptedData1);
+
+      const decryptedData = JSON.parse(decryptedData1);
+      logger.info("final Response decryptedData-> ", decryptedData);
+
       logger.info("decryptedData   OrderID==> API", decryptedData.AggRefNo);
 
       const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": decryptedData.AggRefNo }, { $set: { webhook: req.body } }, {
