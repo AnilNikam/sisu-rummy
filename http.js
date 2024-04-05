@@ -4,6 +4,8 @@ const fs = (module.exports = require('graceful-fs'));
 module.exports = require('https');
 const express = (module.exports = require('express'));
 require('./newrelic');
+const bodyParser = require('body-parser');
+
 const { REDIS_HOST, REDIS_PWD } = require('./config')
 
 const http = require('http');
