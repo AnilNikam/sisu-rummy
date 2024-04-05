@@ -3,9 +3,9 @@ const router = express.Router();
 const mainCtrl = require('../../controller/mainController');
 const userCtrl = require('../../helper/signups/signupValidation');
 const { OK_STATUS, BAD_REQUEST } = require('../../config');
-const { decrypt } = require('../../controller/paymentController,js');
+// const { decrypt } = require('../../controller/paymentController,js');
 const logger = require('../../logger');
-// const crypto = require('crypto');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
@@ -352,17 +352,17 @@ router.post('/PancardUpload', upload.single('image'), async (req, res) => {
   }
 });
 
-// function decrypt(encryptedData, key, iv) {
-//   try {
-//     const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
-//     let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
-//     decrypted += decipher.final('utf8');
-//     return decrypted;
-//   } catch (error) {
-//     console.error('Decryption error:', error);
-//     throw error; // Re-throw for handling in caller
-//   }
-// }
+function decrypt(encryptedData, key, iv) {
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (error) {
+    console.error('Decryption error:', error);
+    throw error; // Re-throw for handling in caller
+  }
+}
 
 
 module.exports = router;
