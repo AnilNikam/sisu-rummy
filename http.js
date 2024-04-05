@@ -52,7 +52,12 @@ const socket = require('./controller/socket-server');
 // server start configuration here.
 const httpApp = (module.exports = express());
 // binding all configuratio to app
-
+httpApp.use(
+  bodyParser.urlencoded({
+    extended: true,
+    type: 'application/x-www-form-urlencoded'
+  })
+);
 httpApp.use(express.json());
 httpApp.use(
   cors({
