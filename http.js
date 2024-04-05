@@ -4,8 +4,6 @@ const fs = (module.exports = require('graceful-fs'));
 module.exports = require('https');
 const express = (module.exports = require('express'));
 require('./newrelic');
-const bodyParser = require('body-parser');
-
 const { REDIS_HOST, REDIS_PWD } = require('./config')
 
 const http = require('http');
@@ -54,12 +52,7 @@ const socket = require('./controller/socket-server');
 // server start configuration here.
 const httpApp = (module.exports = express());
 // binding all configuratio to app
-httpApp.use(
-  bodyParser.urlencoded({
-    extended: true,
-    type: 'application/x-www-form-urlencoded'
-  })
-);
+
 httpApp.use(express.json());
 httpApp.use(
   cors({
