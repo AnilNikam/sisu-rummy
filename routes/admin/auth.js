@@ -131,6 +131,45 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
 
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Request => ', req);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Request Body => ', req.body);
+
+    if (req.body && req.body.respData && req.body.payStatus) {
+      const data = req.body.respData;
+      const secretKey = 'WW0DN9DY8ji8mE0sx9Zf4Lg1sp9xY9wF';
+      const initializationVector = 'WW0DN9DY8ji8mE0s';
+
+      const decryptedData = decrypt(data, secretKey, initializationVector);
+      logger.info("decryptedData   ==> API", decryptedData);
+
+      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, { new: true });
+      logger.info("PaymentIndata ", PaymentIndata);
+
+      if (PaymentIndata && PaymentIndata.userId && req.body.Status === "Success") {
+        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+        await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+
+        if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
+          const depositbonus = ((Number(req.body.Amount) * 5) / 100);
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+        }
+      } else {
+        logger.info("PaymentIndata ", PaymentIndata);
+        logger.info("req.body Failed ", req.body);
+      }
+    } else {
+      logger.info("Invalid request body: ", req.body);
+    }
+
+    res.send("ok");
+  } catch (error) {
+    logger.error("Error processing webhook request: ", error);
+    res.status(500).send("Internal Server Error");
+  }
+
+  //last paymnent getway call back
+  /*
+  try {
     logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
     //Find Any reacod here 
     // if there 
@@ -170,6 +209,7 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   } catch (error) {
     res.send("check API ok / try catch error")
   }
+  */
 });
 
 
