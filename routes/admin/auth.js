@@ -279,9 +279,8 @@ router.post('/BotAdd', async (req, res) => {
 */
 
 var multer = require('multer');
-const bankDetails = require('../../models/bankDetails');
-const { tryEach } = require('async');
-const { decrypt } = require('../../helper/commonHelper');
+// const bankDetails = require('../../models/bankDetails');
+// const { tryEach } = require('async');
 var storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
 
