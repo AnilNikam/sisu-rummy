@@ -39,7 +39,7 @@ const findRoom = async (tableInfo, betInfo) => {
         logger.info("JoinRobot ROBOT Not user_wh   : ", user_wh);
 
         let robotInfo = await GameUser.findOne(user_wh, {});
-        logger.info("JoinRobot ROBOT Info : ", robotInfo);
+        // logger.info("JoinRobot ROBOT Info : ", robotInfo);
 
         if (robotInfo == null) {
             logger.info("JoinRobot ROBOT Not Found  : ");

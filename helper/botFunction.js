@@ -62,9 +62,9 @@ const findRoom = async (tableInfo, betInfo) => {
         let robotInfo = await GameUser.aggregate([
             { $match: user_wh },
             { $sample: { size: 1 } }
-          ]).exec()
+        ]).exec()
 
-        console.log("JoinRobot ROBOT Info : ", robotInfo)
+        // console.log("JoinRobot ROBOT Info : ", robotInfo)
 
         if (robotInfo == null || robotInfo.length == 0) {
             logger.info("JoinRobot ROBOT Not Found  : ")

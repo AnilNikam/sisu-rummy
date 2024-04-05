@@ -14,11 +14,11 @@ const { userReconnect } = require('../common-function/reConnectFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
-    logger.info("requestData joinTable", requestData)
-    logger.info("requestData joinTable socket ", socket.JT)
+    // logger.info("requestData joinTable", requestData)
+    // logger.info("requestData joinTable socket ", socket.JT)
 
     const entryFee = requestData.entryFee.toString()
-    logger.info("requestData joinTable entryFee", typeof entryFee, entryFee)
+    // logger.info("requestData joinTable entryFee", typeof entryFee, entryFee)
 
     if (typeof socket.uid === 'undefined') {
       sendEvent(socket, CONST.JOIN_TABLE, requestData, {
@@ -40,12 +40,11 @@ module.exports.joinTable = async (requestData, socket) => {
     };
 
     const betInfo = await BetLists.findOne(query).lean();
-    logger.info("betInfo =>", betInfo);
+    // logger.info("betInfo =>", betInfo);
 
     let condition = { _id: MongoID(socket.uid) };
     let userInfo = await Users.findOne(condition, {}).lean();
-    logger.info("userInfo", userInfo)
-
+    // logger.info("userInfo", userInfo)
 
     let gameChips = parseFloat(requestData.entryFee) * 80;
     logger.info("gameChips", gameChips)
@@ -61,35 +60,18 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let wh = { 'playerInfo._id': MongoID(socket.uid) };
     let tableInfo = await PlayingTables.findOne(wh, {}).lean();
-    logger.info('join table Info ->', tableInfo);
+    // logger.info('join table Info ->', tableInfo);
 
     if (tableInfo) {
-      // sendDirectEvent(socket.id, CONST.ALREADY_PLAYER_AXIST, requestData, {
-      //   flag: false,
-      //   msg: 'Already In playing table!!',
-      // });
+
       logger.info('player already in table');
-
-      // let updateData = {
-      //   $set: {
-      //     'playerInfo.$': {},
-      //   },
-      //   $inc:{
-      //     "activePlayer":-1
-      //   }
-      // };
-
-      // let tableInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
-      //   new: true,
-      // });
-
-      // logger.info("Remove User table -->", tableInfo)
 
       await userReconnect({
         playerId: socket.uid
       }, socket);
       delete socket.JT;
       return false;
+
     } else {
       return await this.findTable(betInfo, socket, userInfo);
     }
@@ -98,7 +80,7 @@ module.exports.joinTable = async (requestData, socket) => {
       flag: false,
       msg: 'Something Went Wrong!!',
     });
-    logger.error('joinTable.js joinTable error=> ', error, requestData);
+    // logger.error('joinTable.js joinTable error=> ', error, requestData);
     delete socket.JT;
   }
 };
@@ -122,7 +104,7 @@ module.exports.findTable = async (betInfo, socket, userInfo) => {
         await setDelay(jobId, new Date(delay));
         await this.findTable(betInfo, socket);
       } else {
-        logger.info('time is greater than 4 sec');
+        // logger.info('time is greater than 4 sec');
       }
     }
     await this.findEmptySeatAndUserSeat(tableInfo, betInfo, socket);
@@ -133,8 +115,8 @@ module.exports.findTable = async (betInfo, socket, userInfo) => {
 
 module.exports.getBetTable = async (betInfo, userInfo) => {
   try {
-    logger.info("getBetTable betinfo =>", betInfo);
-    logger.info("getBetTable userInfo =>", userInfo);
+    // logger.info("getBetTable betinfo =>", betInfo);
+    // logger.info("getBetTable userInfo =>", userInfo);
 
     let wh = {
       // _id: { $nin: userInfo.lastTableId },
@@ -195,7 +177,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     // logger.info("\n findEmptySeatAndUserSeat socket  -->", socket.isBot)
     // logger.info("\n findEmptySeatAndUserSeat socket table -->", table)
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
-    logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
+    // logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
 
     if (seatIndex === '-1') {
       if (socket && socket.isBot !== true) {
@@ -257,7 +239,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     whereCond['playerInfo.' + seatIndex + '.seatIndex'] = { $exists: false };
 
-    logger.info("Where Condition =>", whereCond);
+    // logger.info("Where Condition =>", whereCond);
 
     let setPlayerInfo = {
       $set: {},
@@ -267,7 +249,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     };
 
     setPlayerInfo['$set']['playerInfo.' + seatIndex] = playerDetail;
-    logger.info("joinTbale setPlayerInfo=>", whereCond);
+    // logger.info("joinTbale setPlayerInfo=>", whereCond);
 
     let tableInfo = await PlayingTables.findOneAndUpdate(whereCond, setPlayerInfo, { new: true });
 
@@ -285,7 +267,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     socket.seatIndex = seatIndex;
     socket.tbid = tableInfo._id;
-    logger.info('\n Assign table id and seat index socket event ->', socket.seatIndex, socket.tbid);
+    // logger.info('\n Assign table id and seat index socket event ->', socket.seatIndex, socket.tbid);
 
     let diff = -1;
 

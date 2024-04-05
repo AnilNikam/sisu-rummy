@@ -47,7 +47,7 @@ module.exports.collectBoot = async (tbId) => {
     let wh = { _id: tbId };
 
     let tb = await PlayingTables.findOne(wh, {}).lean();
-    logger.info("Table -->", tb)
+    // logger.info("Table -->", tb)
 
     if (tb == null) {
       return false;
@@ -75,7 +75,7 @@ module.exports.collectBoot = async (tbId) => {
 
     //remove await bcz more time dealy 
     let playerUgcInfo = this.deduct(tableInfo, playerInfo);
-    logger.info('Player Deduct Coins', playerUgcInfo);
+    // logger.info('Player Deduct Coins', playerUgcInfo);
 
     await cardDealActions.cardDealStart(tableInfo._id);
   } catch (error) {

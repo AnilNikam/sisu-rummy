@@ -163,7 +163,9 @@ module.exports.disCard = async (requestData, client) => {
       return false;
     }
 
-    if (typeof client.disCard !== 'undefined' && client.disCard) return false;
+    if (typeof client.disCard !== 'undefined' && client.disCard) {
+      return false;
+    }
 
     client.disCard = true;
 
@@ -258,7 +260,9 @@ module.exports.cardGroup = async (requestData, client) => {
       return false;
     }
 
-    if (typeof client.cardGroup !== 'undefined' && client.cardGroup) return false;
+    if (typeof client.cardGroup !== 'undefined' && client.cardGroup) {
+      return false;
+    }
 
     client.cardGroup = true;
 
@@ -315,7 +319,9 @@ module.exports.declare = async (requestData, client) => {
       return false;
     }
 
-    if (typeof client.declare !== 'undefined' && client.declare) return false;
+    if (typeof client.declare !== 'undefined' && client.declare) {
+      return false;
+    }
 
     client.declare = true;
 
@@ -385,7 +391,7 @@ module.exports.declare = async (requestData, client) => {
 
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
 
-    logger.info("playerInGame ", playerInGame)
+    // logger.info("playerInGame ", playerInGame)
     roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tableInfo.wildCard.split("-")[1]), tb._id.toString())
 
     delete client.declare;
@@ -414,7 +420,7 @@ module.exports.declare = async (requestData, client) => {
       new: true,
     });
 
-    logger.info('check status ==> and Table ', table);
+    // logger.info('check status ==> and Table ', table);
 
     await checkWinnerActions.winnercall(table, client);
 
@@ -467,10 +473,10 @@ module.exports.invalidDeclare = async (table, client) => {
       let pickedCardIndex = playersCards.findIndex((card) => card === pickedCard);
 
       playersCards.splice(pickedCardIndex, 1);
-      logger.info('invalid playerInfo ::--> ', tabInfo.openDeck);
+      // logger.info('invalid playerInfo ::--> ', tabInfo.openDeck);
       tabInfo.openDeck.push(pickedCard);
 
-      logger.info('players Cards =>', playersCards);
+      // logger.info('players Cards =>', playersCards);
     }
 
     // let winner_state = checkUserCardActions.getWinState(playerInfo.cards, tabInfo.hukum);
@@ -594,7 +600,7 @@ module.exports.playerFinish = async (requestData, client) => {
       new: true,
     });
 
-    logger.info('player Finish table : ', JSON.stringify(tb));
+    // logger.info('player Finish table : ', JSON.stringify(tb));
 
     let activePlayerInRound = await getPlayingUserInRound(tb.playerInfo);
     let ifAllPlayersHasFinished = true;
@@ -686,12 +692,12 @@ module.exports.playerDrop = async (requestData, client) => {
       countScore = 40;
     }
 
-    logger.info('playerDrop Count score -->', countScore);
+    // logger.info('playerDrop Count score -->', countScore);
     let lostChips = Number(countScore * tabInfo.entryFee);
-    logger.info('playerDrop lostChips score -->', lostChips);
+    // logger.info('playerDrop lostChips score -->', lostChips);
 
     let gameChips = playerInfo.gameChips - lostChips;
-    logger.info('Updated game Chips ->', gameChips);
+    // logger.info('Updated game Chips ->', gameChips);
 
     let response = {
       pi: playerInfo.playerId,
@@ -745,7 +751,7 @@ module.exports.playerDrop = async (requestData, client) => {
     // eslint-disable-next-line no-unused-vars
     const playerInGame = await getPlayingUserInRound(tabInfo.playerInfo);
 
-    logger.info("rummy playerInGame ", playerInGame)
+    // logger.info("rummy playerInGame ", playerInGame)
     roundStartActions.DealerRobotLogicCard(playerInGame, parseInt(tabInfo.wildCard.split("-")[1]), client.tbid.toString())
 
 

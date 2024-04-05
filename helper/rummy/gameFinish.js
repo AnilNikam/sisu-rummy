@@ -33,7 +33,6 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
     let amount = (tb.tableAmount * tb.commission) / 100;
 
-
     let insertobj = {
       tableId: tbid,
       gamePlayType: tb.gamePlayType,
@@ -97,7 +96,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
     const GSBResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType };
 
     const addLastScoreBoard = tableInfo.lastGameScoreBoard.push(GSBResponse);
-    logger.info('lastUserWinnerDeclareCall Score board ==>', addLastScoreBoard);
+    // logger.info('lastUserWinnerDeclareCall Score board ==>', addLastScoreBoard);
 
     const qu = {
       _id: MongoID(tbid),

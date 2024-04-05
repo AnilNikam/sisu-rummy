@@ -8,7 +8,6 @@ const UserReferTracks = mongoose.model('userReferTracks');
 const PlayingTables = mongoose.model('playingTable');
 const IdCounter = mongoose.model('idCounter');
 const logger = require('../../logger');
-const { tryEach } = require('async');
 
 module.exports.appLunchDetails = async (requestData, client) => {
   try {
@@ -248,32 +247,33 @@ module.exports.getCountDetails = async (type) => {
 };
 
 module.exports.userSesssionSet = async (userData, client) => {
-  logger.info('Redis User Session ', userData);
-  logger.info('Redis User Session Socket ', client);
   try {
-    if (client) {
-
-      client.uid = userData._id.toString();
-      client.uniqueId = userData.uniqueId;
-
-      // eslint-disable-next-line no-unused-vars
-      // let redisSet = {
-      //   _id: userData._id.toString(),
-      //   uid: userData.id,
-      //   mobileNumber: userData.mobileNumber,
-      //   uniqueId: userData.uniqueId,
-      // };
-
-      const { _id, uniqueId, mobileNumber, email } = userData;
-
-      rClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
-
-      return true;
-    } else {
-      logger.info("not get socket data")
+    // Validate userData
+    if (!userData || typeof userData !== 'object' || !userData._id) {
+      logger.error('Invalid userData. Missing required fields.');
+      return;
     }
-  } catch (e) {
-    logger.info('user Session -->', e);
+
+    // Validate client
+    if (!client || typeof client !== 'object' || !client.id) {
+      logger.error('Invalid client. Missing required fields.');
+      return
+    }
+
+
+    // Set user session in Redis
+    client.uid = userData._id.toString();
+    client.uniqueId = userData.uniqueId;
+
+    const { _id, uniqueId, mobileNumber, email } = userData;
+
+    // Set user session data in Redis hash
+    await rClient.hmset(`socket-${_id.toString()}`, 'socketId', client.id.toString(), 'userId', _id.toString(), 'mobileNumber', mobileNumber, 'uniqueId', uniqueId, 'email', email);
+
+    return true;
+  } catch (error) {
+    logger.error('Error setting user session:', error);
+    return false;
   }
 };
 

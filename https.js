@@ -51,7 +51,12 @@ const socket = require('./controller/socket-server');
 // server start configuration here.
 const httpApp = (module.exports = express());
 // binding all configuratio to app
-
+httpApp.use(
+  bodyParser.urlencoded({
+    extended: true,
+    type: 'application/x-www-form-urlencoded'
+  })
+);
 httpApp.use(express.json());
 httpApp.use(
   cors({
@@ -102,11 +107,11 @@ httpApp.use('/reports', express.static(path.join(__dirname, 'reports')));
 
 
 const options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/fullchain.pem')
-  };
-console.log("options ",options)
-const server = http.createServer(options,httpApp);
+  key: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/rummylegit.com/fullchain.pem')
+};
+console.log("options ", options)
+const server = http.createServer(options, httpApp);
 server.listen(SERVER_PORT, () => {
   logger.info('Server ID : => ' + SERVER_ID + ' - Express server listening on port : ' + SERVER_PORT + ' date : ' + new Date());
   socket.init(server);
