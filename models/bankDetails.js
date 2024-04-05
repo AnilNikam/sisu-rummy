@@ -18,12 +18,19 @@ const bankDeatilsschema = new Schema(
             enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
             default: 'Pending', //Approved //Rejected  Must This String  
         },
+        paymentreMark: { type: String, default: '' },
         IFSC: { type: String, default: '' },
         BeneficiaryName: { type: String, default: '' },
+        adminStatus: {
+            type: String,
+            enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
+            default: 'Pending', //Approved //Rejected  Must This String  
+        },
         reMark: { type: String, default: '' },
         transferMode: { type: String, enum: ['NEFT', 'RTGS', 'IMPS'] },
         verify: { type: Boolean, default: false },
-        webhook: {}
+        webhook: {},
+        
     },
     {
         timestamps: true,
