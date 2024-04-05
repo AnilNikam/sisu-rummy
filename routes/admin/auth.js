@@ -107,7 +107,7 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
       const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.AggRefNo }, { $set: { webhook: req.body } }, { new: true });
       logger.info("PaymentIndata ", PaymentIndata);
 
-      if (PaymentIndata && PaymentIndata.userId && req.body.Status === "Success") {
+      if (PaymentIndata && PaymentIndata.userId) {
         await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
         await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 

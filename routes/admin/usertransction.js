@@ -532,10 +532,10 @@ router.get('/PayoutListData', async (req, res) => {
     try {
         console.log('PayoutListData requet => ', req.query);
         let wh = {}
-        if(req.query.status == "Pending"){
-            wh = {paymentStatus:"Pending"}
-        }if(req.query.status == "Approved"){
-            wh = {paymentStatus:"Approved"}
+        if (req.query.status == "Pending") {
+            wh = { paymentStatus: "Pending" }
+        } if (req.query.status == "Approved") {
+            wh = { paymentStatus: "Approved" }
         }
 
         const PayoutList = await PaymentOut.find({}, {
@@ -544,7 +544,7 @@ router.get('/PayoutListData', async (req, res) => {
             userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
         })
 
-        logger.info('PayoutList  error => ', PayoutList);
+        logger.info('PayoutList => ', PayoutList);
 
         res.json({ PayoutList });
     } catch (error) {
