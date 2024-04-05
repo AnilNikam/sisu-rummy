@@ -158,7 +158,8 @@ async function newInitiatePayment(requestData, socket) {
 
                     if (decryptedData && decryptedData.AggRefNo !== undefined && decryptedData.AggRefNo !== null) {
                         commandAcions.sendEvent(socket, CONST.PAY_IN, decryptedData);
-                        await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
+                        let upOrderId = await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
+                        logger.info("Update Order Id =>", upOrderId)
                     } else {
 
                         commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, decryptedData);

@@ -109,12 +109,15 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
       const decryptedData = decrypt(modifiedRespData, secretKey, initializationVector);
       logger.info("decryptedData   ==> API", decryptedData);
 
-      const PaymentIndata = await paymentin.findOneAndUpdate({ "transactionId": decryptedData.CustRefNum }, { $set: { webhook: req.body } }, { new: true });
+      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": decryptedData.AggRefNo }, { $set: { webhook: req.body } }, {
+        new: true,
+      });
+
       logger.info("PaymentIndata ==>", PaymentIndata);
 
       if (PaymentIndata && PaymentIndata.userId) {
         let res = await walletActions.addWalletPayin(PaymentIndata.userId, Number(PaymentIndata.Amount), 'Credit', 'PayIn');
-        logger.info("res ", PaymentIndata);
+        logger.info("addWalletPayin res ->", res);
 
         await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(PaymentIndata.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 
