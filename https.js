@@ -1,12 +1,10 @@
 // load configuration data
 const loadbalancer = require('./routes/chooseServer');
 const fs = (module.exports = require('graceful-fs'));
-const bodyParser = require('body-parser');
 module.exports = require('https');
 const express = (module.exports = require('express'));
 require('./newrelic');
-// const { REDIS_HOST } = require('./config')
-
+const { REDIS_HOST, REDIS_PWD } = require('./config')
 const http = require('https');
 
 const path = require('path');
@@ -36,7 +34,6 @@ const RDS_SELECT = 1
 const redis = require('redis');
 const fileUpload = require('express-fileupload');
 
-
 (async () => {
   rClient = (module.exports = redis.createClient(6379, RDS_HOST));
   rClient.auth(RDS_PWD, function () { });
@@ -47,7 +44,7 @@ const fileUpload = require('express-fileupload');
   rClient.on('connect', () => {
     console.log('Redis Client connected')
   });
-})()
+})();
 
 //const wallet = require('./controller/wallet');
 const socket = require('./controller/socket-server');
