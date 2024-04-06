@@ -211,6 +211,7 @@ module.exports.userTurnExpaire = async (tbid) => {
         openDeck: tabInfo.openDeck,
         'playerInfo.$.gCard': playerInfo.gCard,
         'playerInfo.$.pickedCard': '',
+        'turnDone': true,
       },
       $inc: {
         'playerInfo.$.turnMissCounter': 1,

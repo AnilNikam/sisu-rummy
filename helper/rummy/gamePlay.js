@@ -178,10 +178,9 @@ module.exports.disCard = async (requestData, client) => {
     logger.info('disCard check tabInfo', tabInfo.turnDone);
 
 
-    // let tbid1 = tabInfo._id.toString();
-    // let turnChangeDelayTimer = commandAcions.AddTime(1);
-
-    // await commandAcions.setDelay(tbid1, new Date(turnChangeDelayTimer));
+    let tbid1 = tabInfo._id.toString();
+    let turnChangeDelayTimer = commandAcions.AddTime(1);
+    await commandAcions.setDelay(tbid1, new Date(turnChangeDelayTimer));
 
     if (tabInfo === null) {
       logger.info('disc card user not turn ::', tabInfo);

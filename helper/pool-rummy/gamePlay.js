@@ -34,6 +34,10 @@ module.exports.pickCard = async (requestData, client) => {
     const project = {};
     let tableInfo = await PlayingTables.findOne(wh, project).lean();
 
+    let tbid1 = tableInfo._id.toString();
+    let turnChangeDelayTimer = commandAcions.AddTime(1);
+    await commandAcions.setDelay(tbid1, new Date(turnChangeDelayTimer));
+
     if (tableInfo === null) {
       logger.info('pickCard user not turn ::', tableInfo);
       delete client.pickCard;
