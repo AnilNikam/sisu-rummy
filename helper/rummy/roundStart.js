@@ -189,6 +189,8 @@ module.exports.userTurnExpaire = async (tbid) => {
 
     const playersCards = playerInfo.cards;
     if (playerInfo.pickedCard !== '') {
+    // clearJob(tabInfo.jobId);
+
       const pickedCard = playerInfo.pickedCard;
 
       let pickedCardIndex = playersCards.findIndex((card) => card === pickedCard);
@@ -215,6 +217,7 @@ module.exports.userTurnExpaire = async (tbid) => {
         openDeck: tabInfo.openDeck,
         'playerInfo.$.gCard': playerInfo.gCard,
         'playerInfo.$.pickedCard': '',
+        'turnDone': true,
       },
       $inc: {
         'playerInfo.$.turnMissCounter': 1,
@@ -226,6 +229,7 @@ module.exports.userTurnExpaire = async (tbid) => {
       new: true,
     });
 
+    logger.info("check uto turn Done ->",upRes)
     if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 3) {
       let sckId = upRes.playerInfo[upRes.currentPlayerTurnIndex].sck
       sendDirectEvent(sckId, CONST.USER_MESSAGE, { msg: 'User Drop Out for Missed 3 turn' });
