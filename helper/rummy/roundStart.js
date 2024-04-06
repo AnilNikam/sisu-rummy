@@ -174,7 +174,9 @@ module.exports.userTurnExpaire = async (tbid) => {
 
     let tabInfo = await PlayingTables.findOne(wh, project).lean();
 
-    if (tabInfo === null || tabInfo.gameState !== 'RoundStated') return false;
+    if (tabInfo === null || tabInfo.gameState !== 'RoundStated') {
+      return false;
+    }
 
     let activePlayerInRound = await getPlayingUserInRound(tabInfo.playerInfo);
 

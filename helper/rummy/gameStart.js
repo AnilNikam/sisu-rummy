@@ -273,8 +273,6 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
   }
 };
 
-
-
 module.exports.RoundFinishdeduct = async (tbInfo, playerInfo, diff) => {
   const tabInfo = tbInfo;
 

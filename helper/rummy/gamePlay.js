@@ -217,6 +217,7 @@ module.exports.disCard = async (requestData, client) => {
       updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
       updateData.$set['playerInfo.$.pickedCard'] = '';
       updateData.$set['openDeck'] = tabInfo.openDeck;
+      updateData.$set['turnDone'] = true;
     }
 
     //cancel Schedule job
