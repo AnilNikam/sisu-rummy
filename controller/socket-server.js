@@ -709,16 +709,6 @@ myIo.init = function (server) {
             break;
           }
 
-          case CONST.GET_STATE_LIST: {
-            try {
-              logger.info('GET_STATE_LIST => ', payload.data);
-              await getStateList(payload.data, socket);
-            } catch (error) {
-              logger.error('socketServer.js REFFERAL => ', error);
-            }
-            break;
-          }
-
           case CONST.USER_UPDATE_STATE: {
             try {
               logger.info('USer GET_STATE_LIST => ', payload.data);
