@@ -133,6 +133,45 @@ module.exports.checkReferral = async (requestData, socket) => {
   }
 };
 
+module.exports.getStateList = async (requestData, socket) => {
+
+  const indianStates = [
+    'Andaman and Nicobar Islands',
+    'Arunachal Pradesh',
+    'Bihar',
+    'Chandigarh',
+    'Chhattisgarh',
+    'Dadra and Nagar Haveli',
+    'Daman',
+    'Diu',
+    'Delhi',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jammu and Kashmir',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Ladakh',
+    'Lakshadweep',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Mizoram',
+    'Odisha',
+    'Puducherry',
+    'Punjab',
+    'Rajasthan',
+    'Tamil Nadu',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal'
+  ];
+  commandAcions.sendEvent(socket, CONST.GET_STATE_LIST, indianStates);
+};
+
 module.exports.getUserDefaultFields = async (data, client) => {
   logger.info('getUserDefaultFields get User Default Fields -->', data);
   const setUserDetail = {

@@ -23,6 +23,7 @@ const logger = require('../logger');
 
 const usersHelper = require('../helper/usersHelper');
 const commonHelper = require('../helper/commonHelper');
+const { stat } = require('fs');
 // const BankDetails = require('../models/bankDetails');
 
 /**
@@ -214,6 +215,41 @@ async function playerDetails(requestBody) {
       }
     );
 
+    const indianStates = [
+      'Andaman and Nicobar Islands',
+      'Arunachal Pradesh',
+      'Bihar',
+      'Chandigarh',
+      'Chhattisgarh',
+      'Dadra and Nagar Haveli',
+      'Daman',
+      'Diu',
+      'Delhi',
+      'Goa',
+      'Gujarat',
+      'Haryana',
+      'Himachal Pradesh',
+      'Jammu and Kashmir',
+      'Jharkhand',
+      'Karnataka',
+      'Kerala',
+      'Ladakh',
+      'Lakshadweep',
+      'Madhya Pradesh',
+      'Maharashtra',
+      'Manipur',
+      'Mizoram',
+      'Odisha',
+      'Puducherry',
+      'Punjab',
+      'Rajasthan',
+      'Tamil Nadu',
+      'Tripura',
+      'Uttar Pradesh',
+      'Uttarakhand',
+      'West Bengal'
+    ];
+
     logger.info("isverified ", isverified)
     user.verified = isverified ? isverified.verified : false
     user.aadharcardnumber = isverified ? isverified.adharcard : ""
@@ -222,6 +258,8 @@ async function playerDetails(requestBody) {
     user.panCardNumber = isverified ? isverified.pancard : ""
     user.isBankAccountAdded = userBankDetails ? true : false
     user.isBankAccountVerify = userBankDetails ? userBankDetails.verify : false //
+    user.stateList = indianStates //
+
     return user;
   } catch (error) {
     logger.error('mainController.js playerDetails error=> ', error, requestBody);
@@ -372,6 +410,35 @@ async function registerAdmin(requestBody) {
 }
 
 
+async function userUpdateState(requestBody) {
+  try {
+    const { playerId, state } = requestBody;
+    const data = await Users.findOne({ _id: playerId }).lean();
+
+    if (data) {
+      const updateData = {
+        $set: {
+          location: state
+        }
+      };
+
+      const response = await Users.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(data._id) }, updateData, { new: true });
+      logger.info("update state response =>", response)
+      return { status: 1, message: 'Update State Succesfully', data: response };
+
+    } else {
+      return { status: 0, message: 'Id not Found' };
+    }
+
+
+  } catch (error) {
+    logger.error('userUpdateState error=> ', error, requestBody);
+    return {
+      message: 'something went wrong while registering, please try again',
+      status: 0,
+    };
+  }
+}
 /**
  * @description . Create Admin User
  * @param {Object} requestBody
@@ -1107,5 +1174,6 @@ module.exports = {
   getBankDetailByUserId,
   getTransactiobDetailByUserId,
   registerAdminUpdate,
-  registerAdminProfileUpdate
+  registerAdminProfileUpdate,
+  userUpdateState
 };

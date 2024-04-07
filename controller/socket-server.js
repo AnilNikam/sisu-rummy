@@ -19,7 +19,7 @@ const { userReconnect, takeSeat } = require('../helper/common-function/reConnect
 const paymentAction = require('./paymentController,js');
 const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
-const { checkReferral, activePlayerCounter } = require('../helper/signups/appStart');
+const { checkReferral, activePlayerCounter, getStateList } = require('../helper/signups/appStart');
 
 const walletActions = require('../helper/common-function/walletTrackTransaction');
 
@@ -506,6 +506,19 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.USER_UPDATE_STATE: {
+            try {
+              const newData = { playerId: payload.data.playerId, state: payload.data.state };
+              const res = await mainCtrl.userUpdateState(newData);
+              logger.info('USER_UPDATE_STATE -->', res);
+
+              sendEvent(socket, CONST.USER_UPDATE_STATE, res);
+            } catch (error) {
+              logger.error('socketServer.js USER_UPDATE_STATE error => ', error);
+            }
+            break;
+          }
+
           case CONST.GET_BANK_DETAILS: {
             try {
               let res = await mainCtrl.getBankDetailByUserId(payload.data, socket);
@@ -690,6 +703,26 @@ myIo.init = function (server) {
             try {
               logger.info('RE CONNECT Event Called REFFERAL ', payload.data);
               await checkReferral(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js REFFERAL => ', error);
+            }
+            break;
+          }
+
+          case CONST.GET_STATE_LIST: {
+            try {
+              logger.info('GET_STATE_LIST => ', payload.data);
+              await getStateList(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js REFFERAL => ', error);
+            }
+            break;
+          }
+
+          case CONST.USER_UPDATE_STATE: {
+            try {
+              logger.info('USer GET_STATE_LIST => ', payload.data);
+              await getStateList(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js REFFERAL => ', error);
             }
