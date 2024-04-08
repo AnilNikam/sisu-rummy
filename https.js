@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 module.exports = require('https');
 const express = (module.exports = require('express'));
 require('./newrelic');
-// const { REDIS_HOST } = require('./config')
+const { REDIS_HOST, REDIS_PWD } = require('./config')
 
 const http = require('https');
 
