@@ -53,7 +53,7 @@ router.get('/UserData', async (req, res) => {
     try {
         logger.info('requet => ', req.query);
         //userInfo
-        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1, avatar: 1 ,isBlock:1 })
+        const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1, avatar: 1, isBlock: 1 })
 
         // console.log("userInfo :::::::::::::::::::", userInfo)
 
@@ -298,8 +298,8 @@ router.put('/blockandunblock', async (req, res) => {
 
         if (req.body.userId != undefined && req.body.isblock != undefined) {
 
-            await Users.updateOne({ _id: new mongoose.Types.ObjectId(req.body.userId) }, {$set:{isBlock:req.body.isblock} })
-         
+            await Users.updateOne({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { $set: { isBlock: req.body.isblock } })
+
             res.json({ status: "ok" });
         } else {
             console.log("false")
@@ -415,7 +415,10 @@ router.get('/ReferralList', async (req, res) => {
                     _id: '$userId',
                     total: {
                         $sum: 1
-                    }
+                    },
+                    isFrist_deposit: { $push: "$isFrist_deposit" },
+                    reffralStatus: { $push: "$reffralStatus" }
+
 
                 }
             },
@@ -431,8 +434,8 @@ router.get('/ReferralList', async (req, res) => {
                 $project: {
                     'total': 1,
                     'results.name': 1,
-                    'isFrist_deposit':1,
-                    'reffralStatus':1
+                    'isFrist_deposit': 1,
+                    'reffralStatus': 1
                 }
             }
         ]);
