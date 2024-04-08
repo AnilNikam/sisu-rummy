@@ -7,6 +7,7 @@ const UserWalletTracksSchema = new Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: GameUser },
     uniqueId: { type: String },
+    username: { type: String },
     transType: { type: String },
     transTypeText: { type: String },
     transAmount: { type: Number },

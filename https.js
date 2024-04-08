@@ -33,8 +33,6 @@ const SERVER_PORT = (module.exports = process.env.PORT || 3000);
 // const RDS_HOST = "127.0.0.1";
 // const RDS_HOST = REDIS_HOST
 // const RDS_SELECT = 1
-const redis = require('redis');
-const fileUpload = require('express-fileupload');
 
 // console.log('http.js \nSERVER_PORT', SERVER_PORT + ' \nSERVER_ID', SERVER_ID);
 
@@ -46,6 +44,25 @@ const fileUpload = require('express-fileupload');
 //     // console.log('Redis Client connected')
 //   });
 // })();
+
+
+const RDS_HOST = REDIS_HOST
+const RDS_PWD = REDIS_PWD
+const RDS_SELECT = 1
+const redis = require('redis');
+const fileUpload = require('express-fileupload');
+
+(async () => {
+  rClient = (module.exports = redis.createClient(6379, RDS_HOST));
+  rClient.auth(RDS_PWD, function () { });
+  rClient.select(1);
+  // eslint-disable-next-line no-console
+  rClient.on('error', (err) => console.log('Redis Client Error', err));
+
+  rClient.on('connect', () => {
+    console.log('Redis Client connected')
+  });
+})();
 
 //const wallet = require('./controller/wallet');
 const socket = require('./controller/socket-server');

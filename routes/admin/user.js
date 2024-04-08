@@ -430,7 +430,9 @@ router.get('/ReferralList', async (req, res) => {
             {
                 $project: {
                     'total': 1,
-                    'results.name': 1
+                    'results.name': 1,
+                    'isFrist_deposit':1,
+                    'reffralStatus':1
                 }
             }
         ]);

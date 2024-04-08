@@ -505,7 +505,7 @@ router.get('/transactionData', async (req, res) => {
         //console.info('requet => ', req);
 
         const transactionData = await UserWalletTracks.find({}, {
-            uniqueId: 1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
+            uniqueId: 1,username:1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
             totalBucket: 1, gameId: 1, createdAt: 1
         })
 

@@ -61,7 +61,7 @@ router.get('/completeWithdrawal', async (req, res) => {
             return false
         }
         const completeWithdrawalData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), transTypeText: "PayOut" },
-            { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
+            { createdAt: 1, userId: 1,username:1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
 
         logger.info('completeWithdrawalData ', completeWithdrawalData);
 
