@@ -15,7 +15,7 @@ module.exports.cardDealStart = async (tbid) => {
   try {
     let wh = { _id: tbid };
     let table = await PlayingTables.findOne(wh, {}).lean();
-    let cardDetails = this.getCards(table.playerInfo);
+    let cardDetails = this.getCards(table.playerInfo,table.maxSeat);
 
     table.openDeck.push(cardDetails.openCard);
     let dealerSeatIndex = createDealer(table.activePlayer - 1);
@@ -104,9 +104,11 @@ module.exports.setUserCards = async (cardsInfo, tableInfo) => {
   }
 };
 
-module.exports.getCards = (playerInfo) => {
+module.exports.getCards = (playerInfo,maxSeat) => {
   try {
-    let deckCards = Object.assign([], CONST.deckOne);
+    //let deckCards = Object.assign([], CONST.deckOne);
+
+    let deckCards = maxSeat == 6?Object.assign([], CONST.deckOne):Object.assign([], CONST.singaldeckOne)
     deckCards = shuffle(deckCards);
 
     let ran = parseInt(fortuna.random() * deckCards.length);
