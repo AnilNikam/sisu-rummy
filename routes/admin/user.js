@@ -330,11 +330,21 @@ router.get('/kycInfoList', async (req, res) => {
         let wh = {}
 
         if (req.query != undefined && req.query.status != undefined && req.query.status == "Pendding") {
+
             wh = { $or: [{ verified: false }, { pancardverified: false }], adharcard: "", pancard: "" }
+
         } else if (req.query != undefined && req.query.status != undefined && req.query.status == "Approved") {
-            wh = { verified: true, pancardverified: true }
+
+            wh = { $or: [{ verified: true, pancardverified: true }, { adharcardadminverified: true, pancardadminverified: true }] }
+
         } else {
-            wh = { $or: [{ verified: false, adharcard: { $ne: "" } }, { pancardverified: false, pancard: { $ne: "" } }] }
+
+            wh = {
+                $or: [{ verified: false, adharcard: { $ne: "" }, adharcardadminverified: false },
+                { pancardverified: false, pancard: { $ne: "" }, pancardadminverified: false }
+
+                ]
+            }
         }
 
         let kycInfoList = await otpAdharkyc.find(wh, {})
@@ -370,6 +380,7 @@ router.put('/KycUpdate', async (req, res) => {
                 adminremarkcd: new Date(),
                 verified: req.body.verified == "false" ? false : true,
                 pancardverified: req.body.Pancardverified == "false" ? false : true,
+                adminname: req.body.adminname
             }
         }
 
@@ -443,8 +454,17 @@ router.get('/ReferralList', async (req, res) => {
 
         for (var i = 0; i < ReferralList.length; i++) {
             console.log("ReferralList ::::::::::::::::", ReferralList[i])
+
             ReferralList[i].userName = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].name != undefined) ? ReferralList[i].results[0].name : ""
+            ReferralList[i].totalbonus = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].reffralStatus != undefined) ?
+
+                ReferralList[i].results[0].reffralStatus.filter(function (num) { return num == true }).length * GAMELOGICCONFIG.referralgamebonusamount
+
+                : 0
+
+
             delete ReferralList[i].results
+
         }
         console.log("ReferralList ", ReferralList)
         res.json({ ReferralList });
