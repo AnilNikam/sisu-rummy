@@ -28,9 +28,13 @@ const generatePureSequence = (deck, callback) => {
     suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
     console.log("suitCards ", suitCards)
 
+    var temp = Math.floor(Math.random() * suitCards.length - 3)
+    console.log("temp ",temp)
     // Check if there are at least three consecutive cards in the suit
-    for (let i = 0; i <= suitCards.length - 3; i++) {
+    for (let i = temp; i <= suitCards.length - 3; i++) {
+        
         const sequence = suitCards.slice(i, i + 3);
+        console.log("IIIIIIIIIIIIIIIII sequence",sequence)
         const valuesDiff = sequence.map(card => parseInt(card.split('-')[1]) - 1);
         const isConsecutive = valuesDiff.every((val, index) => val === parseInt(sequence[0].split('-')[1]) - 1 + index);
 
@@ -63,9 +67,12 @@ const generateImpureSequence = (deck, joker) => {
     // Sort the suit cards based on their values
     suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
 
-    // Choose two cards randomly from the suit cards
-    const chosenCards = [suitCards[0], suitCards[1]];
+    console.log("suitCards ",suitCards)
 
+    let temp = Math.floor((Math.random() * suitCards.length-1))
+    // Choose two cards randomly from the suit cards
+    const chosenCards = [suitCards[temp], suitCards[temp+1]];
+  
     // Remove the chosen cards from the original deck
     deck = _.difference(deck, chosenCards);
     console.log("Remove impre card ==>", deck)
@@ -137,6 +144,8 @@ const checkWinCard = (deck, wildCard, call) => {
         console.log("deck after removing impureCards: ", deck);
 
         const cardSet = generateSet(deck);
+
+        deck = _.difference(deck, cardSet);
 
         // Output the generated sequences
         const sequences = {
