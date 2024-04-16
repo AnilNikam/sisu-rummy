@@ -977,7 +977,7 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                                         //check a compete declare bot cards
                                         let throwCard = pickedCard;
-                                        logger.info("check throw card",throwCard)
+                                        logger.info("check throw card", throwCard)
 
                                         if (player.turnCount == tableInfo.winingDeclareCount) {
                                             logger.info("check win Bot ===>", tableInfo.gamePlayType)
@@ -1039,7 +1039,7 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             disCard: disCard,
                                         };
 
-logger.info("check throw card ->",responsee)
+                                        logger.info("check throw card ->", responsee)
                                         commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
 
@@ -1621,7 +1621,13 @@ const selectThrowcard = (playerCards, followersCard, pair) => {
 
 const generatePureSequence = (deck, wildcard, callback) => {
 
-    logger.info("wild card ->",wildcard);
+    logger.info("before wild card ->", wildcard);
+
+    // Convert wildcard to string if it's not already
+    if (typeof wildcard !== 'string') {
+        wildcard = String(wildcard);
+    }
+
     let suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
     const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']; // Card values
 
@@ -1629,7 +1635,7 @@ const generatePureSequence = (deck, wildcard, callback) => {
     const shuffledDeck = shuffleArray(deck);
 
     suits = _.difference(suits, [wildcard.split("-")[0]])
-    
+
     // Choose a random suit
 
     console.log("after Wild card Sgit ", suits)
@@ -1658,8 +1664,8 @@ const generatePureSequence = (deck, wildcard, callback) => {
         }
     }
 
-    // If no consecutive sequence found, try again
-    return callback(generatePureSequence(deck, callback))
+    // If no consecutive sequence is found, try again
+    return callback(generatePureSequence(deck, wildcard, callback));
 };
 
 // Function to generate an impure sequence
