@@ -992,24 +992,74 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             }
                                         }
 
+                                        let droppedCard = throwCard//requestData.cardName;
+                                        let playerInfo = tableInfo.playerInfo[playerIndex];
+                                        let playersCards = playerInfo.cards;
+
+                                        const droppedCardIndex = playersCards.indexOf(droppedCard);
+                                        const disCard = playersCards[droppedCardIndex];
+
+                                        playerInfo.cards.splice(droppedCardIndex, 1);
+
+                                        //remove picCard
+                                        playerInfo.pickedCard = '';
+                                        tableInfo.openDeck.push(disCard);
+
+                                        let updateData = {
+                                            $set: {},
+                                            $inc: {},
+                                        };
+
+                                        if (playerInfo.playerStatus === 'PLAYING') {
+                                            updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
+                                            updateData.$set['playerInfo.$.pickedCard'] = '';
+                                            updateData.$set['openDeck'] = tableInfo.openDeck;
+                                        }
+
+                                        //cancel Schedule job
+                                        commandAcions.clearJob(tableInfo.jobId);
+
+                                        const upWh = {
+                                            _id: MongoID(tableInfo._id.toString()),
+                                            'playerInfo.seatIndex': Number(playerIndex),
+                                        };
+
+                                        const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+                                            new: true,
+                                        });
+
+                                        logger.info("final discard table =>", tb);
+
+                                        let responsee = {
+                                            playerId: playerInfo._id,
+                                            disCard: disCard,
+                                        };
+
+
+                                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+
+
+                                        let re = await roundStartActions.nextUserTurnstart(tb);
+
+                                        /*
                                         mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
                                             let throwCard = "";
                                             let randomIndex = -1
-
+    
                                             logger.info("cardjson ", cardjson)
                                             RemainCardTounusecardThrow(cardjson, tableInfo.wildCard, async (RemainCard) => {
-
-
+    
+    
                                                 logger.info("RemainCard ", RemainCard)
-
+    
                                                 // pureSeqs: MycardSet.pure,
                                                 // ImpureSeqs: unusedJoker.impureSequences,
                                                 // Teen: unusedJoker.Teen,
                                                 // possibilityCard1: possibiltyCard1,
                                                 // RemainCard: RemainCard
-
+    
                                                 let Isdecalre = false;
-
+    
                                                 // RemainCard  {
                                                 //     pureSeqs: [ 'S-11-0', 'S-12-0', 'S-13-0' ],
                                                 //     ImpureSeqs: [
@@ -1027,11 +1077,11 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                     && RemainCard.RemainCard != undefined && RemainCard.possibilityCard1.length == 0
                                                     && RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length >= 1
                                                     && RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length >= 1
-
+    
                                                 ) {
                                                     Isdecalre = true
                                                 }
-
+    
                                                 if (RemainCard.RemainCard != undefined && RemainCard.RemainCard.length > 0) {
                                                     logger.info("RemainCard  RemainCard  ", RemainCard.RemainCard)
                                                     RemainCard.RemainCard.sort((e, f) => {
@@ -1039,29 +1089,29 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                     })
                                                     //randomIndex = Math.floor(Math.random() * RemainCard.RemainCard.length);
                                                     throwCard = RemainCard.RemainCard[0];
-
+    
                                                 } else if (RemainCard.possibilityCard1 != undefined && RemainCard.possibilityCard1.length > 0) {
                                                     logger.info("RemainCard  possibilityCard1  ", RemainCard.possibilityCard1)
-
+    
                                                     RemainCard.possibilityCard1 = _.flatten(RemainCard.possibilityCard1)
-
+    
                                                     randomIndex = Math.floor(Math.random() * RemainCard.possibilityCard1.length);
                                                     throwCard = RemainCard.possibilityCard1[randomIndex];
-
+    
                                                 } else if (RemainCard.Teen != undefined && RemainCard.Teen.length > 0) {
                                                     logger.info("Teen  sequestion  ")
-
-
+    
+    
                                                     randomIndex = Math.floor(Math.random() * RemainCard.Teen.length);
                                                     throwCard = RemainCard.Teen[randomIndex];
                                                 } else if (RemainCard.ImpureSeqs != undefined && RemainCard.ImpureSeqs.length > 0) {
                                                     logger.info("ImpureSeqs  sequestion  ")
-
-
+    
+    
                                                     randomIndex = Math.floor(Math.random() * RemainCard.ImpureSeqs.length);
                                                     throwCard = RemainCard.ImpureSeqs[randomIndex];
                                                 } else if (RemainCard.pureSeqs != undefined && RemainCard.pureSeqs.length > 0) {
-
+    
                                                     logger.info("pureSeqs  sequestion  ")
                                                     randomIndex = Math.floor(Math.random() * RemainCard.pureSeqs.length);
                                                     throwCard = RemainCard.pureSeqs[randomIndex];
@@ -1072,85 +1122,85 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                 }
                                                 logger.info("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
                                                 // let selectDiscardCard = convertCardPairAndFollowers(playerCards);
-
+    
                                                 // logger.info('selectDiscardCard => ', selectDiscardCard);
                                                 // logger.info('select Discard followers Card => ', selectDiscardCard.followers + ' select Discard followers Card => ' + selectDiscardCard.pair);
-
+    
                                                 // const isWinner = checkPairAndFollowers(playerCards);
                                                 // console.info('isWinner => ', isWinner);
-
+    
                                                 // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
                                                 logger.info('DIS throwCard => ', throwCard);
                                                 logger.info('DIS Isdecalre => ', Isdecalre);
-
+    
                                                 if (Isdecalre) {
                                                     logger.info(tableInfo.gamePlayType)
                                                     switch (tableInfo.gamePlayType) {
                                                         case CONST.GAME_TYPE.POINT_RUMMY:
                                                             await gamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
                                                             break;
-
+    
                                                         case CONST.GAME_TYPE.POOL_RUMMY:
                                                             await poolGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
                                                             break;
-
+    
                                                         case CONST.GAME_TYPE.DEAL_RUMMY:
                                                             await dealGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
                                                             break;
                                                     }
-
+    
                                                 } else {
                                                     let droppedCard = throwCard//requestData.cardName;
                                                     let playerInfo = tableInfo.playerInfo[playerIndex];
                                                     let playersCards = playerInfo.cards;
-
+    
                                                     const droppedCardIndex = playersCards.indexOf(droppedCard);
                                                     const disCard = playersCards[droppedCardIndex];
-
+    
                                                     playerInfo.cards.splice(droppedCardIndex, 1);
-
+    
                                                     //remove picCard
                                                     playerInfo.pickedCard = '';
                                                     tableInfo.openDeck.push(disCard);
-
+    
                                                     let updateData = {
                                                         $set: {},
                                                         $inc: {},
                                                     };
-
+    
                                                     if (playerInfo.playerStatus === 'PLAYING') {
                                                         updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
                                                         updateData.$set['playerInfo.$.pickedCard'] = '';
                                                         updateData.$set['openDeck'] = tableInfo.openDeck;
                                                     }
-
+    
                                                     //cancel Schedule job
                                                     commandAcions.clearJob(tableInfo.jobId);
-
+    
                                                     const upWh = {
                                                         _id: MongoID(tableInfo._id.toString()),
                                                         'playerInfo.seatIndex': Number(playerIndex),
                                                     };
-
+    
                                                     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
                                                         new: true,
                                                     });
-
+    
                                                     logger.info("final discard table =>", tb);
-
+    
                                                     let responsee = {
                                                         playerId: playerInfo._id,
                                                         disCard: disCard,
                                                     };
-
-
+    
+    
                                                     commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
-
-
+    
+    
                                                     let re = await roundStartActions.nextUserTurnstart(tb);
                                                 }
                                             })
-                                        })
+                                        })*/
 
                                     } else {
                                         logger.info('<= Player Not Found => ');
