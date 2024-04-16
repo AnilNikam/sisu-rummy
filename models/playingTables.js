@@ -13,6 +13,7 @@ const PlayingTablesSchema = new Schema(
     gamePlayType: { type: String, enum: ['pointrummy', 'poolrummy', 'dealrummy'], require: true, default: 'pointrummy' },
     betId: { type: mongoose.Schema.Types.ObjectId, ref: BetLists },
     maxSeat: { type: Number, default: 6 },
+    winingDeclareCount: { type: Number, default: 3 },
     activePlayer: { type: Number, default: 0 },
     gameTimer: { type: Object, default: {} },
     startTimer: { type: String, default: -1 },

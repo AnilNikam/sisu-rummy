@@ -140,7 +140,7 @@ module.exports.getCards = (playerInfo, maxSeat, callback) => {
           cards.push(ress.card);
           issueEasyCard = false
 
-          logger.info("update a bot win status==>")
+          logger.info("update a bot win status==>",playerInfo[i].playerId,playerInfo[i].name)
         } else if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
           let card = [];
           for (let i = 0; i < 13; i++) {

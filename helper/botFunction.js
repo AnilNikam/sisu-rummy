@@ -21,6 +21,7 @@ const checkWinnerActions = require('./rummy/checkWinner');
 const gamePlayActions = require('./rummy/gamePlay');
 const dealGamePlayActions = require('./deal-rummy/gamePlay');
 const poolGamePlayActions = require('./pool-rummy/gamePlay');
+const { response } = require('express');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
@@ -957,6 +958,7 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                                 try {
                                     logger.info("Bot DISCARD event call");
+                                    logger.info("Bot DISCARD event call");
 
                                     //cancel the Schedule
                                     schedule.cancelJob(`table.tableId${tableInfo._id}`);
@@ -965,6 +967,8 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                     let player = tableInfo.playerInfo[playerIndex];
                                     logger.info('userTurnSet playerIndex,player => ', playerIndex + "Player" + player);
                                     logger.info("DISCARD Player Cards", player.cards);
+                                    logger.info("DISCARD Player Turn Count", player.turnCount);
+                                    logger.info("player.turnCount == tableInfo.winingDeclareCount", player.turnCount == tableInfo.winingDeclareCount);
 
                                     //Select Card for Discard
                                     if (player) {
@@ -973,9 +977,9 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                                         //check a compete declare bot cards
                                         let throwCard = pickedCard;
-                                        logger.info("check throw card")
+                                        logger.info("check throw card",throwCard)
 
-                                        if (turnCount == tableInfo.winingDeclareCount) {
+                                        if (player.turnCount == tableInfo.winingDeclareCount) {
                                             logger.info("check win Bot ===>", tableInfo.gamePlayType)
                                             switch (tableInfo.gamePlayType) {
                                                 case CONST.GAME_TYPE.POINT_RUMMY:
@@ -1035,7 +1039,7 @@ const easyPic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             disCard: disCard,
                                         };
 
-
+logger.info("check throw card ->",responsee)
                                         commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
 
@@ -1616,6 +1620,8 @@ const selectThrowcard = (playerCards, followersCard, pair) => {
 
 
 const generatePureSequence = (deck, wildcard, callback) => {
+
+    logger.info("wild card ->",wildcard);
     let suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
     const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']; // Card values
 
@@ -1623,6 +1629,7 @@ const generatePureSequence = (deck, wildcard, callback) => {
     const shuffledDeck = shuffleArray(deck);
 
     suits = _.difference(suits, [wildcard.split("-")[0]])
+    
     // Choose a random suit
 
     console.log("after Wild card Sgit ", suits)
