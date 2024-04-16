@@ -10,63 +10,67 @@ const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
 const roundStartActions = require('../rummy/roundStart');
 const { createDealer } = require('../helperFunction');
+const { checkWinCard } = require('../botFunction');
 
 module.exports.cardDealStart = async (tbid) => {
   try {
     let wh = { _id: tbid };
     let table = await PlayingTables.findOne(wh, {}).lean();
-    let cardDetails = this.getCards(table.playerInfo,table.maxSeat);
+    this.getCards(table.playerInfo, table.maxSeat, async (cardDetails) => {
 
-    table.openDeck.push(cardDetails.openCard);
-    let dealerSeatIndex = createDealer(table.activePlayer - 1);
+      console.log("cardDetails", cardDetails)
 
-    const update = {
-      $set: {
-        openCard: cardDetails.openCard,
-        closeDeck: cardDetails.closeDeck,
-        wildCard: cardDetails.wildCard,
-        openDeck: table.openDeck,
-        dealerSeatIndex,
-        currentPlayerTurnIndex: dealerSeatIndex,
-        gameState: CONST.CARD_DEALING,
-      },
-    };
+      table.openDeck.push(cardDetails.openCard);
+      let dealerSeatIndex = createDealer(table.activePlayer - 1);
 
-    const cardDealIndexs = await this.setUserCards(cardDetails, table);
+      const update = {
+        $set: {
+          openCard: cardDetails.openCard,
+          closeDeck: cardDetails.closeDeck,
+          wildCard: cardDetails.wildCard,
+          openDeck: table.openDeck,
+          dealerSeatIndex,
+          currentPlayerTurnIndex: dealerSeatIndex,
+          gameState: CONST.CARD_DEALING,
+        },
+      };
 
-    const tableInfo = await PlayingTables.findOneAndUpdate(wh, update, {
-      new: true,
+      const cardDealIndexs = await this.setUserCards(cardDetails, table);
+
+      const tableInfo = await PlayingTables.findOneAndUpdate(wh, update, {
+        new: true,
+      });
+
+      const eventResponse = {
+        si: cardDealIndexs,
+        di: tableInfo.dealerSeatIndex,
+        wd: tableInfo.wildCard,
+        openCard: tableInfo.openCard,
+        closeDeck: tableInfo.closeDeck,
+        closedecklength: tableInfo.closeDeck.length,
+      };
+
+      logger.info("cardDealStart tableInfo.playerInfo ->", tableInfo.playerInfo)
+      logger.info("cardDealStart tableInfo.playerInfo ->", new Date())
+
+      tableInfo.playerInfo.forEach((player) => {
+        if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
+          eventResponse.card = player.cards;
+          logger.info("cardDealStart tableInfo.playerInfo -> send Time ", new Date())
+
+          commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
+        }
+      });
+      logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
+
+      let tbId = tableInfo._id;
+      // let jobId = commandAcions.GetRandomString(10);
+      // let delay = commandAcions.AddTime(4);
+
+      // await commandAcions.setDelay(jobId, new Date(delay));
+
+      await roundStartActions.roundStarted(tbId);
     });
-
-    const eventResponse = {
-      si: cardDealIndexs,
-      di: tableInfo.dealerSeatIndex,
-      wd: tableInfo.wildCard,
-      openCard: tableInfo.openCard,
-      closeDeck: tableInfo.closeDeck,
-      closedecklength: tableInfo.closeDeck.length,
-    };
-
-    logger.info("cardDealStart tableInfo.playerInfo ->", tableInfo.playerInfo)
-    logger.info("cardDealStart tableInfo.playerInfo ->", new Date())
-
-    tableInfo.playerInfo.forEach((player) => {
-      if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
-        eventResponse.card = player.cards;
-        logger.info("cardDealStart tableInfo.playerInfo -> send Time ", new Date())
-
-        commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
-      }
-    });
-    logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
-
-    let tbId = tableInfo._id;
-    // let jobId = commandAcions.GetRandomString(10);
-    // let delay = commandAcions.AddTime(4);
-
-    // await commandAcions.setDelay(jobId, new Date(delay));
-
-    await roundStartActions.roundStarted(tbId);
   } catch (err) {
     logger.error('cardDeal.js cardDealStart error => ', err);
   }
@@ -104,11 +108,9 @@ module.exports.setUserCards = async (cardsInfo, tableInfo) => {
   }
 };
 
-module.exports.getCards = (playerInfo,maxSeat) => {
+module.exports.getCards = (playerInfo, maxSeat, callback) => {
   try {
-    //let deckCards = Object.assign([], CONST.deckOne);
-
-    let deckCards = maxSeat == 6?Object.assign([], CONST.deckOne):Object.assign([], CONST.singaldeckOne)
+    let deckCards = maxSeat == 6 ? Object.assign([], CONST.deckOne) : Object.assign([], CONST.singaldeckOne)
     deckCards = shuffle(deckCards);
 
     let ran = parseInt(fortuna.random() * deckCards.length);
@@ -125,29 +127,48 @@ module.exports.getCards = (playerInfo,maxSeat) => {
     }
     deckCards.splice(wildCardIndex, 1);
 
-    let cards = [];
 
-    for (let i = 0; i < playerInfo.length; i++) {
-      if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
-        let card = [];
-        for (let i = 0; i < 13; i++) {
-          let ran = parseInt(fortuna.random() * deckCards.length);
-          card.push(deckCards[ran]);
-          deckCards.splice(ran, 1);
+    checkWinCard(deckCards, wildCard, (ress) => {
+      console.log("BOT RES ::::::::::::::::::", ress)
+      let cards = [];
+      let deckCards = ress.deck;
+      let issueEasyCard = true
+
+      for (let i = 0; i < playerInfo.length; i++) {
+        if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING' && playerInfo[i].isBot && issueEasyCard) {
+          playerInfo[i].isEasy = true
+          cards.push(ress.card);
+          issueEasyCard = false
+
+          logger.info("update a bot win status==>")
+        } else if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
+          let card = [];
+          for (let i = 0; i < 13; i++) {
+            let ran = parseInt(fortuna.random() * deckCards.length);
+            card.push(deckCards[ran]);
+            deckCards.splice(ran, 1);
+          }
+          cards.push(card);
         }
-        cards.push(card);
+
       }
-    }
 
-    let shuffleDeack = shuffle(deckCards);
-
-    return {
-      openCard,
-      cards,
-      wildCard,
-      closeDeck: shuffleDeack,
-      openDeck: [],
-    };
+      let shuffleDeack = shuffle(deckCards);
+      console.log("returnr ", {
+        openCard,
+        cards,
+        wildCard,
+        closeDeck: shuffleDeack,
+        openDeck: [],
+      })
+      return callback({
+        openCard,
+        cards,
+        wildCard,
+        closeDeck: shuffleDeack,
+        openDeck: [],
+      });
+    })
   } catch (err) {
     logger.error('cardDeal.js getCards error => ', err);
   }

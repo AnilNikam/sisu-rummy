@@ -1,7 +1,112 @@
 const _ = require("underscore");
 //const { RemainCardTounusecardThrow } = require("./helper/botFunction");
 
+console.log(findImpureSequences1([
+    'J-0-0', 'H-1-0',
+    'J-1-1', 'H-2-0',
+    'S-3-0', 'H-4-0',
+    'S-4-0', 'C-8-0',
+    'D-8-0', 'S-8-0'
+], 2))
 
+function findImpureSequences1(cards, joker) {
+    // Sort the cards based on suit and rank
+    cards.sort((a, b) => {
+        const suitA = a.split('-')[0];
+        const suitB = b.split('-')[0];
+        const rankA = parseInt(a.split('-')[1]);
+        const rankB = parseInt(b.split('-')[1]);
+        if (rankA !== rankB) {
+            return rankA - rankB; // Sort by rank
+        }
+        return suitA.localeCompare(suitB); // Then by suit
+    });
+
+    // logger.info("AFTER SORTING CARD", cards)
+    let impureSequences = [];
+
+
+    let currentSequence = [];
+    // Iterate through the sorted cards
+    let jokers = cards.filter(item => item.startsWith("J"));
+    console.log("jokers.length", jokers)
+
+    cards = _.difference(cards, jokers)
+    console.log("cards ", cards)
+    for (let i = 0; i < cards.length; i++) {
+        const currentCard = cards[i];
+        const currentSuit = currentCard.split('-')[0];
+        const currentRank = parseInt(currentCard.split('-')[1]);
+
+        console.log("currentRank ", currentRank)
+
+
+        let InCurrentSequenceJoker = currentSequence.filter(item => item.startsWith("J") || parseInt(item.split("-")[1]) == joker).length == 1
+
+        if (currentSequence.length > 0) {
+            console.log("parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) ", parseInt(currentSequence[currentSequence.length - 1].split('-')[1]))
+        }
+
+        if (currentSequence.length === 0) {
+            currentSequence.push(currentCard);
+            console.log("1")
+
+        } else if (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && (parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 1)) {
+            currentSequence.push(currentCard);
+            console.log("2")
+        } else if ((jokers.length > 0 && !InCurrentSequenceJoker && (currentSequence[currentSequence.length - 1].split('-')[0] === currentSuit && parseInt(currentSequence[currentSequence.length - 1].split('-')[1]) === currentRank - 2))) {
+            console.log("HERE +++++++++++++++++++", cards[i])
+            console.log("currentSuit +++++++++++++++++++", currentSuit)
+
+            // let result = currentSequence.some(element => element.startsWith("J") || element.split('-')[1] === joker);
+            // if (!result) {
+
+            currentSequence.push(jokers[0]);
+            console.log("INDEX 333333333333", jokers[0])
+            jokers.splice(jokers.indexOf(jokers[0]), 1);
+            console.log("Jokers ", jokers)
+            // }
+            currentSequence.push(currentCard)
+            console.log("currentSequence 9888888888889989898989898", currentSequence);
+
+        } else {
+            console.log("3")
+
+            // If the sequence breaks and it's not a pure sequence, add it to impure sequences
+            if (currentSequence.length >= 2) {
+                impureSequences.push(currentSequence);
+            }
+            currentSequence = [currentCard];
+        }
+        // logger.info("currentSequence :::: ", currentSequence)
+    }
+    // logger.info("JOKERSSSS", jokers)
+    // Check the last sequence
+    if (currentSequence.length >= 2) {
+        impureSequences.push(currentSequence);
+    }
+    // logger.info("impureSequences",impureSequences)
+    // Iterate through impure sequences to add jokers if available
+    for (let i = 0; i < impureSequences.length; i++) {
+        const sequence = impureSequences[i];
+        const jokerNeeded = 3 - sequence.length;
+        for (let j = 0; j < jokerNeeded; j++) {
+            if (jokers.length > 0) {
+                sequence.push(jokers.shift());
+            } else {
+                break;
+            }
+        }
+        // logger.info("sequence",sequence)
+    }
+    // logger.info("impureSequences 786",impureSequences)
+    impureSequences = impureSequences.filter(subArray => subArray.length >= 3);
+
+    return impureSequences;
+}
+
+
+return
 const checkImpureSequence = (card, wildCard) => {
     const joker = [];
     let cardType = [];

@@ -7,7 +7,7 @@ const CONST = require('../../constant');
 const logger = require('../../logger');
 
 const { leaveTable } = require('./leaveTable');
-const { pic, mycardGroup } = require('../botFunction');
+const { pic, mycardGroup, easyPic } = require('../botFunction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const { lastUserWinnerDeclareCall } = require('./gameFinish');
 const { clearJob, GetRandomString, AddTime, setDelay, sendEventInTable, sendDirectEvent } = require('../socketFunctions');
@@ -140,7 +140,8 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     logger.info("check pic data =>", data)
 
     if (data && data.isBot) {
-      await pic(tb, plid, tb.gamePlayType, 'close')
+      // await pic(tb, plid, tb.gamePlayType, 'close')
+      easyPic(tb, plid, tb.gamePlayType, 'close')
     }
 
     let tbid = tb._id.toString();

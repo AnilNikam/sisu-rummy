@@ -10,12 +10,13 @@ const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
 const roundStartActions = require('./roundStart');
 const { createDealer } = require('../helperFunction');
+const { checkWinCard } = require('../botFunction');
 
 module.exports.cardDealStart = async (tbid) => {
   try {
     let wh = { _id: tbid };
     let table = await PlayingTables.findOne(wh, {}).lean();
-    let cardDetails = this.getCards(table.playerInfo,table.maxSeat);
+    let cardDetails = this.getCards(table.playerInfo, table.maxSeat);
 
     table.openDeck.push(cardDetails.openCard);
     let dealerSeatIndex = createDealer(table.activePlayer - 1);
@@ -98,10 +99,9 @@ module.exports.setUserCards = async (cardsInfo, tableInfo) => {
   }
 };
 
-module.exports.getCards = (playerInfo,maxSeat) => {
+module.exports.getCards = (playerInfo, maxSeat) => {
   try {
-    //let deckCards = Object.assign([], CONST.deckOne);
-    let deckCards = maxSeat == 6?Object.assign([], CONST.deckOne):Object.assign([], CONST.singaldeckOne)
+    let deckCards = maxSeat == 6 ? Object.assign([], CONST.deckOne) : Object.assign([], CONST.singaldeckOne)
     deckCards = shuffle(deckCards);
 
     let ran = parseInt(fortuna.random() * deckCards.length);
@@ -118,29 +118,39 @@ module.exports.getCards = (playerInfo,maxSeat) => {
     }
     deckCards.splice(wildCardIndex, 1);
 
-    let cards = [];
 
-    for (let i = 0; i < playerInfo.length; i++) {
-      if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
-        let card = [];
-        for (let i = 0; i < 13; i++) {
-          let ran = parseInt(fortuna.random() * deckCards.length);
-          card.push(deckCards[ran]);
-          deckCards.splice(ran, 1);
+    checkWinCard(deckCards, wildCard, (ress) => {
+      console.log("RES ::::::::::::::::::", ress)
+      let cards = [];
+      let deckCards = ress.deck;
+      let isuseeasycard = true
+
+      for (let i = 0; i < playerInfo.length; i++) {
+        if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING' && playerInfo[i].isBot && isuseeasycard) {
+          cards.push(ress.card);
+          isuseeasycard = false
+        } else if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
+          let card = [];
+          for (let i = 0; i < 13; i++) {
+            let ran = parseInt(fortuna.random() * deckCards.length);
+            card.push(deckCards[ran]);
+            deckCards.splice(ran, 1);
+          }
+          cards.push(card);
         }
-        cards.push(card);
+
       }
-    }
 
-    let shuffleDeack = shuffle(deckCards);
+      let shuffleDeack = shuffle(deckCards);
 
-    return {
-      openCard,
-      cards,
-      wildCard,
-      closeDeck: shuffleDeack,
-      openDeck: [],
-    };
+      return {
+        openCard,
+        cards,
+        wildCard,
+        closeDeck: shuffleDeack,
+        openDeck: [],
+      };
+    })
   } catch (err) {
     logger.error('cardDeal.js getCards error => ', err);
   }

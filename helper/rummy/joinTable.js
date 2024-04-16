@@ -11,6 +11,7 @@ const logger = require('../../logger');
 
 const { sendEvent, sendDirectEvent, AddTime, setDelay, clearJob } = require('../socketFunctions');
 const { userReconnect } = require('../common-function/reConnectFunction');
+const { getRandomNumber } = require('../helperFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
@@ -141,6 +142,7 @@ module.exports.getBetTable = async (betInfo, userInfo) => {
 
 module.exports.createTable = async (betInfo) => {
   try {
+    let winingDeclareCount = getRandomNumber(4, 7)
     let insertobj = {
       maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
@@ -152,6 +154,7 @@ module.exports.createTable = async (betInfo) => {
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
+      winingDeclareCount: winingDeclareCount
     };
 
     let insertInfo = await PlayingTables.create(insertobj);
@@ -178,6 +181,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     // logger.info("\n findEmptySeatAndUserSeat socket table -->", table)
     let seatIndex = this.findEmptySeat(table.playerInfo); //finding empty seat
     // logger.info("\n findEmptySeatAndUserSeat seat index  -->", seatIndex)
+
 
     if (seatIndex === '-1') {
       if (socket && socket.isBot !== true) {
@@ -232,7 +236,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       pickedCard: '',
       debitChips: false,
       rejoin: false,
-      isBot: userInfo.isBot
+      isBot: userInfo.isBot,
+      isEasy: false
     };
 
     let whereCond = { _id: MongoID(table._id.toString()) };
