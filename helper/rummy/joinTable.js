@@ -11,7 +11,6 @@ const logger = require('../../logger');
 
 const { sendEvent, sendDirectEvent, AddTime, setDelay, clearJob } = require('../socketFunctions');
 const { userReconnect } = require('../common-function/reConnectFunction');
-const { getRandomNumber } = require('../helperFunction');
 
 module.exports.joinTable = async (requestData, socket) => {
   try {
@@ -142,7 +141,7 @@ module.exports.getBetTable = async (betInfo, userInfo) => {
 
 module.exports.createTable = async (betInfo) => {
   try {
-    let winingDeclareCount = 2//getRandomNumber(2, 3)
+    let winingDeclareCount = getRandomNumber(2, 3)
     let insertobj = {
       maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
@@ -375,3 +374,7 @@ module.exports.findEmptySeat = (playerInfo) => {
     logger.error('joinTable.js findEmptySeat error=> ', error);
   }
 };
+
+const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

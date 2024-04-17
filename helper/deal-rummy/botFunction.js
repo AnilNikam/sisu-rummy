@@ -82,7 +82,7 @@ const findDealRoom = async (tableInfo, betInfo) => {
 
 const pic = async (tableInfo, playerId, gamePlayType, deck) => {
     try {
-        logger.info("tableInfo, playerId, gamePlayType, deckType", tableInfo, playerId, gamePlayType, deck)
+        logger.info("Pool tableInfo, playerId, gamePlayType, deckType", tableInfo, playerId, gamePlayType, deck)
 
         deck = ['close', 'open'];
         const randomIndex = Math.floor(Math.random() * deck.length);
@@ -91,14 +91,18 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
             logger.info('playerIndex: ', playerIndex);
             if (playerIndex !== -1) {
                 let playerInfo = tableInfo.playerInfo[playerIndex];
-                logger.info('bot player cards => ', playerInfo.cards);
+                logger.info('pool bot player cards => ', playerInfo.cards);
 
                 PickCardcloseDeck_or_open_deck(playerInfo.cards.slice(0, playerInfo.cards.length), tableInfo.wildCard,
                     tableInfo.openDeck[tableInfo.openDeck.length - 1],
                     tableInfo.closeDeck[tableInfo.closeDeck.length - 1], (deckType1) => {
 
                         logger.info("deckType ::::::::::::::::::::", deckType1)
-                        const deckType = deckType1 //|| deck[randomIndex];
+                        let deckType = deckType1 //|| deck[randomIndex];
+                        if (playerInfo.isEasy) {
+                            deckType = 'close' //|| deck[randomIndex];
+                            logger.info("check a decktype when isEasy Card Bot turn")
+                        }
 
                         logger.info("open card deck Type ->", deckType, typeof deckType)
 
@@ -215,6 +219,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                             // tableInfo = await PlayingTables.findOne(qu).lean;
                             logger.info("find before discard table info", tableInfo);
 
+
                             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
                             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                                 try {
@@ -232,6 +237,79 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                     if (player) {
                                         let playerCards = player.cards
                                         logger.info("tableInfo ", tableInfo.wildCard)
+
+                                        if (player.turnCount == tableInfo.winingDeclareCount) {
+                                            logger.info("check win Bot ===>", tableInfo.gamePlayType)
+                                            logger.info("player Card ===>", playerCards)
+                                            let throwCard = pickedCard;
+                                            switch (tableInfo.gamePlayType) {
+                                                case CONST.GAME_TYPE.POINT_RUMMY:
+                                                    await gamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                    break;
+
+                                                case CONST.GAME_TYPE.POOL_RUMMY:
+                                                    await poolGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                    break;
+
+                                                case CONST.GAME_TYPE.DEAL_RUMMY:
+                                                    await dealGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
+                                                    break;
+                                            }
+                                        }
+
+                                        if (player.isEasy) {
+
+                                            let droppedCard = pickedCard//requestData.cardName;
+                                            let playerInfo = tableInfo.playerInfo[playerIndex];
+                                            let playersCards = playerInfo.cards;
+
+                                            const droppedCardIndex = playersCards.indexOf(droppedCard);
+                                            const disCard = playersCards[droppedCardIndex];
+
+                                            playerInfo.cards.splice(droppedCardIndex, 1);
+
+                                            //remove picCard
+                                            playerInfo.pickedCard = '';
+                                            tableInfo.openDeck.push(disCard);
+
+                                            let updateData = {
+                                                $set: {},
+                                                $inc: {},
+                                            };
+
+                                            if (playerInfo.playerStatus === 'PLAYING') {
+                                                updateData.$set['playerInfo.$.cards'] = playerInfo.cards;
+                                                updateData.$set['playerInfo.$.pickedCard'] = '';
+                                                updateData.$set['openDeck'] = tableInfo.openDeck;
+                                            }
+
+                                            //cancel Schedule job
+                                            commandAcions.clearJob(tableInfo.jobId);
+
+                                            const upWh = {
+                                                _id: MongoID(tableInfo._id.toString()),
+                                                'playerInfo.seatIndex': Number(playerIndex),
+                                            };
+
+                                            const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+                                                new: true,
+                                            });
+
+                                            logger.info("final discard table =>", tb);
+
+                                            let responsee = {
+                                                playerId: playerInfo._id,
+                                                disCard: disCard,
+                                            };
+
+                                            logger.info("check throw card ->", responsee)
+                                            commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+
+
+                                            let re = await roundStartActions.nextUserTurnstart(tb);
+                                            return false
+
+                                        }
                                         mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
                                             let throwCard = "";
                                             let randomIndex = -1
@@ -802,116 +880,177 @@ const selectThrowcard = (playerCards, followersCard, pair) => {
     return throwCard;
 }
 
-const checkWinCard = (deck, wildCard) => {
-    const jokers = ['J-0-0', 'J-1-1']
-    const generatePureSequence = (deck) => {
-        const suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
-        const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']; // Card values
+const generatePureSequence = (deck, wildcard, callback) => {
 
-        // Shuffle the deck
-        const shuffledDeck = shuffleArray(deck);
+    logger.info("before wild card ->", wildcard);
 
-        // Choose a random suit
-        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+    // Convert wildcard to string if it's not already
+    if (typeof wildcard !== 'string') {
+        wildcard = String(wildcard);
+    }
 
-        // Filter cards with the chosen suit
-        const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit));
+    let suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
+    const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']; // Card values
 
-        // Sort the suit cards based on their values
-        suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+    // Shuffle the deck
+    const shuffledDeck = shuffleArray(deck);
 
-        // Check if there are at least three consecutive cards in the suit
-        for (let i = 0; i <= suitCards.length - 3; i++) {
-            const sequence = suitCards.slice(i, i + 3);
-            const valuesDiff = sequence.map(card => parseInt(card.split('-')[1]) - 1);
-            const isConsecutive = valuesDiff.every((val, index) => val === parseInt(sequence[0].split('-')[1]) - 1 + index);
-            if (isConsecutive) {
-                return sequence;
-            }
+    suits = _.difference(suits, [wildcard.split("-")[0]])
+
+    // Choose a random suit
+
+    logger.info("after Wild card Sgit ", suits)
+    const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+
+    // Filter cards with the chosen suit
+    const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit) && card.split("-")[2] == "0");
+
+    // Sort the suit cards based on their values
+    suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+    logger.info("suitCards ", suitCards)
+
+    let temp = Math.floor(Math.random() * (suitCards.length - 3))
+    logger.info("temp ", temp)
+
+    // Check if there are at least three consecutive cards in the suit
+    for (let i = temp; i <= suitCards.length - 3; i++) {
+        const sequence = suitCards.slice(i, i + 3);
+        logger.info(" sequence ---->", sequence)
+        const valuesDiff = sequence.map(card => parseInt(card.split('-')[1]) - 1);
+        const isConsecutive = valuesDiff.every((val, index) => val === parseInt(sequence[0].split('-')[1]) - 1 + index);
+
+        if (isConsecutive) {
+            return callback(sequence);
         }
+    }
 
-        // If no consecutive sequence found, try again
-        return generatePureSequence(deck);
-    };
+    // If no consecutive sequence is found, try again
+    return generatePureSequence(deck, wildcard, callback);
+};
 
-    // Function to generate an impure sequence
-    const generateImpureSequence = (deck, joker) => {
-        const suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
+// Function to generate an impure sequence
+const generateImpureSequence = (deck, joker, wildcard) => {
+    let suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
 
-        // Shuffle the deck
-        const shuffledDeck = shuffleArray(deck);
+    // Make a copy of the deck
+    const copiedDeck = [...deck];
 
-        // Choose a random suit
-        const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+    // Shuffle the copied deck
+    const shuffledDeck = shuffleArray(copiedDeck);
+    suits = _.difference(suits, [wildcard.split("-")[0]])
+    // Choose a random suit
 
-        // Filter cards with the chosen suit
-        const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit));
+    // Choose a random suit
+    const randomSuit = suits[Math.floor(Math.random() * suits.length)];
 
-        // Sort the suit cards based on their values
-        suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+    // Filter cards with the chosen suit from the shuffled deck
+    const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit) && card.split("-")[2] == "0");
 
-        // Choose two cards randomly from the suit cards
-        const chosenCards = [suitCards[0], suitCards[1]];
+    // Sort the suit cards based on their values
+    suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
 
-        // Insert the joker at a random position
-        const randomIndex = Math.floor(Math.random() * 3);
-        chosenCards.splice(randomIndex, 0, joker);
+    logger.info("suitCards ", suitCards)
 
-        return chosenCards;
-    };
+    let temp = Math.floor((Math.random() * (suitCards.length - 1)))
+    // Choose two cards randomly from the suit cards
+    const chosenCards = [suitCards[temp], suitCards[temp + 1]];
 
-    // Function to generate a set
-    // Function to generate a set
-    const generateSet = (deck) => {
-        // Shuffle the deck
-        const shuffledDeck = shuffleArray(deck);
+    // Remove the chosen cards from the original deck
+    deck = _.difference(deck, chosenCards);
+    logger.info("Remove impre card ==>", deck)
 
-        // Choose a random rank (value)
-        const randomRank = Math.floor(Math.random() * 13) + 1; // Random number from 1 to 13 representing card ranks
+    // Insert the joker at a random position
+    const randomIndex = Math.floor(Math.random() * 3);
+    chosenCards.splice(randomIndex, 0, joker);
 
-        // Choose three cards of the same rank from different suits
-        const set = [];
+    // Remove the joker from the original deck
+    deck = _.without(deck, joker);
 
-        // Loop through the shuffled deck to find three cards of the chosen rank from different suits
-        for (let i = 0; i < shuffledDeck.length; i++) {
+    return chosenCards;
+};
+
+// Function to generate a set
+const generateSet = (deck, wildcard) => {
+    logger.info("Wild card --==>", wildcard)
+    // Shuffle the deck
+    const shuffledDeck = shuffleArray(deck);
+
+    let values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]; // Card values
+
+    values = _.difference(values, [wildcard.split("-")[1]])
+
+    // Choose a random rank (value)
+    const randomRank = values[Math.floor(Math.random() * values.length)]; // Math.floor(Math.random() * 13) + 1; // Random number from 1 to 13 representing card ranks
+
+
+    // Choose three cards of the same rank from different suits
+    const set = [];
+
+    // Loop through the shuffled deck to find three cards of the chosen rank from different suits
+    for (let i = 0; i < shuffledDeck.length; i++) {
+
+        if (parseInt(shuffledDeck[i].split('-')[2]) == 0) {
+
             const card = shuffledDeck[i];
             const rank = parseInt(card.split('-')[1]);
 
-            if (rank === randomRank && set.length < 3) {
+            if (rank === randomRank && set.length < 4) {
                 set.push(card);
+                deck.splice(deck.indexOf(card), 1);
+
             }
         }
+    }
 
-        // If less than three cards of the same rank are found, try again recursively
-        if (set.length < 3) {
-            return generateSet(deck);
-        }
+    // If less than three cards of the same rank are found, try again recursively
+    if (set.length < 3) {
+        return generateSet(deck, wildcard);
+    }
 
-        return set;
-    };
+    return set;
+};
 
+const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
-    const shuffleArray = (array) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    };
+const checkWinCard = (deck, wildCard, call) => {
+    const jokers = ['J-0-0', 'J-1-1'];
 
     // Generate sequences
-    const pureSequence = generatePureSequence(deck);
-    const impureSequences = jokers.map(joker => generateImpureSequence(deck, joker));
-    const cardSet = generateSet(deck);
+    generatePureSequence(deck, wildCard, (pureSequence) => {
+        logger.info("pureSequence ", pureSequence);
+        deck = _.difference(deck, pureSequence.flat());
+        logger.info("deck after removing pureSequence: ", deck);
 
-    // Output the generated sequences
-    const sequences = {
-        pure: [pureSequence],
-        impure: impureSequences,
-        set: [cardSet]
-    };
-    return sequences
-}
+        const impureSequences = jokers.map(joker => generateImpureSequence(deck, joker, wildCard));
+        logger.info("impureSequences ", impureSequences);
+
+        const impureCards = impureSequences.flat();
+        deck = _.difference(deck, impureCards);
+        logger.info("deck after removing impureCards: ", deck);
+
+        const cardSet = generateSet(deck, wildCard);
+
+        deck = _.difference(deck, cardSet);
+
+        // Output the generated sequences
+        const sequences = {
+            pure: [pureSequence],
+            impure: impureSequences,
+            set: [cardSet],
+            deck: deck,
+            card: _.flatten([pureSequence, impureSequences, cardSet])
+        };
+        logger.info("sequences =>", sequences);
+        logger.info("sequences deck =>", deck);
+        return call(sequences);
+    });
+};
 
 const findIndexesTeen = (cards, joker) => {
     let cardCount = {};

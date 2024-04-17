@@ -143,6 +143,8 @@ module.exports.getBetTable = async (betInfo, userInfo) => {
 
 module.exports.createTable = async (betInfo) => {
   try {
+    let winingDeclareCount = getRandomNumber(2, 3)
+
     let insertobj = {
       maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
@@ -154,6 +156,7 @@ module.exports.createTable = async (betInfo) => {
       discardCard: '',
       totalRewardCoins: 0,
       playersScoreBoard: [],
+      winingDeclareCount: winingDeclareCount
     };
     //logger.info('createTable insertobj : ', insertobj);
 
@@ -224,7 +227,8 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
       pickedCard: '',
       debitChips: false,
       rejoin: false,
-      isBot: userInfo.isBot
+      isBot: userInfo.isBot,
+      isEasy: false
     };
 
     //logger.info('findEmptySeatAndUserSeat playerDetail : ', playerDetail, '\n find Empty Seat And User Seat table : ', table);
@@ -370,3 +374,7 @@ module.exports.findEmptySeat = (playerInfo) => {
     logger.error('joinTable.js findEmptySeat error=> ', error);
   }
 };
+
+const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

@@ -329,8 +329,8 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
         _id: MongoID(tbid.toString()),
         'playerInfo.seatIndex': Number(userData[0].seatIndex),
       };
-      console.log("qr ", qr)
-      console.log("updateStatus ", updateStatus)
+      logger.info("qr ", qr)
+      logger.info("updateStatus ", updateStatus)
 
       const table = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
         new: true,

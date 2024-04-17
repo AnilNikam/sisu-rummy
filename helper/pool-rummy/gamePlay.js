@@ -316,7 +316,7 @@ module.exports.cardGroup = async (requestData, client) => {
 
 module.exports.declare = async (requestData, client) => {
   try {
-    if (!ifSocketDefine(requestData, client, CONST.DECLARE)) {
+    if (client.isbot == undefined && !ifSocketDefine(requestData, client, CONST.DECLARE)) {
       return false;
     }
 

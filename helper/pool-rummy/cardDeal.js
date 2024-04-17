@@ -10,58 +10,69 @@ const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
 const roundStartActions = require('./roundStart');
 const { createDealer } = require('../helperFunction');
-const { checkWinCard } = require('../botFunction');
+const { checkWinCard } = require('./poolBotFunction');
 
 module.exports.cardDealStart = async (tbid) => {
   try {
     let wh = { _id: tbid };
     let table = await PlayingTables.findOne(wh, {}).lean();
-    let cardDetails = this.getCards(table.playerInfo, table.maxSeat);
+    this.getCards(table.playerInfo, table, table.maxSeat, async (cardDetails) => {
 
-    table.openDeck.push(cardDetails.openCard);
-    let dealerSeatIndex = createDealer(table.activePlayer - 1);
+      logger.info("pool cardDetails", cardDetails)
 
-    const update = {
-      $set: {
-        openCard: cardDetails.openCard,
-        closeDeck: cardDetails.closeDeck,
-        wildCard: cardDetails.wildCard,
-        openDeck: table.openDeck,
-        dealerSeatIndex,
-        currentPlayerTurnIndex: dealerSeatIndex,
-        gameState: CONST.CARD_DEALING,
-      },
-    };
+      table.openDeck.push(cardDetails.openCard);
+      let dealerSeatIndex = createDealer(table.activePlayer - 1);
 
-    const cardDealIndexs = await this.setUserCards(cardDetails, table);
+      const update = {
+        $set: {
+          openCard: cardDetails.openCard,
+          closeDeck: cardDetails.closeDeck,
+          wildCard: cardDetails.wildCard,
+          openDeck: table.openDeck,
+          dealerSeatIndex,
+          currentPlayerTurnIndex: dealerSeatIndex,
+          gameState: CONST.CARD_DEALING,
+        },
+      };
 
-    const tableInfo = await PlayingTables.findOneAndUpdate(wh, update, {
-      new: true,
+      const cardDealIndexs = await this.setUserCards(cardDetails, table);
+
+      const tableInfo = await PlayingTables.findOneAndUpdate(wh, update, {
+        new: true,
+      });
+
+      logger.info("cardDealStart tableInfo =>", tableInfo);
+
+      const eventResponse = {
+        si: cardDealIndexs,
+        di: tableInfo.dealerSeatIndex,
+        wd: tableInfo.wildCard,
+        openCard: tableInfo.openCard,
+        closeDeck: tableInfo.closeDeck,
+        closedecklength: tableInfo.closeDeck.length,
+      };
+
+      logger.info("cardDealStart tableInfo.playerInfo ->", tableInfo.playerInfo)
+      logger.info("cardDealStart tableInfo.playerInfo ->", new Date())
+
+      tableInfo.playerInfo.forEach((player) => {
+        if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
+          eventResponse.card = player.cards;
+          logger.info("cardDealStart tableInfo.playerInfo -> send Time ", new Date())
+
+          commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
+        }
+      });
+      logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
+
+      let tbId = tableInfo._id;
+      // let jobId = commandAcions.GetRandomString(10);
+      // let delay = commandAcions.AddTime(4);
+
+      // await commandAcions.setDelay(jobId, new Date(delay));
+
+      await roundStartActions.roundStarted(tbId);
     });
-
-    const eventResponse = {
-      si: cardDealIndexs,
-      di: tableInfo.dealerSeatIndex,
-      wd: tableInfo.wildCard,
-      openCard: tableInfo.openCard,
-      closeDeck: tableInfo.closeDeck,
-      closedecklength: tableInfo.closeDeck.length,
-    };
-
-    tableInfo.playerInfo.forEach((player) => {
-      if (player && typeof player.seatIndex !== 'undefined' && player.status === 'PLAYING' && player.isBot !== true) {
-        eventResponse.card = player.cards;
-        commandAcions.sendDirectEvent(player.sck.toString(), CONST.GAME_CARD_DISTRIBUTION, eventResponse);
-      }
-    });
-
-    let tbId = tableInfo._id;
-    let jobId = commandAcions.GetRandomString(10);
-    let delay = commandAcions.AddTime(4);
-
-    await commandAcions.setDelay(jobId, new Date(delay));
-
-    await roundStartActions.roundStarted(tbId);
   } catch (err) {
     logger.error('cardDeal.js cardDealStart error => ', err);
   }
@@ -69,6 +80,7 @@ module.exports.cardDealStart = async (tbid) => {
 
 module.exports.setUserCards = async (cardsInfo, tableInfo) => {
   try {
+    logger.info("set User Cards ==>", cardsInfo)
     const playerInfo = tableInfo.playerInfo;
     let activePlayer = 0;
     let cardDealIndexs = [];
@@ -99,7 +111,7 @@ module.exports.setUserCards = async (cardsInfo, tableInfo) => {
   }
 };
 
-module.exports.getCards = (playerInfo, maxSeat) => {
+module.exports.getCards = async (playerInfo, table, maxSeat, callback) => {
   try {
     let deckCards = maxSeat == 6 ? Object.assign([], CONST.deckOne) : Object.assign([], CONST.singaldeckOne)
     deckCards = shuffle(deckCards);
@@ -118,17 +130,39 @@ module.exports.getCards = (playerInfo, maxSeat) => {
     }
     deckCards.splice(wildCardIndex, 1);
 
+    // Array fillter si all robot asi 
+    // rendom si 
 
-    checkWinCard(deckCards, wildCard, (ress) => {
-      console.log("RES ::::::::::::::::::", ress)
+
+    checkWinCard(deckCards, wildCard, async (ress) => {
+      logger.info("BOT RES ::::::::::::::::::", ress)
       let cards = [];
       let deckCards = ress.deck;
-      let isuseeasycard = true
+      let issueEasyCard = true
 
       for (let i = 0; i < playerInfo.length; i++) {
-        if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING' && playerInfo[i].isBot && isuseeasycard) {
+        if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING' && playerInfo[i].isBot && issueEasyCard) {
+
           cards.push(ress.card);
-          isuseeasycard = false
+          issueEasyCard = false
+          logger.info("Update a bot win status==>", playerInfo[i].playerId, playerInfo[i].name);
+
+          // Update user bot state
+          const upWh = {
+            _id: MongoID(table._id.toString()),
+            'playerInfo.seatIndex': Number(playerInfo[i].seatIndex), // Fixed variable name
+          };
+
+          const updateData = {
+            $set: {
+              'playerInfo.$.isEasy': true,
+            },
+          };
+
+          const tbl = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+            new: true,
+          });
+          logger.info('Declared table: ', tbl);
         } else if (typeof playerInfo[i].seatIndex !== 'undefined' && playerInfo[i].status === 'PLAYING') {
           let card = [];
           for (let i = 0; i < 13; i++) {
@@ -138,18 +172,23 @@ module.exports.getCards = (playerInfo, maxSeat) => {
           }
           cards.push(card);
         }
-
       }
 
       let shuffleDeack = shuffle(deckCards);
-
-      return {
+      logger.info("returnr ", {
         openCard,
         cards,
         wildCard,
         closeDeck: shuffleDeack,
         openDeck: [],
-      };
+      })
+      return callback({
+        openCard,
+        cards,
+        wildCard,
+        closeDeck: shuffleDeack,
+        openDeck: [],
+      });
     })
   } catch (err) {
     logger.error('cardDeal.js getCards error => ', err);

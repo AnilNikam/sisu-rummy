@@ -140,8 +140,8 @@ module.exports.startUserTurn = async (seatIndex, objData) => {
     logger.info("check pic data =>", data)
 
     if (data && data.isBot) {
-      // await pic(tb, plid, tb.gamePlayType, 'close')
-      easyPic(tb, plid, tb.gamePlayType, 'close')
+      await pic(tb, plid, tb.gamePlayType, 'close')
+      // await easyPic(tb, plid, tb.gamePlayType, 'close')
     }
 
     let tbid = tb._id.toString();
@@ -296,7 +296,7 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
     return false
   }
 
-  var userData = PlayerInfo.splice(0, 1)
+  let userData = PlayerInfo.splice(0, 1)
 
   if (userData[0].isBot) {
 
@@ -317,8 +317,8 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
         _id: MongoID(tbid.toString()),
         'playerInfo.seatIndex': Number(userData[0].seatIndex),
       };
-      console.log("qr ", qr)
-      console.log("updateStatus ", updateStatus)
+      logger.info("qr ", qr)
+      logger.info("updateStatus ", updateStatus)
 
       const table = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
         new: true,
