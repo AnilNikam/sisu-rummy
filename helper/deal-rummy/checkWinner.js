@@ -41,6 +41,9 @@ module.exports.winnercall = async (tb, client) => {
       $set: {
         callFinalWinner: true,
       },
+      $inc: {
+        round: 1,
+      },
     };
 
     let tbInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, { new: true });

@@ -35,7 +35,7 @@ module.exports.roundStarted = async (tbid) => {
     }
 
     if (tabInfo.gameState !== 'CardDealing' || tabInfo.activePlayer < 2) {
-      logger.info('round Started table in 2 player:', tabInfo.gameState, tabInfo.activePlayer);
+      logger.info('check round Started table in 2 player:', tabInfo.gameState, tabInfo.activePlayer);
       return false;
     }
 

@@ -721,7 +721,7 @@ myIo.init = function (server) {
 
           case CONST.PAY_IN: {
             try {
-              console.log("PAY_IN ", payload.data)
+              logger.info("PAY_IN ", payload.data)
               // await initiatePayment(payload.data, socket)
               await paymentAction.newInitiatePayment(payload.data, socket)
             } catch (error) {
