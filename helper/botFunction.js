@@ -651,6 +651,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                     await dealGamePlayActions.declare({ cardName: throwCard }, { seatIndex: playerIndex, isbot: true, tbid: tableInfo._id.toString() });
                                                     break;
                                             }
+                                            return false;
                                         }
 
                                         if (player.isEasy) {
