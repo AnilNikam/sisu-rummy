@@ -47,6 +47,7 @@ module.exports.winnercall = async (tb, client) => {
     };
 
     let tbInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, { new: true });
+    logger.info("tbInfo =====   ====   ===>", tabInfo.round)
     let winner = await this.getWinner(tbInfo);
 
     //check round or deal finish
