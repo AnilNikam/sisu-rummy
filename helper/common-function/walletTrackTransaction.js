@@ -53,8 +53,9 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
 
 //withdrawableChips 
 module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) => {
-  let tbInfo = tblInfo;
+  logger.info("check dedcut function call ===>");
   try {
+    let tbInfo = tblInfo;
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
 
     if (typeof wh === 'undefined' || typeof wh._id === 'undefined' || wh._id === null || typeof tType === 'undefined') {
@@ -66,7 +67,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
     if (upReps === null) {
       return false;
     }
-    if(upReps.winningChips > deductChips){
+    if (upReps.winningChips > deductChips) {
       return false
     }
 
@@ -76,6 +77,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) =
       },
     };
 
+    logger.info('\n Dedudct* Wallet wh :: ==>', wh);
     logger.info('\n Dedudct* Wallet setInfo :: ==>', setInfo);
     logger.info('\n Dedudct* Wallet deductChips :: ==>', deductChips);
 
