@@ -205,7 +205,7 @@ async function PayOutTransfer(requestData, socket) {
         //     return false
         // }
 
-        // requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
+        requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
 
 
         //Insert Payout Table 
