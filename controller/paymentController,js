@@ -251,16 +251,16 @@ async function PayOutTransfer(requestData, socket) {
 
             logger.info("get response init payout =>", response.data)
 
-            if (response.data.StatusCode == 1) {
+            if (response.data.statusCode == 1) {
                 //add amount in coins
                 logger.info("chec response data =======> ", response.data.body)
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if (response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null) {
+                if (response.data.body != undefined && response.data.body != null && response.data.body.orderId != undefined && response.data.body.orderId != null) {
 
-                    const Updatedata = await paymentout.findOneAndUpdate({ _id: MongoID(paymentoutdata._id.toString()) }, { $set: { "OrderID": response.data.body.orderID } }, {
+                    const Updatedata = await paymentout.findOneAndUpdate({ _id: MongoID(paymentoutdata._id.toString()) }, { $set: { "OrderID": response.data.body.orderId } }, {
                         new: true,
                     });
-                    logger.info("Updatedata ", Updatedata)
+                    logger.info("payout  Update data ", Updatedata)
 
 
                     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
@@ -271,15 +271,12 @@ async function PayOutTransfer(requestData, socket) {
                     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
 
                 }
-            } else if (response.data.StatusCode == 2) {
+            } else if (response.data.statusCode == 2) {
                 logger.info("response pedning status ", response.data)
-
-            }
-            else {
-                logger.info("response elase 2 ", response.data)
-
                 commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
-
+            } else {
+                logger.info(" Response else ->", response.data)
+                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
             }
         } else {
             logger.info("Data Not Insert ")
