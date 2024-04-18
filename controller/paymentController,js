@@ -229,16 +229,17 @@ async function PayOutTransfer(requestData, socket) {
             const Paylod = {
                 "clientId": Account_WOWPE_PAYOUT.clientId,
                 "secretKey": Account_WOWPE_PAYOUT.secretKey,
-                "number": requestData.customerPhone,
+                "name": requestData.BeneficiaryName.trim(),
+                "mobileNo": requestData.customerPhone,
+                "emailID": requestData.customerEmail,
                 "transferMode": requestData.transferMode,
                 "amount": requestData.amount.toString(),
                 "accountNo": requestData.accountNo,
                 "ifscCode": requestData.ifscCode,
-                "BeneficiaryName": requestData.BeneficiaryName.trim(),
                 "vpa": "",
-                "orderID": paymentoutdata._id.toString()
+                "clientOrderId": paymentoutdata._id.toString()
             }
-            logger.info("Paylod ", Paylod)
+            logger.info("check Paylod ", Paylod)
             const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
                 headers: {
                     'Content-Type': 'application/json',
