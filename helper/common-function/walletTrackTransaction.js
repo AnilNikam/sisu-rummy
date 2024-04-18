@@ -52,10 +52,10 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
 };
 
 //withdrawableChips 
-module.exports.deductWalletPayOut = async (id, deductChips, tType, t, tblInfo) => {
-  logger.info("check dedcut function call ===>");
+module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
+  logger.info("check dedcut function call ===>", id);
+
   try {
-    let tbInfo = tblInfo;
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
 
     if (typeof wh === 'undefined' || typeof wh._id === 'undefined' || wh._id === null || typeof tType === 'undefined') {
