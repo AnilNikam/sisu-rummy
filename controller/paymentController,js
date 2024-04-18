@@ -188,8 +188,8 @@ async function newInitiatePayment(requestData, socket) {
 const Account_WOWPE_PAYOUT = {
     // base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',//old
     base_url: 'https://api.wowpe.in/api/api/api-module/payout/payout',
-    clientId: 'aa482292-1675-444d-91d0-57d68829f560',
-    secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
+    clientId: '4352f542-c412-4563-8292-bbe2d9a1a9ff',
+    secretKey: 'a3ebf105-22cd-4f8d-9dff-bf1fd7a04b4c'
 };
 
 
