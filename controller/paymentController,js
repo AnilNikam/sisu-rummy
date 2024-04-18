@@ -199,11 +199,11 @@ async function PayOutTransfer(requestData, socket) {
     try {
         logger.info(" Create PayOut Transfer =>", requestData);
         // Valiation 
-        // if (requestData.amount < 50 || requestData.amount > 1000) {
-        //     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
+        if (requestData.amount < 50 || requestData.amount > 1000) {
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
 
-        //     return false
-        // }
+            return false
+        }
 
         requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
 
