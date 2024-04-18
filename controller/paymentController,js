@@ -197,7 +197,7 @@ const Account_WOWPE_PAYOUT = {
 
 async function PayOutTransfer(requestData, socket) {
     try {
-        logger.info("PayOutTransfer =>", requestData);
+        logger.info(" Create PayOut Transfer =>", requestData);
         // Valiation 
         // if (requestData.amount < 50 || requestData.amount > 1000) {
         //     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
@@ -205,9 +205,8 @@ async function PayOutTransfer(requestData, socket) {
         //     return false
         // }
 
-        requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
+        // requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
 
-        // %%% Admin Wallte addd 
 
         //Insert Payout Table 
         const paymentoutdata = await paymentout.create({
@@ -226,7 +225,8 @@ async function PayOutTransfer(requestData, socket) {
 
         if (paymentoutdata) {
 
-            logger.info("paymentoutdata ", paymentoutdata)
+            logger.info("payment out data  ==>", paymentoutdata)
+
             const Paylod = {
                 "clientId": '4352f542-c412-4563-8292-bbe2d9a1a9ff',
                 "secretKey": 'a3ebf105-22cd-4f8d-9dff-bf1fd7a04b4c',
@@ -239,20 +239,21 @@ async function PayOutTransfer(requestData, socket) {
                 "vpa": "",
                 "clientOrderId": paymentoutdata._id.toString()
             }
-            logger.info("check Paylod ", Paylod)
+
+            logger.info("check Paylod -->", Paylod)
+
             const response = await axios.post(Account_WOWPE_PAYOUT.base_url, Paylod, {
                 headers: {
                     'Content-Type': 'application/json',
                     'accept': 'application/json'
                 }
             });
-            logger.info("response ", response.data)
 
-
+            logger.info("get response init payout =>", response.data)
 
             if (response.data.StatusCode == 1) {
                 //add amount in coins
-                logger.info("response ", response.data.body)
+                logger.info("chec response data =======> ", response.data.body)
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
                 if (response.data.body != undefined && response.data.body != null && response.data.body.orderID != undefined && response.data.body.orderID != null) {
 

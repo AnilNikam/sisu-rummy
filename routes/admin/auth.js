@@ -192,12 +192,12 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
 
 router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   logger.info("check payout recive data", req.body)
-  logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
+  logger.info(':api/PayoutAPI/Payoutnotify WEBHOOK Response => ', req.body);
 
   if (req.body != undefined && req.body.StatusCode == 1) {
     if (req.body.Data.Status == 1) {
       let paymentdata = await paymentout.findOne({ "OrderID": req.body.Data.TransactionId.toString() }).lean();
-      logger.info("Bankpaymentdata ->", paymentdata);
+      logger.info("Bank payment data ---->", paymentdata);
 
       // Update 
       const bankDetailsData = await BankDetails.findOneAndUpdate({ userId: paymentdata.userId }, { $set: { verfiy: true } }, {
@@ -206,9 +206,6 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       logger.info("Bank Details Data ->", bankDetailsData);
 
     }
-    // else if(req.body.Data.Status == 2){
-
-    // }
 
     logger.info("res.body. ====>", req.body.Data.ClientOrderId)
     const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.TransactionId.toString() }, { $set: { webhook: req.body } }, {
@@ -224,8 +221,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       logger.info("req.body Faild ==> ", req.body)
     }
   } else {
-    logger.info("req.body ", req.body)
-    // 1 rs 
+    logger.info(" check  req.body  =>", req.body)
   }
 
   res.send("ok")
