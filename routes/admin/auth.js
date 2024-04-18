@@ -205,18 +205,22 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       });
       logger.info("Bank Details Data ->", bankDetailsData);
 
-      logger.info("res.body. ====>", req.body.Data.ClientOrderId)
+      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
+
+
+      // logger.info("res.body. ====>", req.body.Data.ClientOrderId)
       const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.ClientOrderId.toString() }, { $set: { webhook: req.body } }, {
         new: true,
       });
-      logger.info("PaymentOutdata ======>", PaymentOutdata)
-      if (PaymentOutdata /*&& PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Status == 1*/) {
+      logger.info("PaymentOutdata ======> check ==>", PaymentOutdata)
 
-        await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
-      } else {
-        //check status code 2 then its pending stage
-        logger.info("PaymentOutdata ", PaymentOutdata)
-      }
+      // if (PaymentOutdata /*&& PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Status == 1*/) {
+
+      //   await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
+      // } else {
+      //   //check status code 2 then its pending stage
+      //   logger.info("PaymentOutdata ", PaymentOutdata)
+      // }
     } else {
       logger.info("req.body.Data.Status Else ", req.body.Data.Status)
     }
