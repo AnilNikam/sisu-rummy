@@ -210,7 +210,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
         new: true,
       });
       logger.info("PaymentOutdata ======>", PaymentOutdata)
-      if (PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Status == 1) {
+      if (PaymentOutdata /*&& PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Status == 1*/) {
 
         await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
       } else {

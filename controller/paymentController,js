@@ -255,7 +255,7 @@ async function PayOutTransfer(requestData, socket) {
                 //add amount in coins
                 logger.info("chec response data =======> ", response.data.body)
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
-                if (response.data.body != undefined && response.data.body != null && response.data.body.orderId != undefined && response.data.body.orderId != null) {
+                if (response.data.body != undefined && response.data.body != null && response.data.body.orderId != undefined && response.data.body.orderId != null && response.data.status == 1) {
 
                     const Updatedata = await paymentout.findOneAndUpdate({ _id: MongoID(paymentoutdata._id.toString()) }, { $set: { "OrderID": response.data.body.orderId } }, {
                         new: true,
@@ -265,15 +265,12 @@ async function PayOutTransfer(requestData, socket) {
 
                     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
 
-                } else {
+                } else if (response.data.status == 2) {
                     logger.info("response elase 1 ", response.data)
 
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
-
+                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body);
                 }
-            } else if (response.data.statusCode == 2) {
-                logger.info("response pedning status ", response.data)
-                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
+
             } else {
                 logger.info(" Response else ->", response.data)
                 commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
