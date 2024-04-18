@@ -195,8 +195,8 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   logger.info(':api/PayoutAPI/Payoutnotify WEBHOOK Response => ', req.body);
 
   if (req.body != undefined && req.body.StatusCode == 1) {
-    if (req.body.Data.Status == 1) {
-      let paymentdata = await paymentout.findOne({ "OrderID": req.body.Data.TransactionId.toString() }).lean();
+    if (req.body.Status == 1) {
+      let paymentdata = await paymentout.findOne({ "OrderID": req.body.ClientOrderId.toString() }).lean();
       logger.info("Bank payment data ---->", paymentdata);
 
       // Update 
@@ -206,7 +206,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       logger.info("Bank Details Data ->", bankDetailsData);
 
       logger.info("res.body. ====>", req.body.Data.ClientOrderId)
-      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.TransactionId.toString() }, { $set: { webhook: req.body } }, {
+      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.ClientOrderId.toString() }, { $set: { webhook: req.body } }, {
         new: true,
       });
       logger.info("PaymentOutdata ======>", PaymentOutdata)
