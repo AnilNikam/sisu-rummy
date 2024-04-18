@@ -205,11 +205,11 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       });
       logger.info("Bank Details Data ->", bankDetailsData);
 
-      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
+      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Amount), 'Debit', 'PayOut');
 
 
-      // logger.info("res.body. ====>", req.body.Data.ClientOrderId)
-      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.ClientOrderId.toString() }, { $set: { webhook: req.body } }, {
+      // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  
+      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.ClientOrderId.toString() }, { $set: { webhook: req.body } }, {
         new: true,
       });
       logger.info("PaymentOutdata ======> check ==>", PaymentOutdata)
