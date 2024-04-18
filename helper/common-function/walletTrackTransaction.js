@@ -54,20 +54,28 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
 //withdrawableChips 
 module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
   logger.info("check dedcut function call ===>", id);
+  logger.info("check dedcut function call ===> typeof ", typeof id);
+  logger.info("check dedcut function call ===> tType ", tType);
+
+
 
   try {
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
 
     if (typeof wh === 'undefined' || typeof wh._id === 'undefined' || wh._id === null || typeof tType === 'undefined') {
+      logger.info("returnr wh  ===>", id);
       return false;
     }
 
     let upReps = await GameUser.findOne(wh, {}).lean();
 
     if (upReps === null) {
+      logger.info("upReps wh  ===>", upReps);
+
       return false;
     }
-    if (upReps.winningChips > deductChips) {
+    if (upReps.winningChips < deductChips) {
+      logger.info("upReps.winningChips < deductChips");
       return false
     }
 
