@@ -186,7 +186,8 @@ async function newInitiatePayment(requestData, socket) {
 
 
 const Account_WOWPE_PAYOUT = {
-    base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',
+    // base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',//old
+    base_url: 'https://api.wowpe.in/api/api/api-module/payin/orders',
     clientId: 'aa482292-1675-444d-91d0-57d68829f560',
     secretKey: '5ccb3ea7-a7b1-4927-8fe6-a83bd6e5a330'
 };
@@ -195,7 +196,7 @@ const Account_WOWPE_PAYOUT = {
 
 async function PayOutTransfer(requestData, socket) {
     try {
-
+        logger.info("PayOutTransfer =>", requestData);
         // Valiation 
         if (requestData.amount < 50 || requestData.amount > 1000) {
             commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");

@@ -191,7 +191,7 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
 
 
 router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
-  console.log("sdddddddddddddddddddddd", req.body)
+  logger.info("check payout recive data", req.body)
   logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
 
   if (req.body != undefined && req.body.StatusCode != undefined) {
@@ -207,20 +207,20 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
 
     }
 
-    console.log("res.body. ", req.body.Data.ClientOrderId)
+    logger.info("res.body. ", req.body.Data.ClientOrderId)
     const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.Data.TransactionId.toString() }, { $set: { webhook: req.body } }, {
       new: true,
     });
-    console.log("PaymentOutdata ", PaymentOutdata)
+    logger.info("PaymentOutdata ", PaymentOutdata)
     if (PaymentOutdata && PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Amount != 1) {
 
       await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
     } else {
-      console.log("PaymentOutdata ", PaymentOutdata)
-      console.log("req.body Faild  ", req.body)
+      logger.info("PaymentOutdata ", PaymentOutdata)
+      logger.info("req.body Faild  ", req.body)
     }
   } else {
-    console.log("req.body ", req.body)
+    logger.info("req.body ", req.body)
     // 1 rs 
   }
 
