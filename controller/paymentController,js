@@ -250,7 +250,7 @@ async function PayOutTransfer(requestData, socket) {
 
 
 
-            if (response.data.code == "OK") {
+            if (response.data.StatusCode == 1) {
                 //add amount in coins
                 logger.info("response ", response.data.body)
                 //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
@@ -270,7 +270,11 @@ async function PayOutTransfer(requestData, socket) {
                     commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data.body, false, response.data.message);
 
                 }
-            } else {
+            } else if (response.data.StatusCode == 2) {
+                logger.info("response pedning status ", response.data)
+
+            }
+            else {
                 logger.info("response elase 2 ", response.data)
 
                 commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data.message);
