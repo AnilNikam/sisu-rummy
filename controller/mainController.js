@@ -1109,8 +1109,22 @@ async function getTransactiobDetailByUserId(requestBody) {
   try {
     logger.info("get transaction requestBody ==>", requestBody)
     let { playerId } = requestBody
-    const responseData = await WalletTrackTransaction.find({ userId: MongoID(playerId) }).lean();
-    logger.info("transaction ==>", responseData)
+    const responseData = await WalletTrackTransaction.find({ userId: MongoID(playerId) }).sort({ createdAt: -1 }).lean();
+    logger.info("transaction 1==>", responseData)
+
+
+    // const transactions = responseData; // Assuming responseData contains the fetched data
+
+    // for (const transaction of transactions) {
+    //   const dateString = transaction.createdAt; // Assuming "date" is the field containing the date string
+    //   const formattedDate = new Date(dateString).toLocaleDateString('en-US'); // Format using US English locale
+    //   transaction.formattedDate = formattedDate; // Add the formatted date to the transaction object
+
+
+    // }
+
+    logger.info("transactions date formate -> ", transactions); // Now you have formatted dates in each transaction object
+
     if (responseData) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
     } else {

@@ -553,7 +553,6 @@ myIo.init = function (server) {
           case CONST.WALLET_TRANSACTION_HISTORY: {
             try {
               const res = await mainCtrl.transactionHistory(newData);
-              logger.info("Result ->", res);
               sendEvent(socket, CONST.WALLET_TRANSACTION_HISTORY, res);
 
             } catch (error) {
