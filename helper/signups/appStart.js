@@ -19,14 +19,20 @@ module.exports.appLunchDetails = async (requestData, client) => {
 
     if (result) {
 
-      //check user already is login or not
-      // if (result.sckId !== "") {
-      //   if (result.sckId !== client.id)
-      //     commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST,)
-      // }
 
       //when redis set then uncomment the section
       await this.userSesssionSet(result, client);
+
+      //check user already is login or not
+      if (result.sckId) {
+        if (result.sckId !== client.id) {
+          commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST,)
+        } else {
+          logger.info("check else")
+        }
+      } else {
+        logger.info("socket id ==>", result.sckId)
+      }
 
       let response = await this.filterBeforeSendSPEvent(result);
       commandAcions.sendEvent(client, CONST.DASHBOARD, response);
@@ -150,6 +156,18 @@ module.exports.getUserDefaultFields = async (data, client) => {
     avatar: data.avatar,
     chips: 0,
     winningChips: 0,
+
+    systemVersion: data.systemVersion ? data.systemVersion : '',
+    deviceName: data.deviceName ? data.deviceName : '',
+    deviceModel: data.deviceModel ? data.deviceModel : '',
+    operatingSystem: data.operatingSystem ? data.operatingSystem : '',
+    graphicsMemorySize: data.graphicsMemorySize ? data.graphicsMemorySize : '',
+    systemMemorySize: data.systemMemorySize ? data.systemMemorySize : '',
+    processorType: data.processorType ? data.processorType : '',
+    processorCount: data.processorCount ? data.processorCount : '',
+    batteryLevel: data.batteryLevel ? data.batteryLevel : '',
+    genuineCheckAvailable: data.genuineCheckAvailable ? data.genuineCheckAvailable : '',
+    platform: data.platform ? data.platform : '',
     flags: {
       isOnline: 1, //is Online
     },
@@ -260,6 +278,14 @@ module.exports.userSesssionSet = async (userData, client) => {
       return
     }
 
+    //update user socket Id
+    const updateSocketId = await GameUser.findOneAndUpdate(
+      { _id: MongoID(userData._id) },
+      { $set: { sckId: client.id } },
+      { new: true }
+    );
+
+    logger.info('User Update Socket Id  :: ', updateSocketId);
 
     // Set user session in Redis
     client.uid = userData._id.toString();
