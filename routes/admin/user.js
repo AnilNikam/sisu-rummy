@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const MongoID = mongoose.Types.ObjectId;
 const Users = mongoose.model('users');
 const otpAdharkyc = mongoose.model('otpAdharkyc');
 const BankDetails = mongoose.model('bankDetails');
@@ -59,10 +60,12 @@ router.get('/UserData', async (req, res) => {
 
         let UserOKYC = await otpAdharkyc.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) },
             {
-                adharcard: 1, verified: 1, "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
-                pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1
+                adharcard: 1, verified: 1,
+                adharcardHypervergemark:1,adharcardadminverified:1,
+                "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
+                pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1,panHypervergemark:1,pancardadminverified:1,adminremark:1,adminname:1
             })
-        // console.log("UserOKYC", UserOKYC)
+        console.log("UserOKYC", UserOKYC)
 
         let UserOKYCData = {
             adharcard: " - ",
@@ -73,8 +76,11 @@ router.get('/UserData', async (req, res) => {
             gender: "",
             pincode: "",
             adharcardfrontimages: "",
-            adharcardbackimages: ""
-
+            adharcardbackimages: "",
+            adharcardHypervergemark:"",
+            adharcardadminverified:"",
+            adminremark:"",
+            adminname:""
         }
         UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ? UserOKYC.adharcard : "-";
         UserOKYCData.full_name = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ? UserOKYC.userInfo.user_full_name : "-";
@@ -92,13 +98,26 @@ router.get('/UserData', async (req, res) => {
 
         UserOKYCData.pincode = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.address_zip != undefined) ? UserOKYC.userInfo.address_zip : "-"
 
+
+        UserOKYCData.adharcardHypervergemark = (UserOKYC != undefined && UserOKYC.adharcardHypervergemark != undefined && UserOKYC.adharcardHypervergemark != undefined) ? UserOKYC.adharcardHypervergemark : "-";
+        UserOKYCData.adharcardadminverified = (UserOKYC != undefined && UserOKYC.adharcardadminverified != undefined && UserOKYC.adharcardadminverified != undefined) ? UserOKYC.adharcardadminverified : "-";
+        UserOKYCData.adminremark = (UserOKYC != undefined && UserOKYC.adminremark != undefined && UserOKYC.adminremark != undefined) ? UserOKYC.adminremark : "-";
+        UserOKYCData.adminname = (UserOKYC != undefined && UserOKYC.adminname != undefined && UserOKYC.adminname != undefined) ? UserOKYC.adminname : "-";
+        
+
+
         PanOKYCData = {
             pancardname: "",
             pancard: "",
             verified: "",
             DOB: "",
             full_name: "",
-            pancardfrontimages: ""
+            pancardfrontimages: "",
+            pancardverified:"",
+            panHypervergemark:"",
+            pancardadminverified:"",
+            adminremark:"",
+            adminname:""
         }
 
         PanOKYCData.pancard = (UserOKYC != undefined && UserOKYC.pancard != undefined) ? UserOKYC.pancard : "-";
@@ -107,6 +126,12 @@ router.get('/UserData', async (req, res) => {
         PanOKYCData.verified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined) ? UserOKYC.pancardverified : "-";
         PanOKYCData.full_name = (UserOKYC != undefined && UserOKYC.panInfo != undefined && UserOKYC.panInfo.user_full_name != undefined) ? UserOKYC.panInfo.user_full_name : "-";
         PanOKYCData.DOB = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_dob != undefined) ? UserOKYC.userInfo.user_dob : "-";
+        PanOKYCData.pancardverified = (UserOKYC != undefined && UserOKYC.pancardverified != undefined && UserOKYC.pancardverified != undefined) ? UserOKYC.pancardverified : "-";
+        PanOKYCData.panHypervergemark = (UserOKYC != undefined && UserOKYC.panHypervergemark != undefined && UserOKYC.panHypervergemark != undefined) ? UserOKYC.panHypervergemark : "-";
+        PanOKYCData.pancardadminverified = (UserOKYC != undefined && UserOKYC.pancardadminverified != undefined && UserOKYC.pancardadminverified != undefined) ? UserOKYC.pancardadminverified : "-";
+        PanOKYCData.adminremark = (UserOKYC != undefined && UserOKYC.adminremark != undefined && UserOKYC.adminremark != undefined) ? UserOKYC.adminremark : "-";
+        PanOKYCData.adminname = (UserOKYC != undefined && UserOKYC.adminname != undefined && UserOKYC.adminname != undefined) ? UserOKYC.adminname : "-";
+        
 
         logger.info(':::::::: UserOKYCData ', UserOKYCData);
         logger.info('PanOKYCData  => :::::::: PanOKYCData ', PanOKYCData);
@@ -413,7 +438,7 @@ router.put('/KycUpdate', async (req, res) => {
 */
 router.get('/ReferralList', async (req, res) => {
     try {
-        //console.info('requet => ', req);
+        console.info('requet => ', req);
 
         // const ReferralList = await UserReferTracks.find({isBot:false}, { username: 1,avatar:1,profileUrl:1,winningChips:1,bonusChips:1, id: 1,email:1,uniqueId:1,name:1,
         //     "blackandwhite.totalMatch":1,"aviator.totalMatch":1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1 })
@@ -429,8 +454,6 @@ router.get('/ReferralList', async (req, res) => {
                     },
                     isFrist_deposit: { $push: "$isFrist_deposit" },
                     reffralStatus: { $push: "$reffralStatus" }
-
-
                 }
             },
             {
@@ -467,13 +490,70 @@ router.get('/ReferralList', async (req, res) => {
 
         }
         console.log("ReferralList ", ReferralList)
+
         res.json({ ReferralList });
+        
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
 
+router.get('/ReferralListUserWise', async (req, res) => {
+    try {
+
+        let queryid = req.query.userId 
+
+        let ReferralListData = await UserReferTracks.aggregate([
+            {   
+                $match:{
+                    userId : MongoID(queryid)
+                }
+            },
+            
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "referalUserId",
+                    foreignField: "_id",
+                    as: "results"
+                  }
+            },
+            {
+                $project: {
+                    "reffralStatus":1,
+                    'results.name': 1,
+                    'results._id': 1,
+                    
+                }
+            }
+        ]);
+
+        console.log("ReferralListDAta ",ReferralListData)
+
+        for (var i = 0; i < ReferralListData.length; i++) {
+            console.log("ReferralListData ::::::::::::::::", ReferralListData[i].results)
+
+            ReferralListData[i].name = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0].name != undefined) ? ReferralListData[i].results[0].name : ""
+            ReferralListData[i]._id = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0]._id != undefined) ? ReferralListData[i].results[0]._id : ""
+
+            ReferralListData[i].bonus = (ReferralListData[i].reffralStatus != undefined && ReferralListData[i].reffralStatus) ?GAMELOGICCONFIG.referralgamebonusamount : 0
+
+            delete ReferralListData[i].results
+
+        }
+
+        console.log("ReferralListDAta ",ReferralListData)
+
+        
+        res.json({ ReferralListData });
+
+    }catch (error) {
+        logger.error('admin/dahboard.js ReferralListData error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+
+})
 async function createPhoneNumber() {
     const countryCode = "91";
 
