@@ -20,22 +20,22 @@ module.exports.appLunchDetails = async (requestData, client) => {
     if (result) {
 
 
-      //when redis set then uncomment the section
-      await this.userSesssionSet(result, client);
+      //user connect sckId store
+      //disconnect when null
 
-      //check user already is login or not
-      if (result.sckId) {
-        if (result.sckId !== client.id) {
-          commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST,)
-        } else {
-          logger.info("check else")
-        }
-      } else {
-        logger.info("socket id ==>", result.sckId)
-      }
+      // if (result.sckId && result.sckId !== client.id) {
+      //   // User is already logged in from another device
+      //   commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST);
+      //   logger.info("check socket id unatched ");
+      //   return; // Stop further execution
+      // }
+
+      // Update user session with new socket id
+      await this.userSesssionSet(result, client);
 
       let response = await this.filterBeforeSendSPEvent(result);
       commandAcions.sendEvent(client, CONST.DASHBOARD, response);
+
 
       const dataUpdate = await GameUser.findOneAndUpdate({ _id: MongoID(playerId.toString()) }, { $set: { sckId: client.id } }, {
         new: true,
