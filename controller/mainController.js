@@ -1113,17 +1113,14 @@ async function getTransactiobDetailByUserId(requestBody) {
     logger.info("transaction 1==>", responseData)
 
 
-    // const transactions = responseData; // Assuming responseData contains the fetched data
+    responseData.forEach(doc => {
+      const createdAt = new Date(doc.createdAt);
+      const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      doc.date = createdAt.toLocaleDateString('en-GB', options); // Format date as dd/mm/yyyy
+      doc.time = createdAt.toLocaleTimeString(); // Keep time in the default format
+    });
 
-    // for (const transaction of transactions) {
-    //   const dateString = transaction.createdAt; // Assuming "date" is the field containing the date string
-    //   const formattedDate = new Date(dateString).toLocaleDateString('en-US'); // Format using US English locale
-    //   transaction.formattedDate = formattedDate; // Add the formatted date to the transaction object
-
-
-    // }
-
-    logger.info("transactions date formate -> ", transactions); // Now you have formatted dates in each transaction object
+    logger.info("transactions date formate -> ", responseData); // Now you have formatted dates in each transaction object
 
     if (responseData) {
       return { status: 1, message: 'result sucessfully ', data: responseData };
