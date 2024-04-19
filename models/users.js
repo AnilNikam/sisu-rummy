@@ -21,14 +21,22 @@ const GameUserSchema = new Schema(
     winningChips: { type: Number, required: true, default: 0 }, // Winning Chips 
     bonusChips: { type: Number, required: true, default: 0 },  // Sp && deposite Bonus 5% + referralChips
     lockbonusChips: { type: Number, required: true, default: 0 }, // lock Chips 
-    //referralChips: { type: Number, required: true, default: 0 }, // referarl Chips
-    // unlockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips unlock Chips  
-    // lockreferralChips: { type: Number, required: true, default: 0 }, // referarl Chips lock Chips 
-    //withdrawableChips: { type: Number, required: true, default: 0 },
     winingDeclareCount: { type: Number },
     referralCode: { type: String },
     referredBy: { type: String },
     avatar: { type: String },
+    appVersion: { type: String },
+    systemVersion: { type: String },
+    deviceName: { type: String },
+    deviceModel: { type: String },
+    operatingSystem: { type: String },
+    graphicsMemorySize: { type: String },
+    systemMemorySize: { type: String },
+    processorType: { type: String },
+    processorCount: { type: String },
+    batteryLevel: { type: String },
+    genuineCheckAvailable: { type: String },
+    platform: { type: String },
     deviceType: { type: String, default: 'Android' },
     loginType: { type: String, enum: ['Mobile', 'Guest', 'email', 'Google'], require: true, default: 'Guest' },
     flags: {
