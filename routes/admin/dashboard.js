@@ -352,7 +352,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("commissionData ", commissionData)
 
-    const totalCommission = commissionData[0].totalCommission;
+    const totalCommission =commissionData.length > 0 ? commissionData[0].totalCommission : 0;
 
     logger.info('totalUser', totalUser);
     logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
