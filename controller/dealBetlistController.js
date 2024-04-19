@@ -15,7 +15,7 @@ async function registerBetList(requestBody) {
   console.log('Deal Bet List Request Body => ', requestBody);
   const { gamePlayType, entryFee, deal, status, commission, maxSeat, tableName } = requestBody;
   try {
-    const entryFeexists = await BetLists.find({ gamePlayType: gamePlayType, entryFee: entryFee, deal: deal, maxSeat: maxSeat });
+    const entryFeexists = await BetLists.findOne({ gamePlayType: gamePlayType, entryFee: entryFee, deal: deal, maxSeat: maxSeat });
     console.log("entryFeexists ", entryFeexists)
     if (entryFeexists != null && entryFeexists.length > 0) {
       return { status: 0, message: 'Game Type Already Exists' };
