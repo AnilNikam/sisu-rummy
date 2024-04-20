@@ -256,13 +256,13 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    const totalUser = await Users.find().count()
+    const totalUser = await Users.find({isBot:false}).count()
     let lastdate = AddTime(-86000)
 
     let totalDepositData = await UserWalletTracks.aggregate([
       {
         $match: {
-          "trnxTypeTxt": "PayIn"
+          "transTypeText": "PayIn"
         }
       },
       {
@@ -281,7 +281,7 @@ router.get('/', async (req, res) => {
     let totalWithdrawData = await UserWalletTracks.aggregate([
       {
         $match: {
-          "trnxTypeTxt": "PayOut"
+          "transTypeText": "PayOut"
         }
       },
       {
@@ -302,7 +302,7 @@ router.get('/', async (req, res) => {
       {
         $match: {
           "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
-          "trnxTypeTxt": "PayIn"
+          "transTypeText": "PayIn"
         }
       },
       {
@@ -322,7 +322,7 @@ router.get('/', async (req, res) => {
       {
         $match: {
           "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
-          "trnxTypeTxt": "PayOut"
+          "transTypeText": "PayOut"
         }
       },
       {
