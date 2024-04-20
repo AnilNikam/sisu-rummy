@@ -15,10 +15,10 @@ async function registerBetList(requestBody) {
   // logger.info('Pool Bet List Request Body => ', requestBody);
   const { gamePlayType, entryFee, type, status, commission, maxSeat, tableName } = requestBody;
   try {
-    const entryFeexists = await BetLists.countDocuments({ type });
-    if (entryFeexists > 0) {
-      return { status: 0, message: 'Game Type Already Exists' };
-    }
+    // const entryFeexists = await BetLists.countDocuments({ type });
+    // if (entryFeexists > 0) {
+    //   return { status: 0, message: 'Game Type Already Exists' };
+    // }
 
     const newData = { gamePlayType, entryFee, type, status, commission, maxSeat, tableName };
     const response = await usersHelper.poolBetLists(newData);
