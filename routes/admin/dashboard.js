@@ -256,7 +256,7 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    const totalUser = await Users.find({isBot:false}).count()
+    const totalUser = await Users.find({ isBot: false }).count()
     let lastdate = AddTime(-86000)
 
     let totalDepositData = await UserWalletTracks.aggregate([
@@ -352,7 +352,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("commissionData ", commissionData)
 
-    const totalCommission =commissionData.length > 0 ? commissionData[0].totalCommission : 0;
+    const totalCommission = commissionData.length > 0 ? commissionData[0].totalCommission : 0;
 
     logger.info('totalUser', totalUser);
     logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
@@ -377,7 +377,7 @@ router.get('/latatestUser', async (req, res) => {
   try {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 })
+    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
 
     logger.info('admin/latatestUser => ', RecentUser);
 
@@ -406,16 +406,34 @@ router.get('/latatestUserStatewise', async (req, res) => {
     // const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 })
     // logger.info('RecentUser => ', RecentUser);
 
+    let TotalUserlocation = await Users.aggregate([
+      {
+        $match: {
+          location: { $ne: "" }
+        }
+      },
+
+      {
+        $group: {
+
+          _id: '$location',
+          total: {
+            $sum: 1
+          },
+
+        }
+      },
+      {
+        $sort:{
+          total:-1
+        }
+      }
+    ]);
+
+    console.log("TotalUserlocation ", TotalUserlocation)
+
     res.json({
-      statelist: [{
-        _id: 12563,
-        statename: "Goa",
-        users: 100
-      }, {
-        _id: 122563,
-        statename: "Gujarat",
-        users: 59
-      }]
+      statelist: TotalUserlocation
     });
   } catch (error) {
     logger.error('admin/latatestUserStatewise error => ', error);

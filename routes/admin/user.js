@@ -31,8 +31,8 @@ router.get('/UserList', async (req, res) => {
         const userList = await Users.find({ isBot: false }, {
             username: 1, avatar: 1, profileUrl: 1, winningChips: 1, bonusChips: 1, id: 1, email: 1, uniqueId: 1, name: 1,
             "blackandwhite.totalMatch": 1, "aviator.totalMatch": 1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1
-        })
-        // logger.info('UserList=> ', userList);
+        }).sort({createdAt:-1})
+        logger.info('UserList=> ', userList);
 
         res.json({ userList });
     } catch (error) {
@@ -372,7 +372,7 @@ router.get('/kycInfoList', async (req, res) => {
             }
         }
 
-        let kycInfoList = await otpAdharkyc.find(wh, {})
+        let kycInfoList = await otpAdharkyc.find(wh, {}).sort({createdAt:-1})
         logger.info('kycInfoList => ', kycInfoList);
 
         res.json({ kycInfoList });

@@ -10,6 +10,8 @@ const logger = require('../../logger');
 // const Userpayout = mongoose.model('userpayout');
 const UserWalletTracks = mongoose.model('walletTrackTransaction');
 const PaymentOut = mongoose.model('paymentout');
+const PaymentIn = mongoose.model('paymentin');
+
 
 /**
 * @api {post} /admin/DepositList
@@ -507,7 +509,7 @@ router.get('/transactionData', async (req, res) => {
         const transactionData = await UserWalletTracks.find({}, {
             uniqueId: 1,username:1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
             totalBucket: 1, gameId: 1, createdAt: 1
-        })
+        }).sort({createdAt:-1})
 
         logger.info('transactionData => ', transactionData);
 
@@ -540,15 +542,49 @@ router.get('/PayoutListData', async (req, res) => {
 
         const PayoutList = await PaymentOut.find({}, {
             OrderID: 1,
-            transactionId: 1, paymentStatus: 1, orderInfo: 1, "accountNo": 1, ifscCode: 1, beneficiaryName: 1, transferMode: 1, rrn: 1,
+            transactionId: 1, paymentStatus: 1, orderInfo: 1,
             userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
-        })
+        }).sort({createdAt:-1})
 
         logger.info('PayoutList => ', PayoutList);
 
         res.json({ PayoutList });
     } catch (error) {
         logger.error('admin/PayoutListData error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
+/**
+* @api {post} /admin/PayoutList
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/PayInDataList', async (req, res) => {
+    try {
+        console.log('PayInDataList requet => ', req.query);
+        let wh = {}
+        if (req.query.status == "Pending") {
+            wh = { paymentStatus: "Pending" }
+        } if (req.query.status == "Approved") {
+            wh = { paymentStatus: "Approved" }
+        }
+
+        const PayoutList = await PaymentIn.find({}, {
+            OrderID: 1,
+            transactionId: 1, paymentStatus: 1, orderInfo: 1, "accountNo": 1, ifscCode: 1, beneficiaryName: 1, transferMode: 1, rrn: 1,
+            userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, createdAt: 1
+        }).sort({createdAt:-1})
+
+        logger.info('PayInDataList => ', PayoutList);
+
+        res.json({ PayoutList });
+    } catch (error) {
+        logger.error('admin/PayInDataList error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
