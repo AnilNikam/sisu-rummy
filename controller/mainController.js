@@ -578,7 +578,7 @@ async function adminLogin(requestBody) {
     if (data !== null) {
       const passwordMatch = await bcrypt.compare(password, data.password);
 
-      console.log('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
+      logger.info('passwordMatch =====> ', passwordMatch, "\n data =====> ", data);
 
 
       if (passwordMatch) {

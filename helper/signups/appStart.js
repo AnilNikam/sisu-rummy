@@ -12,13 +12,27 @@ const logger = require('../../logger');
 module.exports.appLunchDetails = async (requestData, client) => {
   try {
     // logger.info("appLunchDetails =>", requestData);
-    let { playerId /*mobileNumber, deviceId, loginType, email*/ } = requestData;
+    let { playerId, appVersion/*, deviceId, loginType, email*/ } = requestData;
     let query = { _id: playerId.toString() };
     let result = await GameUser.findOne(query, {}).lean();
     // logger.info('Guest Final response result', result);
 
     if (result) {
 
+      if (appVersion !== GAMELOGICCONFIG.App_Version) {
+        if (result.appVersion !== GAMELOGICCONFIG.App_Version) {
+          let response = { valid: false, msg: 'Update! Upgrade Your App' };
+          commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+          return false
+        } else {
+          // App version is up to date
+          let response = { valid: true, msg: 'App Already Updated' };
+          commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+          // You can add any additional logic here if needed
+        }
+      } else {
+        await GameUser.findOneAndUpdate(query, { $set: { appVersion: appVersion } }, { new: true }).lean();
+      }
 
       //user connect sckId store
       //disconnect when null
@@ -325,3 +339,28 @@ module.exports.filterBeforeSendSPEvent = async (userData) => {
   //logger.info('filter Before Send SP Event -->', res);
   return res;
 };
+
+module.exports.appUpdate = async (requestData, client) => {
+  try {
+    const { playerId } = requestData;
+    const query = { _id: playerId.toString() };
+    const result = await GameUser.findOne(query, {}).lean();
+
+    if (result) {
+      if (result.App_Version !== GAMELOGICCONFIG.App_Version) {
+        let response = { valid: false, msg: 'Update! Upgrade Your App' };
+        commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+      } else {
+        // App version is up to date
+        let response = { valid: true, msg: 'App Already Updated' };
+        commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+        // You can add any additional logic here if needed
+      }
+    } else {
+      const response = { valid: false, msg: 'User not Find' };
+      commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+    }
+  } catch (error) {
+    logger.error('Error in appUpdate:', error);
+  }
+}

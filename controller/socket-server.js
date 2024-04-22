@@ -19,7 +19,7 @@ const { userReconnect, takeSeat } = require('../helper/common-function/reConnect
 const paymentAction = require('./paymentController,js');
 const { PayOutTransfer } = require('./paymentController,js');
 const { checkPayoutStatus } = require('./paymentController,js');
-const { checkReferral, activePlayerCounter, getStateList } = require('../helper/signups/appStart');
+const { checkReferral, activePlayerCounter, getStateList, appUpdate } = require('../helper/signups/appStart');
 
 const walletActions = require('../helper/common-function/walletTrackTransaction');
 
@@ -95,6 +95,16 @@ myIo.init = function (server) {
             try {
               logger.info("bank account payload.data ", payload.data)
               await addBankAccount(payload.data, socket);
+            } catch (error) {
+              logger.error('socketServer.js Register User Table error => ', error);
+            }
+            break;
+          }
+
+          case CONST.APP_UPDATE: {
+            try {
+              logger.info("APP_UPDATE payload.data ", payload.data)
+              await appUpdate(payload.data, socket);
             } catch (error) {
               logger.error('socketServer.js Register User Table error => ', error);
             }
