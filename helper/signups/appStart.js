@@ -22,12 +22,12 @@ module.exports.appLunchDetails = async (requestData, client) => {
       if (appVersion !== GAMELOGICCONFIG.App_Version) {
         if (result.appVersion !== GAMELOGICCONFIG.App_Version) {
           let response = { valid: false, msg: 'Update! Upgrade Your App' };
-          commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+          commandAcions.sendEvent(client, CONST.APP_UPDATE, response);
           return false
         } else {
           // App version is up to date
           let response = { valid: true, msg: 'App Already Updated' };
-          commandAcions.sendEvent(client, CONST.CHECK_REFERAL_CODE, response);
+          commandAcions.sendEvent(client, CONST.APP_UPDATE, response);
           // You can add any additional logic here if needed
         }
       } else {
