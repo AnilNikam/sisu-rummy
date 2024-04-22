@@ -46,7 +46,7 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let gameChips = requestData.entryFee;
 
-    if (Number(userInfo.chips) < Number(gameChips)) {
+    if (Number(userInfo.chips) < Number(gameChips) && Number(userInfo.winningChips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,
         msg: 'Please Add Wallet!!',
@@ -196,7 +196,7 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
 
     let wh = { _id: socket.uid };
     let userInfo = await Users.findOne(wh, {}).lean();
-    let totalWallet = Number(userInfo.chips);
+    let totalWallet = Number(userInfo.chips) + Number(userInfo.winningChips);
 
     let playerGameChips = table.entryFee
     totalWallet -= playerGameChips;
