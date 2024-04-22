@@ -13,38 +13,75 @@ const { registerUser } = require('../../helper/signups/signupValidation');
 const { getUserDefaultFields, saveGameUser } = require('../../helper/signups/appStart');
 const fs = require("fs")
 
+
 /**
-* @api {get} /admin/app-version-update
+* @api {get} /admin/Getpaymentconfig
 * @apiName  Getpaymentconfig
 * @apiGroup  Admin
 * @apiHeader {String}  x-access-token Admin's unique access-key
 * @apiSuccess (Success 200) {Array} badges Array of badges document
 * @apiError (Error 4xx) {String} message Validation or error message.
 */
-router.post('/app-version-update', async (req, res) => {
+router.get('/Getappversion', async (req, res) => {
     try {
-        logger.info('request app-version-update => ', req.body);
+        console.info('Getappversion => ', req.query);
+        console.info('Getappversion => ', GAMELOGICCONFIG);
 
-        // Assuming the body parameter is named "App_Version"
-        const appVersion = req.body.App_Version;
-        logger.info("appVersion ==>", appVersion)
+        res.json({
+            App_Version: GAMELOGICCONFIG.App_Version
+        });
 
-        if (appVersion) {
-            // Update the App_Version property of GAMELOGICCONFIG
-            GAMELOGICCONFIG.App_Version = appVersion;
 
-            res.json({
-                App_Version: GAMELOGICCONFIG.App_Version,
-            });
-        } else {
-            // If App_Version parameter is missing in the request, return a 400 Bad Request response
-            res.status(400).json({ error: 'App_Version parameter missing in the request' });
-        }
+
     } catch (error) {
-        logger.error('app-version-update => ', error);
+        logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
+
+/**
+* @api {get} /admin/app-version-update
+* @apiName  app-version-update
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/app-version-update', async (req, res) => {
+    try {
+        console.info('app-version-update requet => ', req.body);
+
+        console.log("req.body.game.gamename  1", req.body)
+
+     
+        if (req.body.App_Version != undefined
+        ) {
+            GAMELOGICCONFIG.App_Version = req.body.App_Version.toString()
+
+
+            console.log("GAMELOGICCONFIG ", GAMELOGICCONFIG.App_Version)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+
+            });
+            res.json({ falgs: true });
+        } else {
+            res.json({ falgs: false });
+        }
+
+
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
 
 
 /**

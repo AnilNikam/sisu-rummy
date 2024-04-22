@@ -31,7 +31,7 @@ router.get('/UserList', async (req, res) => {
         const userList = await Users.find({ isBot: false }, {
             username: 1, avatar: 1, profileUrl: 1, winningChips: 1, bonusChips: 1, id: 1, email: 1, uniqueId: 1, name: 1,
             "blackandwhite.totalMatch": 1, "aviator.totalMatch": 1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1
-        }).sort({createdAt:-1})
+        }).sort({ createdAt: -1 })
         logger.info('UserList=> ', userList);
 
         res.json({ userList });
@@ -56,14 +56,16 @@ router.get('/UserData', async (req, res) => {
         //userInfo
         const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1, avatar: 1, isBlock: 1 })
 
-        // console.log("userInfo :::::::::::::::::::", userInfo)
+        console.log("userInfo :::::::::::::::::::", userInfo)
+
+        userInfo.winningChips = userInfo.winningChips != undefined ? userInfo.winningChips.toFixed(2) : 0 
 
         let UserOKYC = await otpAdharkyc.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) },
             {
                 adharcard: 1, verified: 1,
-                adharcardHypervergemark:1,adharcardadminverified:1,
+                adharcardHypervergemark: 1, adharcardadminverified: 1,
                 "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
-                pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1,panHypervergemark:1,pancardadminverified:1,adminremark:1,adminname:1
+                pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1, panHypervergemark: 1, pancardadminverified: 1, adminremark: 1, adminname: 1
             })
         console.log("UserOKYC", UserOKYC)
 
@@ -77,10 +79,10 @@ router.get('/UserData', async (req, res) => {
             pincode: "",
             adharcardfrontimages: "",
             adharcardbackimages: "",
-            adharcardHypervergemark:"",
-            adharcardadminverified:"",
-            adminremark:"",
-            adminname:""
+            adharcardHypervergemark: "",
+            adharcardadminverified: "",
+            adminremark: "",
+            adminname: ""
         }
         UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ? UserOKYC.adharcard : "-";
         UserOKYCData.full_name = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ? UserOKYC.userInfo.user_full_name : "-";
@@ -103,7 +105,7 @@ router.get('/UserData', async (req, res) => {
         UserOKYCData.adharcardadminverified = (UserOKYC != undefined && UserOKYC.adharcardadminverified != undefined && UserOKYC.adharcardadminverified != undefined) ? UserOKYC.adharcardadminverified : "-";
         UserOKYCData.adminremark = (UserOKYC != undefined && UserOKYC.adminremark != undefined && UserOKYC.adminremark != undefined) ? UserOKYC.adminremark : "-";
         UserOKYCData.adminname = (UserOKYC != undefined && UserOKYC.adminname != undefined && UserOKYC.adminname != undefined) ? UserOKYC.adminname : "-";
-        
+
 
 
         PanOKYCData = {
@@ -113,11 +115,11 @@ router.get('/UserData', async (req, res) => {
             DOB: "",
             full_name: "",
             pancardfrontimages: "",
-            pancardverified:"",
-            panHypervergemark:"",
-            pancardadminverified:"",
-            adminremark:"",
-            adminname:""
+            pancardverified: "",
+            panHypervergemark: "",
+            pancardadminverified: "",
+            adminremark: "",
+            adminname: ""
         }
 
         PanOKYCData.pancard = (UserOKYC != undefined && UserOKYC.pancard != undefined) ? UserOKYC.pancard : "-";
@@ -131,7 +133,7 @@ router.get('/UserData', async (req, res) => {
         PanOKYCData.pancardadminverified = (UserOKYC != undefined && UserOKYC.pancardadminverified != undefined && UserOKYC.pancardadminverified != undefined) ? UserOKYC.pancardadminverified : "-";
         PanOKYCData.adminremark = (UserOKYC != undefined && UserOKYC.adminremark != undefined && UserOKYC.adminremark != undefined) ? UserOKYC.adminremark : "-";
         PanOKYCData.adminname = (UserOKYC != undefined && UserOKYC.adminname != undefined && UserOKYC.adminname != undefined) ? UserOKYC.adminname : "-";
-        
+
 
         logger.info(':::::::: UserOKYCData ', UserOKYCData);
         logger.info('PanOKYCData  => :::::::: PanOKYCData ', PanOKYCData);
@@ -246,17 +248,37 @@ router.delete('/DeleteUser/:id', async (req, res) => {
 * @apiHeader {String}  x-access-token Admin's unique access-key
 * @apiSuccess (Success 200) {Array} badges Array of badges document
 * @apiError (Error 4xx) {String} message Validation or error message.
+
+{
+  money: '1',
+  txnmode: 'ReFund',
+  typeofAddto: 'Main Wallet',
+  type: 'Deposit',
+  userId: '6623651584675d505e31963d'
+}
+
 */
 router.put('/addMoney', async (req, res) => {
     try {
-        logger.info("Add Money =>", req.body)
+        console.log("Add Money =>", req.body)
 
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
-        if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
-            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
-            if (UserData != undefined && UserData[0].sckId != undefined) {
-                await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', 'Admin_PayIn');
+        if (req.body.userId != undefined
+            && req.body.type != undefined
+            && req.body.money != undefined && req.body.typeofAddto != undefined && req.body.txnmode != undefined) {
+
+            if (req.body.typeofAddto == "Main Wallet") {
+                await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode);
+            } else if (req.body.typeofAddto == "Bonus Wallet") {
+                await walletActions.addWalletBonusDeposit(req.body.userId, Number(req.body.money), 'Debit', req.body.txnmode);
+            } else if (req.body.typeofAddto == "Win Wallte") {
+                await walletActions.addWalletWinngChpis(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode);
             }
+
+            // const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
+            // if (UserData != undefined && UserData[0].sckId != undefined) {
+            //     await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', 'Admin_PayIn');
+            // }
 
             res.json({ status: "ok" });
         } else {
@@ -277,24 +299,62 @@ router.put('/addMoney', async (req, res) => {
 * @apiHeader {String}  x-access-token Admin's unique access-key
 * @apiSuccess (Success 200) {Array} badges Array of badges document
 * @apiError (Error 4xx) {String} message Validation or error message.
+
+{
+  money: '1',
+  txnmode: 'ReFund',
+  typeofDudctfrom: 'Main Wallet',
+  type: 'Deposit',
+  userId: '6623651584675d505e31963d'
+}
+
 */
 router.put('/deductMoney', async (req, res) => {
     try {
         logger.info("deductMoney ", req.body)
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
 
-        if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined) {
+        if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined
+        
+            && req.body.typeofDudctfrom != undefined && req.body.txnmode != undefined) {
 
-            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1, winningChips: 1 })
-            if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
-                res.json({ status: false });
-                return false
-            }
+                const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1, winningChips: 1,chips:1,bonusChips:1 })
 
-            if (UserData != undefined && UserData[0].sckId != undefined) {
-                //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
-                await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', 'Admin_PayOut');
-            }
+
+                if (req.body.typeofDudctfrom == "Main Wallet") {
+                    if (UserData != undefined && UserData[0].chips != undefined && UserData[0].chips < Number(req.body.money)) {
+                        res.json({ status: false });
+                        return false
+                    }
+
+                    await walletActions.addWalletPayin(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
+                    
+                } else if (req.body.typeofDudctfrom == "Bonus Wallet") {
+
+                    if (UserData != undefined && UserData[0].bonusChips != undefined && UserData[0].bonusChips < Number(req.body.money)) {
+                        res.json({ status: false });
+                        return false
+                    }
+
+                    await walletActions.addWalletBonusDeposit(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
+                } else if (req.body.typeofDudctfrom == "Win Wallte") {
+
+                    if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
+                        res.json({ status: false });
+                        return false
+                    }
+
+                    await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', req.body.txnmode);
+                }
+
+
+            
+            
+
+            // if (UserData != undefined && UserData[0].sckId != undefined) {
+            //     //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
+            //     await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', 'Admin_PayOut');
+            // }
 
             res.json({ status: "ok" });
         } else {
@@ -372,7 +432,7 @@ router.get('/kycInfoList', async (req, res) => {
             }
         }
 
-        let kycInfoList = await otpAdharkyc.find(wh, {}).sort({createdAt:-1})
+        let kycInfoList = await otpAdharkyc.find(wh, {}).sort({ createdAt: -1 })
         logger.info('kycInfoList => ', kycInfoList);
 
         res.json({ kycInfoList });
@@ -492,7 +552,7 @@ router.get('/ReferralList', async (req, res) => {
         console.log("ReferralList ", ReferralList)
 
         res.json({ ReferralList });
-        
+
     } catch (error) {
         logger.error('admin/dahboard.js post bet-list error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
@@ -502,34 +562,34 @@ router.get('/ReferralList', async (req, res) => {
 router.get('/ReferralListUserWise', async (req, res) => {
     try {
 
-        let queryid = req.query.userId 
+        let queryid = req.query.userId
 
         let ReferralListData = await UserReferTracks.aggregate([
-            {   
-                $match:{
-                    userId : MongoID(queryid)
+            {
+                $match: {
+                    userId: MongoID(queryid)
                 }
             },
-            
+
             {
                 $lookup: {
                     from: "users",
                     localField: "referalUserId",
                     foreignField: "_id",
                     as: "results"
-                  }
+                }
             },
             {
                 $project: {
-                    "reffralStatus":1,
+                    "reffralStatus": 1,
                     'results.name': 1,
                     'results._id': 1,
-                    
+
                 }
             }
         ]);
 
-        console.log("ReferralListDAta ",ReferralListData)
+        console.log("ReferralListDAta ", ReferralListData)
 
         for (var i = 0; i < ReferralListData.length; i++) {
             console.log("ReferralListData ::::::::::::::::", ReferralListData[i].results)
@@ -537,18 +597,18 @@ router.get('/ReferralListUserWise', async (req, res) => {
             ReferralListData[i].name = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0].name != undefined) ? ReferralListData[i].results[0].name : ""
             ReferralListData[i]._id = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0]._id != undefined) ? ReferralListData[i].results[0]._id : ""
 
-            ReferralListData[i].bonus = (ReferralListData[i].reffralStatus != undefined && ReferralListData[i].reffralStatus) ?GAMELOGICCONFIG.referralgamebonusamount : 0
+            ReferralListData[i].bonus = (ReferralListData[i].reffralStatus != undefined && ReferralListData[i].reffralStatus) ? GAMELOGICCONFIG.referralgamebonusamount : 0
 
             delete ReferralListData[i].results
 
         }
 
-        console.log("ReferralListDAta ",ReferralListData)
+        console.log("ReferralListDAta ", ReferralListData)
 
-        
+
         res.json({ ReferralListData });
 
-    }catch (error) {
+    } catch (error) {
         logger.error('admin/dahboard.js ReferralListData error => ', error);
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
