@@ -21,7 +21,7 @@ const fs = require("fs")
 * @apiSuccess (Success 200) {Array} badges Array of badges document
 * @apiError (Error 4xx) {String} message Validation or error message.
 */
-router.get('/app-version-update', async (req, res) => {
+router.post('/app-version-update', async (req, res) => {
     try {
         logger.info('request app-version-update => ', req.body);
 

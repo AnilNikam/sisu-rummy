@@ -57,7 +57,7 @@ router.use('/coin', coin);
 
 router.use('/bank', authMiddleware, bank);
 router.use('/state', authMiddleware, state);
-router.use('/payment', paymentconfig);
+router.use('/payment', authMiddleware, paymentconfig);
 
 
 

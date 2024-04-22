@@ -442,7 +442,7 @@ const accountVerifyAPI = async (data) => {
   logger.info("Account Verify Response ::>", response.data);
 
   if (response.data.success) {
-    let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verify: true , paymentStatus:"Approved" } }, {
+    let res = await BankDetails.findOneAndUpdate({ userId: MongoID(data.userId) }, { $set: { verify: true, paymentStatus: "Approved" } }, {
       new: true,
     });
 
@@ -467,6 +467,7 @@ const OKYCRequest = async (requestBody, socket) => {
       userId: OBJECT_ID(requestBody.playerId.toString()),
       adharcard: requestBody.customer_aadhaar_number,
       verified: false,
+      userName: requestBody.userName != undefined ? requestBody.userName : "",
     }
 
     const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
@@ -536,16 +537,30 @@ const OKYCRequest = async (requestBody, socket) => {
     } else {
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { request_id: response.data.request_id, success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
 
+      await otpAdharkyc.updateOne(
+        {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+        },
+        {
+          $set: {
+            adharcardHypervergemark: response.data.response_message
+          },
+        },
+        {}
+      );
+
     }
 
 
 
   } catch (error) {
-
+    console.log("error", error)
     if (error.response)
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
     else {
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
+
+
 
     }
   }
@@ -592,7 +607,7 @@ const OKYCverifyRequest = async (requestBody, socket) => {
         "Content-Type": "application/json"
       }
     });
-    console.log("response.data ::::::::::::", response.data)
+    logger.info("response.data ::::::::::::", response.data)
     if (response.data.success) {
       await otpAdharkyc.updateOne(
         {
@@ -612,6 +627,21 @@ const OKYCverifyRequest = async (requestBody, socket) => {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
       return false;
     } else {
+
+      await otpAdharkyc.updateOne(
+        {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+        },
+        {
+          $set: {
+            adharcardHypervergemark: response.data.response_message
+          }
+        },
+        {}
+      );
+
+
+      //
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: response.data.response_code, statusText: response.data.response_message });
     }
   } catch (error) {
@@ -673,7 +703,7 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
         "Content-Type": "application/json"
       }
     });
-    console.log("response.data ::::::::::::", response.data)
+    console.log("Pan Card response.data ::::::::::::", response.data)
     if (response.data.success) {
       console.log("requestBody ", requestBody)
       const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
@@ -702,7 +732,8 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
           pancardname: requestBody.pancardname,
           pancardverified: true,
           panInfo: response.data.result,
-          pancardfrontimages: requestBody.pancardfrontimages
+          pancardfrontimages: requestBody.pancardfrontimages,
+          userName: requestBody.userName != undefined ? requestBody.userName : "",
         });
 
         console.log("insertt ", insertt)
@@ -711,10 +742,23 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 1, msg: "Successful", status: response.data.response_code, statusText: response.data.response_message });
       return false;
     } else {
+
+      await otpAdharkyc.updateOne(
+        {
+          userId: OBJECT_ID(requestBody.playerId.toString()),
+        },
+        {
+          $set: {
+            panHypervergemark: response.data.response_message
+          }
+        },
+        {}
+      );
+
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: response.data.response_code, statusText: response.data.response_message });
     }
   } catch (error) {
-    console.log('mainController.js OKYCRequest error=> ', error);
+    console.log('mainController.js pan OKYCRequest error=> ', error);
 
     if (error.response)
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });

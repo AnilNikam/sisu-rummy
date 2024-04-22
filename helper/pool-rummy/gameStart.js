@@ -206,6 +206,8 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       let totalWallet = Number(userInfo.chips);
       let totalbonus = Number(userInfo.bonusChips);
+      let totalWinWallet = Number(userInfo.winningChips);
+
 
       let playerGameChips = tabInfo.entryFee;
       let gameDepositChips = playerGameChips;
@@ -217,6 +219,7 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       let bonuswalletdeduct = false;
       let mainwalletdeduct = false;
+      let winwalletdeduct = false;
 
 
       if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
@@ -225,34 +228,12 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       } else if (totalWallet >= mainchipscut) {
         mainwalletdeduct = true
+      } else if (totalbonus >= bonuscutchips && totalWinWallet >= mainchipscut) {
+        winwalletdeduct = true
+        bonuswalletdeduct = true
+      } else if (totalWinWallet >= mainchipscut) {
+        mainwalletdeduct = true
       }
-      // let playerGameChips = tabInfo.entryFee * 80;
-      // let gameDepositChips = playerGameChips * 3;
-
-      // if (userInfo.chips > gameDepositChips) {
-      //   playerGameChips = gameDepositChips;
-      //   totalWallet -= gameDepositChips;
-      // } else if (userInfo.chips > playerGameChips * 2) {
-      //   playerGameChips = playerGameChips * 2;
-      //   totalWallet -= playerGameChips;
-      // } else if (userInfo.chips > playerGameChips) {
-      //   playerGameChips;
-      //   totalWallet -= playerGameChips;
-      // }
-
-      // let userWalletUpdate = {
-      //   $set: {
-      //     chips: Number(totalWallet),
-      //   },
-      //   $inc: {
-      //     'counters.totalMatch': 1,
-      //   },
-      // };
-
-      // let uwh = { _id: MongoID(pId.toString()) };
-      // let updateCounters = await Users.findOneAndUpdate(uwh, userWalletUpdate, { new: true });
-
-      // logger.info('Wallet after deduct coins update in user and counter ::', updateCounters);
 
       logger.info("pool bonus wallet deduct ", bonuswalletdeduct)
       logger.info("pool main wallet deduct ", mainwalletdeduct)
@@ -260,16 +241,22 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
 
       if (bonuswalletdeduct && mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Pool Playing Entry Deposit');
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Point Playing Entry Deduct Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
 
       } else if (mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Pool Playing Entry Deposit');
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Point Playing Entry Deduct Deposit');
+      } else if (bonuswalletdeduct && winwalletdeduct) {
+
+        await walletActions.addWalletWinningPayin(pId, - Number(mainchipscut), 'Debit', 'Point Playing Entry Deduct Deposit');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
+
+
+      } else if (winwalletdeduct) {
+        await walletActions.addWalletWinningPayin(pId, - Number(gameDepositChips), 'Debit', 'Point Playing Entry Deduct Deposit');
       }
 
-      if (bonuswalletdeduct || mainwalletdeduct) {
-
-
+      if (bonuswalletdeduct || mainwalletdeduct || winwalletdeduct) {
 
         let dataUpdate = {
           $inc: {

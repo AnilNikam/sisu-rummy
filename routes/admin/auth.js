@@ -130,6 +130,13 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
           const depositbonus = ((Number(req.body.Amount) * 5) / 100);
           await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
         }
+
+
+        await paymentin.findOneAndUpdate({ "OrderID": decryptedData.AggRefNo }, { $set: { paymentStatus: "Approved" } }, {
+          new: true,
+        });
+
+
       } else {
         logger.info("PaymentIndata ", PaymentIndata);
         logger.info("req.body Failed ", req.body);
@@ -209,7 +216,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
 
 
       // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  
-      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.ClientOrderId.toString() }, { $set: { webhook: req.body } }, {
+      const PaymentOutdata = await paymentout.findOneAndUpdate({ "OrderID": req.body.ClientOrderId.toString() }, { $set: { webhook: req.body, "paymentStatus": "Approved" } }, {
         new: true,
       });
       logger.info("PaymentOutdata ======> check ==>", PaymentOutdata)
