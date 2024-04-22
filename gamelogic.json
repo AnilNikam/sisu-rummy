@@ -23,5 +23,6 @@
     "PLAYING_WIN_PER": 5,
     "BOTVERSION": 123,
     "BOTMODE": "Only Bot join with Player",
-    "BOTDIFFICULTY": "MEDIUM"
+    "BOTDIFFICULTY": "MEDIUM",
+    "App_Version": "0.0.1"
 }

@@ -37,6 +37,7 @@ const CONST = {
   ROUND_LOCK: 'RoundLock',
   GAMEPLAY: 'GAMEPLAY',
   CARD_DEALING: 'CardDealing',
+  APP_UPDATE: 'APPUPDATE',
 
   // SPENN Paymnent Key
   API_KEY: 'Owiv+7//L9E3TsxkJuBHAInUSPHYfVJIw2KKcPjpyrZA4bBxxnDFHbL7c0yAyRADbO/REty9bwU=',

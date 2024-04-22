@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const config = require('../../config');
-const commonHelper = require('../../helper/commonHelper');
-const mainCtrl = require('../../controller/adminController');
 const logger = require('../../logger');
 const statemanagemet = mongoose.model('statemanagemet');
 
@@ -31,8 +29,6 @@ router.get('/stateList', async (req, res) => {
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
-
-
 
 
 /**
