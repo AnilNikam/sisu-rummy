@@ -5,7 +5,8 @@ const Users = mongoose.model('users');
 const PlayingTables = mongoose.model('playingTable');
 
 const gameStartActions = require('./gameStart');
-const botCtrl = require('./poolBotFunction');
+// const botCtrl = require('./poolBotFunction');
+const botCtrl = require('../assignBot');
 const CONST = require('../../constant');
 const logger = require('../../logger');
 
