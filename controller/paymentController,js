@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
-const Users = mongoose.model('users');
 const paymentin = mongoose.model('paymentin');
 const paymentout = mongoose.model('paymentout');
-const BankDetails = mongoose.model('bankDetails');
 const crypto = require('crypto');
 const axios = require('axios');
 const commandAcions = require('../helper/socketFunctions');
@@ -88,7 +86,6 @@ async function initiatePayment(requestData, socket) {
         throw error; // Throw the error to be caught by the caller
     }
 }
-
 
 async function newInitiatePayment(requestData, socket) {
     try {
@@ -184,8 +181,6 @@ async function newInitiatePayment(requestData, socket) {
     }
 }
 
-
-
 const Account_WOWPE_PAYOUT = {
     // base_url: 'https://api.wowpe.in/api/PayoutAPI/paymenttransafer',//old
     base_url: 'https://api.wowpe.in/api/api/api-module/payout/payout',
@@ -193,17 +188,17 @@ const Account_WOWPE_PAYOUT = {
     secretKey: 'a3ebf105-22cd-4f8d-9dff-bf1fd7a04b4c'
 };
 
-
-
 async function PayOutTransfer(requestData, socket) {
     try {
         logger.info(" Create PayOut Transfer =>", requestData);
-        // Valiation 
+
         if (requestData.amount < 50 || requestData.amount > 1000) {
             commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
-
             return false
         }
+
+        const reference = generateReferenceNumber()
+        logger.info("PayOutTransfer reference==> ", reference)
 
         requestData.amount = requestData.amount - ((requestData.amount * 2) / 100)
 
@@ -211,7 +206,7 @@ async function PayOutTransfer(requestData, socket) {
         //Insert Payout Table 
         const paymentoutdata = await paymentout.create({
             userId: requestData.playerId,
-            transactionId: "aaa",
+            transactionId: reference,
             name: requestData.customerName,
             email: requestData.customerEmail,
             phone: requestData.customerPhone,
@@ -294,7 +289,6 @@ async function PayOutTransfer(requestData, socket) {
     }
 }
 
-
 const Account_WOWPE_VERIFICATION = {
     base_url: 'https://api.wowpe.in/PayoutAPI/accountverification',
     clientId: 'aa482292-1675-444d-91d0-57d68829f560',
@@ -324,7 +318,6 @@ async function checkPayoutStatus(requestData, callback) {
         throw error.response ? error.response.data : error.message;
     }
 }
-
 
 function generateReferenceNumber() {
     // Create a string of all digits (0-9)
