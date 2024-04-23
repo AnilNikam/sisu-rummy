@@ -15,14 +15,15 @@ const TransactionSchema = new Schema(
       enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
       default: 'Pending',
     },
-    OrderID:{ type: String ,default: ''},
-    orderInfo:{ type: String ,default: ''},
-    accountNo: { type: String ,default: ''},
-    ifscCode: { type: String ,default: ''},
-    beneficiaryName: { type: String ,default: ''},
-    transferMode: { type: String ,default: ''},
-    rrn: { type: String ,default: ''},
-    webhook:{}
+    paymentGateway: { type: String, default: 'wowpe' },
+    OrderID: { type: String, default: '' },
+    orderInfo: { type: String, default: '' },
+    accountNo: { type: String, default: '' },
+    ifscCode: { type: String, default: '' },
+    beneficiaryName: { type: String, default: '' },
+    transferMode: { type: String, default: '' },
+    rrn: { type: String, default: '' },
+    webhook: {}
   },
   {
     timestamps: true,

@@ -9,15 +9,16 @@ const TransactionSchema = new Schema(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true },
     phone: { type: String },
+    paymentGateway: { type: String, default: 'paylotus' },
     amount: { type: Number, required: true },
     paymentStatus: {
       type: String,
       enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
       default: 'Pending',
     },
-    OrderID:{ type: String ,default: ''},
-    orderInfo:{ type: String ,default: ''},
-    webhook:{}
+    OrderID: { type: String, default: '' },
+    orderInfo: { type: String, default: '' },
+    webhook: {}
   },
   {
     timestamps: true,

@@ -106,6 +106,7 @@ async function newInitiatePayment(requestData, socket) {
             email: requestData.customerEmail,
             phone: requestData.customerPhone,
             amount: requestData.amount,
+            paymentGateway: 'paylotus',
             paymentStatus: "Pending"
         });
 
@@ -213,6 +214,7 @@ async function PayOutTransfer(requestData, socket) {
             amount: requestData.amount,
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
+            paymentGateway: 'wowpe',
             "beneficiaryName": requestData.BeneficiaryName.trim(),
             "transferMode": requestData.transferMode,
             paymentStatus: "Pending"
