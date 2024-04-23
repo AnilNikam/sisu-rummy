@@ -170,7 +170,6 @@ module.exports.getUserDefaultFields = async (data, client) => {
     avatar: data.avatar,
     chips: 0,
     winningChips: 0,
-
     systemVersion: data.systemVersion ? data.systemVersion : '',
     deviceName: data.deviceName ? data.deviceName : '',
     deviceModel: data.deviceModel ? data.deviceModel : '',

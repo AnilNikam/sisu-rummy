@@ -157,16 +157,6 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
                         });
                         logger.info('Pic card Open Deck BOT ', tableInfo);
                     } else if (deckType === 'close') {
-                        // Use player object as needed
-
-                        // let closeDeckCardIndex;
-                        // let closeDeckCard;
-
-                        // closeDeckCardIndex = table.closeDeck.length - 1;
-                        // closeDeckCard = table.closeDeck[closeDeckCardIndex];
-
-                        // logger.info('Bot Closed Deck Card Index=> ', closeDeckCardIndex);
-                        // logger.info('Bot select Closed Deck Card => ', closeDeckCard);
 
                         pickedCard = tableInfo.closeDeck.pop();
                         logger.info("close deck picked card ->", pickedCard)
@@ -193,9 +183,6 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
 
                     }
 
-                    /////////////////////////////////////////////////////////////////
-
-
 
                     let response = {
                         pickedCard: pickedCard,
@@ -221,85 +208,7 @@ const picOld = async (tableInfo, playerId, gamePlayType, deck) => {
             // tableInfo = await PlayingTables.findOne(qu).lean;
             logger.info("find before discard table info", tableInfo);
 
-            /*
-            let playerInfo = tableInfo.playerInfo[playerIndex];
 
-            // Bot Win Logic
-            //Cancel the Scheduele job
-            commandAcions.clearJob(tableInfo.jobId);
-
-            let ress = checkWinCard(tableInfo.closeDeck, tableInfo.wildCard)
-            logger.info("ressss-->", ress);
-            let updateData1 = {
-                $set: {},
-                $inc: {},
-            };
-            const upWh1 = {
-                _id: MongoID(tableInfo._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-            updateData1.$set['playerInfo.$.gCard'] = ress;
-
-            tableInfo = await PlayingTables.findOneAndUpdate(upWh1, updateData1, {
-                new: true,
-            });
-
-            let response = {
-                playerId: playerId,
-                disCard: pickedCard,
-            };
-
-            const upWh2 = {
-                _id: MongoID(tableInfo._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-
-            const updateData2 = {
-                $set: {
-                    discardCard: pickedCard,
-                },
-            };
-
-            const tbl = await PlayingTables.findOneAndUpdate(upWh2, updateData2, {
-                new: true,
-            });
-            logger.info('Declare tbl : ', tbl);
-
-            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE, response);
-
-            commandAcions.sendEventInTable(tbl._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerId });
-
-            delete client.declare;
-
-            let roundTime = CONST.finishTimer;
-            let tableId = tbl._id;
-            let finishJobId = CONST.DECLARE_TIMER_SET + ':' + tableId;
-            let delay = commandAcions.AddTime(roundTime);
-
-            await commandAcions.setDelay(finishJobId, new Date(delay));
-
-            //update user game finish status
-            let updateStatus = {
-                $set: {},
-                $inc: {},
-            };
-            updateStatus.$set['playerInfo.$.finished'] = true;
-
-            const qr = {
-                _id: MongoID(tbl._id.toString()),
-                'playerInfo.seatIndex': Number(playerIndex),
-            };
-            //logger.info('playerFinishDeclare Finish upWh :: ->  ', upWh, '\n player Finish upWh updateData :: -> ', updateData);
-
-            const tabl = await PlayingTables.findOneAndUpdate(qr, updateStatus, {
-                new: true,
-            });
-
-            logger.info('check status ==> and Table ', tabl);
-
-            await checkWinnerActions.winnercall(tabl, { seatIndex: playerIndex });
-            //finish Bot win logic
-*/
             let startDiscScheduleTime = new Date(Date.now() + getRandomNumber(5000, 7500))
             schedule.scheduleJob(`table.tableId${tableInfo._id}`, startDiscScheduleTime, async function () {
                 try {
