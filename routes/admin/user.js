@@ -547,8 +547,8 @@ router.put('/KYCUpdateprofile', async (req, res) => {
                 pancard: req.body.pancardname,
                 adminremark: req.body.adminremark,
                 adminremarkcd: new Date(),
-                verified: req.body.verified == "false" ? false : true,
-                pancardverified: req.body.Pancardverified == "false" ? false : true,
+                adharcardadminverified: req.body.adharcardadminverified,
+                pancardadminverified: req.body.pancardadminverified,
                 adminname: req.body.adminname
             }
         }
