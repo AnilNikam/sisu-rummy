@@ -170,6 +170,33 @@ router.get('/BankData', async (req, res) => {
     }
 });
 
+
+/**
+* @api {post} /admin/UserData
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/DeviceData', async (req, res) => {
+    try {
+        console.log("fdffffffffffffffffffffffffffffffffffffffffffffff DeviceData")
+        //userInfo
+        const userDecviceInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) },
+         { appVersion:1,systemVersion:1,deviceName:1,deviceModel:1,operatingSystem:1,graphicsMemorySize:1,systemMemorySize:1,
+            processorType:1,processorCount:1,batteryLevel:1,genuineCheckAvailable:1,platform:1,deviceType:1 })
+
+        logger.info("userDecviceInfo :::::::::::::::::::", userDecviceInfo)
+
+        res.json({ userDecviceInfo });
+    } catch (error) {
+        logger.error('admin/DeviceData error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+
 /**
 * @api {post} /admin/AddUser
 * @apiName  add-bet-list

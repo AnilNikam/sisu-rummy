@@ -28,7 +28,11 @@ router.get('/Getappversion', async (req, res) => {
         console.info('Getappversion => ', GAMELOGICCONFIG);
 
         res.json({
-            App_Version: GAMELOGICCONFIG.App_Version
+            "App_Version": GAMELOGICCONFIG.App_Version,
+            "ForceUpdate": GAMELOGICCONFIG.ForceUpdate,
+            "MaintenanceMode": GAMELOGICCONFIG.MaintenanceMode,
+            "DeviceRestriction": GAMELOGICCONFIG.DeviceRestriction,
+            "LocationRestriction": GAMELOGICCONFIG.LocationRestriction
         });
 
 
@@ -54,10 +58,17 @@ router.put('/app-version-update', async (req, res) => {
         console.log("req.body.game.gamename  1", req.body)
 
      
-        if (req.body.App_Version != undefined
+        if (req.body.App_Version != undefined && 
+            req.body.ForceUpdate != undefined && 
+            req.body.MaintenanceMode != undefined && 
+            req.body.DeviceRestriction != undefined && 
+            req.body.LocationRestriction != undefined
         ) {
             GAMELOGICCONFIG.App_Version = req.body.App_Version.toString()
-
+            GAMELOGICCONFIG.ForceUpdate= req.body.ForceUpdate,
+            GAMELOGICCONFIG.MaintenanceMode= req.body.MaintenanceMode,
+            GAMELOGICCONFIG.DeviceRestriction= req.body.DeviceRestriction,
+            GAMELOGICCONFIG.LocationRestriction= req.body.LocationRestriction
 
             console.log("GAMELOGICCONFIG ", GAMELOGICCONFIG.App_Version)
             let link = "./gamelogic.json"
@@ -81,6 +92,81 @@ router.put('/app-version-update', async (req, res) => {
     }
 });
 
+
+
+/**
+* @api {get} /admin/Getmatchmaking
+* @apiName  Getmatchmaking
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/Getmatchmaking', async (req, res) => {
+    try {
+        console.info('Getmatchmaking => ', req.query);
+        console.info('Getmatchmaking => ', GAMELOGICCONFIG);
+
+        res.json({
+            "LocationAlgorithm": GAMELOGICCONFIG.LocationAlgorithm,
+            "IPBLOCKAlgorithm": GAMELOGICCONFIG.IPBLOCKAlgorithm,
+            "ContactMatchAlgorithm": GAMELOGICCONFIG.ContactMatchAlgorithm,
+            "MinimumDistance": GAMELOGICCONFIG.MinimumDistance
+        });
+
+
+
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+/**
+* @api {get} /admin/match-making-update
+* @apiName  match-making-update
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/match-making-update', async (req, res) => {
+    try {
+        console.info('app-version-update requet => ', req.body);
+
+        console.log("req.body.game.gamename  1", req.body)
+     
+        if (req.body.LocationAlgorithm != undefined && 
+            req.body.IPBLOCKAlgorithm != undefined && 
+            req.body.ContactMatchAlgorithm != undefined && 
+            req.body.MinimumDistance != undefined
+        ) {
+            GAMELOGICCONFIG.LocationAlgorithm = req.body.LocationAlgorithm
+            GAMELOGICCONFIG.IPBLOCKAlgorithm= req.body.IPBLOCKAlgorithm,
+            GAMELOGICCONFIG.ContactMatchAlgorithm= req.body.ContactMatchAlgorithm,
+            GAMELOGICCONFIG.MinimumDistance= req.body.MinimumDistance.toString()
+
+            console.log("GAMELOGICCONFIG ", GAMELOGICCONFIG.LocationAlgorithm)
+            let link = "./gamelogic.json"
+            console.log("link ", link)
+            fs.writeFile(link, JSON.stringify(GAMELOGICCONFIG), function (err) {
+                console.log("erre", err)
+                if (err) {
+                    console.log(err);
+                }
+
+            });
+            res.json({ falgs: true });
+        } else {
+            res.json({ falgs: false });
+        }
+
+
+    } catch (error) {
+        logger.error('admin/dahboard.js post bet-list error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
 
 
 

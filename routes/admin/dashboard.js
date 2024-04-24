@@ -276,7 +276,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("totalDepositData ", totalDepositData)
 
-    const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
+    const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total.toFixed(2) : 0;
 
     let totalWithdrawData = await UserWalletTracks.aggregate([
       {
@@ -296,7 +296,7 @@ router.get('/', async (req, res) => {
     logger.info("totalWithdrawData ", totalWithdrawData)
 
 
-    const totalWithdraw = totalWithdrawData.length > 0 ? totalWithdrawData[0].total : 0
+    const totalWithdraw = totalWithdrawData.length > 0 ? totalWithdrawData[0].total.toFixed(2) : 0
 
     let todayDepositDataToday = await UserWalletTracks.aggregate([
       {
@@ -316,7 +316,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("todayDepositDataToday ", todayDepositDataToday)
 
-    const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total : 0;
+    const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total.toFixed(2) : 0;
 
     let todayWithdrawDataToday = await UserWalletTracks.aggregate([
       {
@@ -336,7 +336,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("todayWithdrawDataToday ", todayWithdrawDataToday)
 
-    const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total : 0
+    const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total.toFixed(2) : 0
 
     const todayKYC = await otpAdharkyc.find({ "createdAt": { $gte: new Date(lastdate), $lte: new Date() } }).count();
     const totalGamePay = await TableHistory.find({ "date": { $gte: new Date(lastdate), $lte: new Date() } }).count();
@@ -352,7 +352,7 @@ router.get('/', async (req, res) => {
     ]);
     logger.info("commissionData ", commissionData)
 
-    const totalCommission = commissionData.length > 0 ? commissionData[0].totalCommission : 0;
+    const totalCommission = commissionData.length > 0 ? commissionData[0].totalCommission.toFixed(2) : 0;
 
     logger.info('totalUser', totalUser);
     logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
@@ -377,7 +377,7 @@ router.get('/latatestUser', async (req, res) => {
   try {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { username: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
+    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
 
     logger.info('admin/latatestUser => ', RecentUser);
 
