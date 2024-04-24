@@ -58,7 +58,10 @@ router.get('/UserData', async (req, res) => {
 
         console.log("userInfo :::::::::::::::::::", userInfo)
 
-        userInfo.winningChips = userInfo.winningChips != undefined ? userInfo.winningChips.toFixed(2) : 0 
+        userInfo.winningChips = userInfo.winningChips != undefined ? userInfo.winningChips.toFixed(2) : 0
+        userInfo.bonusChips = userInfo.bonusChips != undefined ? userInfo.bonusChips.toFixed(2) : 0
+        userInfo.chips = userInfo.chips != undefined ? userInfo.chips.toFixed(2) : 0
+
 
         let UserOKYC = await otpAdharkyc.findOne({ userId: new mongoose.Types.ObjectId(req.query.userId) },
             {
@@ -166,6 +169,33 @@ router.get('/BankData', async (req, res) => {
         res.status(config.INTERNAL_SERVER_ERROR).json(error);
     }
 });
+
+
+/**
+* @api {post} /admin/UserData
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.get('/DeviceData', async (req, res) => {
+    try {
+        console.log("fdffffffffffffffffffffffffffffffffffffffffffffff DeviceData")
+        //userInfo
+        const userDecviceInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) },
+         { appVersion:1,systemVersion:1,deviceName:1,deviceModel:1,operatingSystem:1,graphicsMemorySize:1,systemMemorySize:1,
+            processorType:1,processorCount:1,batteryLevel:1,genuineCheckAvailable:1,platform:1,deviceType:1 })
+
+        logger.info("userDecviceInfo :::::::::::::::::::", userDecviceInfo)
+
+        res.json({ userDecviceInfo });
+    } catch (error) {
+        logger.error('admin/DeviceData error => ', error);
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
 
 /**
 * @api {post} /admin/AddUser
@@ -315,41 +345,41 @@ router.put('/deductMoney', async (req, res) => {
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
 
         if (req.body.userId != undefined && req.body.type != undefined && req.body.money != undefined
-        
+
             && req.body.typeofDudctfrom != undefined && req.body.txnmode != undefined) {
 
-                const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1, winningChips: 1,chips:1,bonusChips:1 })
+            const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1, winningChips: 1, chips: 1, bonusChips: 1 })
 
 
-                if (req.body.typeofDudctfrom == "Main Wallet") {
-                    if (UserData != undefined && UserData[0].chips != undefined && UserData[0].chips < Number(req.body.money)) {
-                        res.json({ status: false });
-                        return false
-                    }
-
-                    await walletActions.addWalletPayin(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
-                    
-                } else if (req.body.typeofDudctfrom == "Bonus Wallet") {
-
-                    if (UserData != undefined && UserData[0].bonusChips != undefined && UserData[0].bonusChips < Number(req.body.money)) {
-                        res.json({ status: false });
-                        return false
-                    }
-
-                    await walletActions.addWalletBonusDeposit(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
-                } else if (req.body.typeofDudctfrom == "Win Wallte") {
-
-                    if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
-                        res.json({ status: false });
-                        return false
-                    }
-
-                    await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', req.body.txnmode);
+            if (req.body.typeofDudctfrom == "Main Wallet") {
+                if (UserData != undefined && UserData[0].chips != undefined && UserData[0].chips < Number(req.body.money)) {
+                    res.json({ status: false });
+                    return false
                 }
 
+                await walletActions.addWalletPayin(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
 
-            
-            
+            } else if (req.body.typeofDudctfrom == "Bonus Wallet") {
+
+                if (UserData != undefined && UserData[0].bonusChips != undefined && UserData[0].bonusChips < Number(req.body.money)) {
+                    res.json({ status: false });
+                    return false
+                }
+
+                await walletActions.addWalletBonusDeposit(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
+            } else if (req.body.typeofDudctfrom == "Win Wallte") {
+
+                if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
+                    res.json({ status: false });
+                    return false
+                }
+
+                await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', req.body.txnmode);
+            }
+
+
+
+
 
             // if (UserData != undefined && UserData[0].sckId != undefined) {
             //     //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
@@ -475,6 +505,63 @@ router.put('/KycUpdate', async (req, res) => {
 
 
         const userInfo = await otpAdharkyc.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
+
+        logger.info('admin/KycUpdate.js post KycUpdate  error => ', userInfo);
+
+        res.json({ status: "ok" });
+    } catch (error) {
+        logger.error('admin/KycUpdate.js postKycUpdate error => ', error);
+        //res.send("error");
+
+        res.status(config.INTERNAL_SERVER_ERROR).json(error);
+    }
+});
+
+/**
+* @api {post} /admin/KycUpdate
+* @apiName  add-bet-list
+* @apiGroup  Admin
+* @apiHeader {String}  x-access-token Admin's unique access-key
+* @apiSuccess (Success 200) {Array} badges Array of badges document
+* @apiError (Error 4xx) {String} message Validation or error message.
+*/
+router.put('/KYCUpdateprofile', async (req, res) => {
+    try {
+
+        console.log("req ", req.body)
+
+        if (req.body.name == undefined || req.body.name == null || req.body.name == "" ||
+            req.body.adharcard == undefined || req.body.adharcard == null || req.body.adharcard == "" ||
+            req.body.pancardname == undefined || req.body.pancardname == null || req.body.pancardname == "" ||
+            req.body.email == undefined || req.body.email == null || req.body.email == ""
+        ) {
+            res.json({ status: false });
+            return false
+        }
+
+        //currently send rendom number and generate 
+        let response = {
+            $set: {
+                userName: req.body.name,
+                adharcard: req.body.adharcard,
+                pancard: req.body.pancardname,
+                adminremark: req.body.adminremark,
+                adminremarkcd: new Date(),
+                verified: req.body.verified == "false" ? false : true,
+                pancardverified: req.body.Pancardverified == "false" ? false : true,
+                adminname: req.body.adminname
+            }
+        }
+
+        console.log("response ", response)
+
+        console.log("response ", req.body)
+
+
+        const userInfo = await otpAdharkyc.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
+
+        await Users.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, { $set: { name: req.body.name, email: req.body.email } }, { new: true });
+
 
         logger.info('admin/KycUpdate.js post KycUpdate  error => ', userInfo);
 

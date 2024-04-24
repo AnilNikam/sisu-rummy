@@ -11,6 +11,8 @@ const logger = require('../../logger');
 const UserWalletTracks = mongoose.model("walletTrackTransaction");
 const GameHistory = mongoose.model("tableHistory");
 
+const paymentin = mongoose.model('paymentin');
+const paymentout = mongoose.model('paymentout');
 /**
 * @api {get} /admin/rouletteHistory
 * @apiName  add-bet-list
@@ -21,15 +23,15 @@ const GameHistory = mongoose.model("tableHistory");
 */
 router.get('/rummyHistory', async (req, res) => {
     try {
-        console.info('requet => ', req.query);
+        console.log('requet => ', req.query);
 
-        console.info('rummyHistory  => ', req.query);
+        console.log('rummyHistory  => ', req.query);
         if (req.query.userId == undefined) {
             res.json({ BlackandWhiteData: [] });
             return false
         }
-        const BlackandWhiteData = await GameHistory.find({ userId: MongoID(req.query.userId), "game": "BlackandWhite" },
-            { DateTime: 1, userId: 1, Name: 1, PhoneNumber: 1, RoomId: 1, Amount: 1, Type: 1, game: 1 }).sort({ DateTime: -1 })
+        const BlackandWhiteData = await GameHistory.find({ "playerInfo.playerId": req.query.userId },
+            { gameId:1,tableId:1,maxSeat:1,gamePlayType:1,tableAmount:1,date:1,playerInfo:1,playersScoreBoard:1 }).sort({ date: -1 })
 
 
         console.log("rummyHistory ", BlackandWhiteData)
@@ -60,8 +62,8 @@ router.get('/completeWithdrawal', async (req, res) => {
             res.json({ completeWithdrawalData: [] });
             return false
         }
-        const completeWithdrawalData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), transTypeText: "PayOut" },
-            { createdAt: 1, userId: 1,username:1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
+        const completeWithdrawalData = await paymentout.find({ userId: MongoID(req.query.userId)},
+            { OrderID:1, amount:1,paymentStatus:1,paymentGateway:1,createdAt: 1 }).sort({ createdAt: -1 })
 
         logger.info('completeWithdrawalData ', completeWithdrawalData);
 
@@ -89,8 +91,8 @@ router.get('/completeDeposite', async (req, res) => {
             return false
         }
 
-        const completeDepositeData = await UserWalletTracks.find({ userId: MongoID(req.query.userId), "trnxTypeTxt": "PayIn" },
-            { createdAt: 1, userId: 1, uniqueId: 1, chips: 1, transAmount: 1, totalBucket: 1, transTypeText: 1 }).sort({ createdAt: -1 })
+        const completeDepositeData = await paymentin.find({ userId: MongoID(req.query.userId) },
+            { OrderID:1, amount:1,paymentStatus:1,paymentGateway:1,createdAt: 1}).sort({ createdAt: -1 })
 
         logger.info('completeDepositeData => ', completeDepositeData);
 
