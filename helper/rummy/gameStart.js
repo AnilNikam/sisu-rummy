@@ -216,7 +216,7 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
           winwalletdeduct = true
           bonuswalletdeduct = true
         } else if (totalWinWallet >= mainchipscut) {
-          mainwalletdeduct = true
+          winwalletdeduct = true
         }
 
 

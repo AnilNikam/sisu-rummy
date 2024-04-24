@@ -19,6 +19,7 @@ const checkWinnerActions = require('./checkWinner');
 const gamePlayActions = require('../rummy/gamePlay');
 const dealGamePlayActions = require('./gamePlay');
 const poolGamePlayActions = require('../pool-rummy/gamePlay');
+const { getScore } = require('../common-function/cardFunction');
 
 let socket = io.connect(config.SOCKET_CONNECT, { reconnect: true });
 
@@ -238,7 +239,7 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                         let playerCards = player.cards
                                         logger.info("tableInfo ", tableInfo.wildCard)
 
-                                        if (player.turnCount == tableInfo.winingDeclareCount) {
+                                        if (player.isEasy && player.turnCount == tableInfo.winingDeclareCount) {
                                             logger.info("check win Bot ===>", tableInfo.gamePlayType)
                                             logger.info("player Card ===>", playerCards)
                                             let throwCard = pickedCard;
@@ -401,6 +402,15 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                 // const throwCard = selectThrowcard(playerCards, selectDiscardCard.followers, selectDiscardCard.pair)
                                                 logger.info('DIS throwCard => ', throwCard);
                                                 logger.info('DIS Isdecalre => ', Isdecalre);
+
+                                                if (Isdecalre) {
+                                                    let winner = await checkWinnerActions.getWinner(tableInfo);
+                                                    if (winner === 0) {
+                                                        Isdecalre = true
+                                                    } else {
+                                                        Isdecalre = false
+                                                    }
+                                                }
 
                                                 if (Isdecalre) {
                                                     logger.info(tableInfo.gamePlayType)
@@ -1019,11 +1029,11 @@ const shuffleArray = (array) => {
     return array;
 };
 
-const checkWinCard = (deck, wildCard, call) => {
+const checkWinCard = async (deck, wildCard, call) => {
     const jokers = ['J-0-0', 'J-1-1'];
-
+    tempdeck = deck.slice(0, deck.length - 1)
     // Generate sequences
-    generatePureSequence(deck, wildCard, (pureSequence) => {
+    generatePureSequence(deck, wildCard, async (pureSequence) => {
         logger.info("pureSequence ", pureSequence);
         deck = _.difference(deck, pureSequence.flat());
         logger.info("deck after removing pureSequence: ", deck);
@@ -1038,6 +1048,8 @@ const checkWinCard = (deck, wildCard, call) => {
         const cardSet = generateSet(deck, wildCard);
 
         deck = _.difference(deck, cardSet);
+        let checkCards = _.flatten([pureSequence, impureSequences, cardSet])
+        logger.info(" check wining card --- Deal -->", checkCards)
 
         // Output the generated sequences
         const sequences = {
@@ -1049,7 +1061,23 @@ const checkWinCard = (deck, wildCard, call) => {
         };
         logger.info("sequences =>", sequences);
         logger.info("sequences deck =>", deck);
-        return call(sequences);
+
+        const isValid = await getScore({
+            pure: [pureSequence],
+            impure: impureSequences,
+            set: [cardSet],
+            dwd: []
+        }, wildCard);
+
+        logger.info("check isvalid bot function ==>", isValid)
+
+        if (isValid == 0) {
+            return call(sequences); // Callback with valid cards
+        } else {
+            // Generate new cards and recursively call checkWinCard
+            checkWinCard(tempdeck, wildCard, call);
+        }
+        // return call(sequences);
     });
 };
 

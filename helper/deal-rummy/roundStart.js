@@ -310,7 +310,7 @@ module.exports.DealerRobotLogicCard = async (PlayerInfo, wildcard, tbid) => {
 
   let userData = PlayerInfo.splice(0, 1)
 
-  if (userData[0].isBot) {
+  if (userData[0].isBot && !userData[0].isEasy) {
 
     mycardGroup(userData[0].cards, wildcard, async (cardjson) => {
 

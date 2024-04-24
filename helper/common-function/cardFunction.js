@@ -246,7 +246,7 @@ const checkAnySet = (cards, wildCard) => {
   return false;
 };
 
-const getScore = async (gcard, wildCard) => {
+const getScore = (gcard, wildCard) => {
   let totalScore = 0;
   let allCards = [];
   let anyPureSeq = checkAnyPure(gcard.pure);

@@ -1,6 +1,93 @@
 const _ = require("underscore");
 //const { RemainCardTounusecardThrow } = require("./helper/botFunction");
 
+const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
+
+// Function to generate an impure sequence
+function generateImpureSequence(deck, joker, wildcard) {
+    console.log("deck ::::::::::::::::::::::::::::::::::::::::::::", deck)
+    console.log("joker ::::::::::::::::::::::::::::::::::::::::::::", joker)
+    console.log("wildcard ::::::::::::::::::::::::::::::::::::::::::::", wildcard)
+
+
+    let suits = ['H', 'D', 'S', 'C']; // Hearts, Diamonds, Spades, Clubs
+
+    // Make a copy of the deck
+    const copiedDeck = [...deck];
+
+
+
+    // Shuffle the copied deck
+    const shuffledDeck = shuffleArray(copiedDeck);
+
+
+    let decksortsuitwise = _.groupBy(shuffledDeck, function (num) { return num.split("-")[0]; });
+
+    console.log("decksortsuitwise ", decksortsuitwise)
+    removesuit = []
+
+
+    suits = _.difference(suits, [wildcard.split("-")[0]])
+    // Choose a random suit
+    console.log("suits ", suits)
+    // Choose a random suit
+    const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+
+    // Filter cards with the chosen suit from the shuffled deck
+    const suitCards = shuffledDeck.filter(card => card.startsWith(randomSuit) && card.split("-")[2] == "0");
+
+
+    // Sort the suit cards based on their values
+    suitCards.sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+
+    console.log("suitCards ", suitCards)
+
+    let temp = Math.floor((Math.random() * (suitCards.length - 1)))
+    // Choose two cards randomly from the suit cards
+    const chosenCards = [suitCards[temp], suitCards[temp + 1]];
+
+    // Remove the chosen cards from the original deck
+    deck = _.difference(deck, chosenCards);
+    console.log("Remove impre card ==>", deck)
+
+    // Insert the joker at a random position
+    const randomIndex = Math.floor(Math.random() * 3);
+    chosenCards.splice(randomIndex, 0, joker);
+
+    // Remove the joker from the original deck
+    deck = _.without(deck, joker);
+
+    return chosenCards;
+}
+
+
+const jokers = ['J-0-0', 'J-1-1'];
+const deck = [
+    'D-1-0', 'H-8-0', 'D-7-0',
+    'S-5-0', 'H-6-0', 'D-12-0',
+    'D-4-0', 'S-1-0', 'S-13-0',
+    'S-6-0', 'H-11-0', 'S-2-0',
+    'D-8-0', 'H-4-0', 'H-2-0',
+    'H-1-0', 'S-3-0', 'H-12-0',
+    'H-7-0', 'H-5-0', 'S-8-0',
+    'D-11-0', 'S-7-0', 'S-4-0',
+    'D-13-0', 'H-13-0', 'S-12-0',
+    'C-1-0', 'J-1-0'
+]
+
+const wildCard = "H-3-0"
+
+const impureSequences = jokers.map(joker => generateImpureSequence(deck, joker, wildCard));
+console.log("impureSequences ", impureSequences);
+
+
+return false
 console.log(findImpureSequences1([
     'J-0-0', 'H-1-0',
     'J-1-1', 'H-2-0',

@@ -24,7 +24,7 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
 
     let totalRemaningAmount = Number(upReps.chips);
 
-    if (typeof tType !== 'undefined') {
+    if (typeof tType !== 'undefined' && !upReps.isBot) {
       let walletTrack = {
         uniqueId: upReps.uniqueId,
         userId: upReps._id,
@@ -95,7 +95,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
     let totalRemaningAmount = Number(tbl.winningChips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
-    if (typeof tType !== 'undefined') {
+    if (typeof tType !== 'undefined' && !upReps.isBot) {
       let walletTrack = {
         uniqueId: tbl.uniqueId,
         userId: tbl._id,
@@ -303,7 +303,7 @@ module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, tabInfo) =
     let totalRemaningAmount = Number(tbl.chips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
-    if (typeof tType !== 'undefined') {
+    if (typeof tType !== 'undefined' && !userInfo.isBot) {
       logger.info('\n AddWallet tType :: ', tType);
 
       let walletTrack = {
@@ -371,7 +371,7 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
     let totalRemaningAmount = Number(tbl.chips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
-    if (typeof tType !== 'undefined') {
+    if (typeof tType !== 'undefined' && !userInfo.isBot) {
       logger.info('\n AddWallet tType :: ', tType);
 
       let walletTrack = {
@@ -459,7 +459,7 @@ module.exports.locktounlockbonus = async (id, addCoins, tType, t, tabInfo) => {
     let totalRemaningAmount = Number(tbl.chips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
-    if (typeof tType !== 'undefined') {
+    if (typeof tType !== 'undefined' && !userInfo.isBot) {
       logger.info('\n AddWallet tType :: ', tType);
 
       let walletTrack = {
@@ -725,7 +725,7 @@ module.exports.getWalletDetailsNew = async (obj, client) => {
 
     //"wb":WinningsBalance ||    "db": DepositBalance ||tw: TotalWinningBalance
     let response;
-    console.log(" walletDetails.bonusChips ", walletDetails)
+    logger.info(" walletDetails.bonusChips ", walletDetails)
     //+ walletDetails.withdrawableChips //+ walletDetails.referralChips
     if (walletDetails !== null) {
       response = {

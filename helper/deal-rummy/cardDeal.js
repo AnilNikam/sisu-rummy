@@ -155,6 +155,12 @@ module.exports.getCards = async (playerInfo, table, maxSeat, callback) => {
           const updateData = {
             $set: {
               'playerInfo.$.isEasy': true,
+              "playerInfo.$.gCard": {
+                pure: ress.pure,
+                impure: ress.impure,
+                set: ress.set,
+                dwd: []
+              }
             },
           };
 

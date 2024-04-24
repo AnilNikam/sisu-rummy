@@ -132,7 +132,7 @@ module.exports.getCards = async (playerInfo, table, maxSeat, callback) => {
 
     // Array fillter si all robot asi 
     // rendom si 
-
+    console.log("deckCards :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: ", deckCards)
 
     checkWinCard(deckCards, wildCard, async (ress) => {
       logger.info("BOT RES ::::::::::::::::::", ress)
@@ -156,6 +156,12 @@ module.exports.getCards = async (playerInfo, table, maxSeat, callback) => {
           const updateData = {
             $set: {
               'playerInfo.$.isEasy': true,
+              "playerInfo.$.gCard": {
+                pure: ress.pure,
+                impure: ress.impure,
+                set: ress.set,
+                dwd: []
+              }
             },
           };
 

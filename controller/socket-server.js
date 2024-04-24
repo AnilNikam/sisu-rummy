@@ -342,7 +342,6 @@ myIo.init = function (server) {
                   await dealGamePlayActions.declare(payload.data, socket);
                   break;
 
-
               }
             } catch (error) {
               logger.error('socketServer.js Declare Table error => ', error);
