@@ -177,7 +177,7 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
         if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
           const depositbonus = ((Number(req.body.Amount) * 5) / 100)
 
-          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus');
 
           // //check reffreal date is validate or not
           // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');

@@ -555,7 +555,7 @@ module.exports.removePlayer = async (requestData, client) => {
     //logger.info('removePlayer Fetch Total Wallet =>', totalWallet);
     //logger.info('require removePlayer game chips =>', requireGameChips);
 
-    if (totalWallet < requireGameChips) {
+    if ((totalWallet + userInfo.winningChips) < requireGameChips) {
       let table = await this.removeInsufficientPlayer(requestData, tableInfo, client);
       logger.info('insufficient wallet player =>', table);
 

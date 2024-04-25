@@ -43,7 +43,7 @@ module.exports.roundFinish = async (tb) => {
         let totalWallet = Number(userInfo.chips);
         let requireGameChips = restartTable.entryFee * 80;
 
-        if (player.gameChips > requireGameChips) {
+        if ((player.gameChips + player.winningChips) > requireGameChips) {
           logger.info('sufficient local chips');
         } else {
           logger.info('insuffcient local chips to play');

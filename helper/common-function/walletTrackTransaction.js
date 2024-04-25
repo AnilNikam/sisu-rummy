@@ -420,7 +420,7 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGat
 
 
 */
-module.exports.locktounlockbonus = async (id, addCoins, tType, t, tabInfo) => {
+module.exports.locktounlockbonus = async (id, addCoins, tType, t, Wtype, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -478,7 +478,8 @@ module.exports.locktounlockbonus = async (id, addCoins, tType, t, tabInfo) => {
         winningChips: tbl.winningChips,
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
-
+        type: Wtype,
+        paymentGateway: paymentGateway !== undefined ? paymentGateway : 'null',
         // referralChips: tbl.referralChips, // referarl Chips
         // unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
         // lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
