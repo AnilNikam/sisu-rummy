@@ -181,7 +181,9 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
     //Update the Cards of the user
     for (let i = 0; i < playerInfo.length; i++) {
       let pId = playerInfo[i].playerId;
+
       if (playerInfo[i].debitChips === false) {
+
         let wh = { _id: MongoID(pId.toString()) };
         let userInfo = await Users.findOne(wh, {}).lean();
 
@@ -209,7 +211,6 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
         if (totalbonus >= bonuscutchips && totalWallet >= mainchipscut) {
           bonuswalletdeduct = true
           mainwalletdeduct = true
-
         } else if (totalWallet >= mainchipscut) {
           mainwalletdeduct = true
         } else if (totalbonus >= bonuscutchips && totalWinWallet >= mainchipscut) {
@@ -217,11 +218,41 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
           bonuswalletdeduct = true
         } else if (totalWinWallet >= mainchipscut) {
           winwalletdeduct = true
+        } else if (totalbonus >= bonuscutchips) {
+          bonuswalletdeduct = true
+        }
+
+        if (mainwalletdeduct === false && winwalletdeduct === false && bonuswalletdeduct === true) {
+
+          let reminingAmount = mainchipscut - totalWallet
+
+          if (reminingAmount <= totalWinWallet) {
+
+            await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Point Playing Entry Deduct Deposit');
+            await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Point Playing Entry Deduct Deposit');
+          }
+          await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
+
+          bonuswalletdeduct = false;
+          mainwalletdeduct = false;
+          winwalletdeduct = false;
+
+        } else if (mainwalletdeduct === false && winwalletdeduct === false) {
+          let reminingAmount = mainchipscut - totalWallet
+          console.log('reminingAmount -->', reminingAmount)
+
+          if (reminingAmount <= totalWinWallet) {
+            await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Point Playing Entry Deduct Deposit');
+            await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Point Playing Entry Deduct Deposit');
+          }
+          await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
+          mainwalletdeduct = false;
+          winwalletdeduct = false;
         }
 
 
-        logger.info("pool bonuswalletdeduct ", bonuswalletdeduct)
-        logger.info("pool mainwalletdeduct ", mainwalletdeduct)
+        logger.info("point bonuswalletdeduct ", bonuswalletdeduct)
+        logger.info("point mainwalletdeduct ", mainwalletdeduct)
 
 
         if (bonuswalletdeduct && mainwalletdeduct) {

@@ -49,7 +49,7 @@ module.exports.joinTable = async (requestData, socket) => {
     let gameChips = parseFloat(requestData.entryFee) * 80;
     logger.info("gameChips", gameChips)
 
-    if (Number(userInfo.chips) < Number(gameChips) && Number(userInfo.winningChips) < Number(gameChips)) {
+    if (Number(userInfo.chips + userInfo.winningChips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,
         msg: 'Please Add Wallet!!',

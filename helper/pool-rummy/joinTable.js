@@ -47,12 +47,11 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let gameChips = requestData.entryFee;
 
-    if (Number(userInfo.chips) < Number(gameChips) && Number(userInfo.winningChips) < Number(gameChips)) {
+    if (Number(userInfo.chips + userInfo.winningChips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,
         msg: 'Please Add Wallet!!',
       });
-
       delete socket.JT;
       return false;
     }

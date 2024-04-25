@@ -233,6 +233,36 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
         bonuswalletdeduct = true
       } else if (totalWinWallet >= mainchipscut) {
         winwalletdeduct = true
+      } else if (totalbonus >= bonuscutchips) {
+        bonuswalletdeduct = true
+      }
+
+      if (mainwalletdeduct === false && winwalletdeduct === false && bonuswalletdeduct === true) {
+
+        let reminingAmount = mainchipscut - totalWallet
+
+        if (reminingAmount <= totalWinWallet) {
+
+          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit');
+          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit');
+        }
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
+
+        bonuswalletdeduct = false;
+        mainwalletdeduct = false;
+        winwalletdeduct = false;
+
+      } else if (mainwalletdeduct === false && winwalletdeduct === false) {
+        let reminingAmount = mainchipscut - totalWallet
+        console.log('reminingAmount -->', reminingAmount)
+
+        if (reminingAmount <= totalWinWallet) {
+          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit');
+          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit');
+        }
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
+        mainwalletdeduct = false;
+        winwalletdeduct = false;
       }
 
       logger.info("pool bonus wallet deduct ", bonuswalletdeduct)
@@ -256,23 +286,23 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
         await walletActions.addWalletWinningPayin(pId, - Number(gameDepositChips), 'Debit', 'Point Playing Entry Deduct Deposit');
       }
 
-      if (bonuswalletdeduct || mainwalletdeduct || winwalletdeduct) {
+      // if (bonuswalletdeduct || mainwalletdeduct || winwalletdeduct) {
 
-        let dataUpdate = {
-          $inc: {
-            tableAmount: Number(tabInfo.entryFee),
-          },
-        };
+      let dataUpdate = {
+        $inc: {
+          tableAmount: Number(tabInfo.entryFee),
+        },
+      };
 
-        let uWh1 = {
-          _id: MongoID(tabInfo._id.toString()),
-          'playerInfo.seatIndex': Number(playerInfo[i].seatIndex),
-        };
+      let uWh1 = {
+        _id: MongoID(tabInfo._id.toString()),
+        'playerInfo.seatIndex': Number(playerInfo[i].seatIndex),
+      };
 
-        await PlayingTables.findOneAndUpdate(uWh1, dataUpdate, { new: true });
-      } else {
-        logger.info('\n gameStart.js at 276 User Balance is not sufficient to play the game');
-      }
+      await PlayingTables.findOneAndUpdate(uWh1, dataUpdate, { new: true });
+      // } else {
+      //   logger.info('\n gameStart.js at 276 User Balance is not sufficient to play the game');
+      // }
     }
     return playerUgcInfo;
   } catch (error) {

@@ -46,15 +46,17 @@ module.exports.joinTable = async (requestData, socket) => {
 
     let condition = { _id: MongoID(socket.uid) };
     let userInfo = await Users.findOne(condition, {}).lean();
+    logger.info("userInfo =>", userInfo)
+    logger.info("userInfo.chips =>", userInfo.chips)
+    logger.info("userInfo.winningChips =>", userInfo.winningChips)
 
     let gameChips = requestData.entryFee;
 
-    if (Number(userInfo.chips) < Number(gameChips) && Number(userInfo.winningChips) < Number(gameChips)) {
+    if (Number(userInfo.chips + userInfo.winningChips) < Number(gameChips)) {
       sendEvent(socket, CONST.INSUFFICIENT_CHIPS, requestData, {
         flag: false,
         msg: 'Please Add Wallet!!',
       });
-
       delete socket.JT;
       return false;
     }
