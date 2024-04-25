@@ -85,8 +85,11 @@ router.get('/UserData', async (req, res) => {
             adharcardHypervergemark: "",
             adharcardadminverified: "",
             adminremark: "",
-            adminname: ""
+            adminname: "",
+            isdata:true
         }
+        UserOKYCData.isdata = (UserOKYC == undefined || UserOKYC == null)?false:true;
+
         UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ? UserOKYC.adharcard : "-";
         UserOKYCData.full_name = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ? UserOKYC.userInfo.user_full_name : "-";
 
@@ -124,7 +127,7 @@ router.get('/UserData', async (req, res) => {
             adminremark: "",
             adminname: ""
         }
-
+        
         PanOKYCData.pancard = (UserOKYC != undefined && UserOKYC.pancard != undefined) ? UserOKYC.pancard : "-";
         PanOKYCData.pancardname = (UserOKYC != undefined && UserOKYC.pancardname != undefined) ? UserOKYC.pancardname : "-";
         PanOKYCData.pancardfrontimages = (UserOKYC != undefined && UserOKYC.pancardfrontimages != undefined) ? UserOKYC.pancardfrontimages : "-";
