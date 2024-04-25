@@ -507,9 +507,10 @@ router.get('/transactionData', async (req, res) => {
         //console.info('requet => ', req);
 
         const transactionData = await UserWalletTracks.find({}, {
-            uniqueId: 1,username:1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
-            totalBucket: 1, gameId: 1, createdAt: 1
-        }).sort({createdAt:-1})
+            uniqueId: 1, username: 1, userId: 1, transType: 1, transTypeText: 1, transAmount: 1, chips: 1, winningChips: 1, bonusChips: 1, lockbonusChips: 1,
+            totalBucket: 1, gameId: 1, createdAt: 1, type: 1, paymentGateway: 1
+
+        }).sort({ createdAt: -1 })
 
         logger.info('transactionData => ', transactionData);
 
@@ -542,9 +543,9 @@ router.get('/PayoutListData', async (req, res) => {
 
         const PayoutList = await PaymentOut.find(wh, {
             OrderID: 1,
-            transactionId: 1, paymentStatus: 1, orderInfo: 1,accountNo:1,ifscCode:1,
+            transactionId: 1, paymentStatus: 1, orderInfo: 1, accountNo: 1, ifscCode: 1,
             userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, transferMode: 1
-        }).sort({createdAt:-1})
+        }).sort({ createdAt: -1 })
 
         logger.info('PayoutList => ', PayoutList);
 
@@ -577,8 +578,8 @@ router.get('/PayInDataList', async (req, res) => {
         const PayoutList = await PaymentIn.find({}, {
             OrderID: 1,
             transactionId: 1, paymentStatus: 1, orderInfo: 1, "accountNo": 1, ifscCode: 1, beneficiaryName: 1, transferMode: 1, rrn: 1,
-            userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1,paymentGateway:1
-        }).sort({createdAt:-1})
+            userId: 1, name: 1, email: 1, phone: 1, amount: 1, createdAt: 1, paymentGateway: 1
+        }).sort({ createdAt: -1 })
 
         logger.info('PayInDataList => ', PayoutList);
 
