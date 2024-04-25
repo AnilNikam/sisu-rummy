@@ -377,7 +377,7 @@ router.get('/latatestUser', async (req, res) => {
   try {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-    const RecentUser = await Users.find({ createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
+    const RecentUser = await Users.find({"isBot" : false, createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
 
     logger.info('admin/latatestUser => ', RecentUser);
 
