@@ -15,7 +15,7 @@ const UserWalletTracksSchema = new Schema(
     winningChips: { type: Number },
     bonusChips: { type: Number },
     lockbonusChips: { type: Number },
-    paymentGateway: { type: String },
+    paymentGateway: { type: String, Default: 'Null' },
     type: { type: String },
     totalBucket: { type: Number, defualt: 0 },
     gameId: { type: String },

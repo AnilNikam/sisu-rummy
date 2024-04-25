@@ -86,9 +86,9 @@ router.get('/UserData', async (req, res) => {
             adharcardadminverified: "",
             adminremark: "",
             adminname: "",
-            isdata:true
+            isdata: true
         }
-        UserOKYCData.isdata = (UserOKYC == undefined || UserOKYC == null)?false:true;
+        UserOKYCData.isdata = (UserOKYC == undefined || UserOKYC == null) ? false : true;
 
         UserOKYCData.adharcard = (UserOKYC != undefined && UserOKYC.adharcard != undefined) ? UserOKYC.adharcard : "-";
         UserOKYCData.full_name = (UserOKYC != undefined && UserOKYC.userInfo != undefined && UserOKYC.userInfo.user_full_name != undefined) ? UserOKYC.userInfo.user_full_name : "-";
@@ -127,7 +127,7 @@ router.get('/UserData', async (req, res) => {
             adminremark: "",
             adminname: ""
         }
-        
+
         PanOKYCData.pancard = (UserOKYC != undefined && UserOKYC.pancard != undefined) ? UserOKYC.pancard : "-";
         PanOKYCData.pancardname = (UserOKYC != undefined && UserOKYC.pancardname != undefined) ? UserOKYC.pancardname : "-";
         PanOKYCData.pancardfrontimages = (UserOKYC != undefined && UserOKYC.pancardfrontimages != undefined) ? UserOKYC.pancardfrontimages : "-";
@@ -187,8 +187,10 @@ router.get('/DeviceData', async (req, res) => {
         console.log("fdffffffffffffffffffffffffffffffffffffffffffffff DeviceData")
         //userInfo
         const userDecviceInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) },
-         { appVersion:1,systemVersion:1,deviceName:1,deviceModel:1,operatingSystem:1,graphicsMemorySize:1,systemMemorySize:1,
-            processorType:1,processorCount:1,batteryLevel:1,genuineCheckAvailable:1,platform:1,deviceType:1 })
+            {
+                appVersion: 1, systemVersion: 1, deviceName: 1, deviceModel: 1, operatingSystem: 1, graphicsMemorySize: 1, systemMemorySize: 1,
+                processorType: 1, processorCount: 1, batteryLevel: 1, genuineCheckAvailable: 1, platform: 1, deviceType: 1
+            })
 
         logger.info("userDecviceInfo :::::::::::::::::::", userDecviceInfo)
 
@@ -301,11 +303,11 @@ router.put('/addMoney', async (req, res) => {
             && req.body.money != undefined && req.body.typeofAddto != undefined && req.body.txnmode != undefined) {
 
             if (req.body.typeofAddto == "Main Wallet") {
-                await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode);
+                await walletActions.addWalletPayin(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode, 'Admin');
             } else if (req.body.typeofAddto == "Bonus Wallet") {
-                await walletActions.addWalletBonusDeposit(req.body.userId, Number(req.body.money), 'Debit', req.body.txnmode);
+                await walletActions.addWalletBonusDeposit(req.body.userId, Number(req.body.money), 'Debit', req.body.txnmode, 'Admin');
             } else if (req.body.typeofAddto == "Win Wallte") {
-                await walletActions.addWalletWinngChpis(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode);
+                await walletActions.addWalletWinngChpis(req.body.userId, Number(req.body.money), 'Credit', req.body.txnmode, 'Admin');
             }
 
             // const UserData = await Users.find({ _id: new mongoose.Types.ObjectId(req.body.userId) }, { sckId: 1 })
@@ -360,7 +362,7 @@ router.put('/deductMoney', async (req, res) => {
                     return false
                 }
 
-                await walletActions.addWalletPayin(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
+                await walletActions.addWalletPayin(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode, 'Admin');
 
             } else if (req.body.typeofDudctfrom == "Bonus Wallet") {
 
@@ -369,7 +371,7 @@ router.put('/deductMoney', async (req, res) => {
                     return false
                 }
 
-                await walletActions.addWalletBonusDeposit(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode);
+                await walletActions.addWalletBonusDeposit(req.body.userId, - Number(req.body.money), 'Debit', req.body.txnmode, 'Admin');
             } else if (req.body.typeofDudctfrom == "Win Wallte") {
 
                 if (UserData != undefined && UserData[0].winningChips != undefined && UserData[0].winningChips < Number(req.body.money)) {
@@ -377,17 +379,8 @@ router.put('/deductMoney', async (req, res) => {
                     return false
                 }
 
-                await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', req.body.txnmode);
+                await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', req.body.txnmode, 'Admin');
             }
-
-
-
-
-
-            // if (UserData != undefined && UserData[0].sckId != undefined) {
-            //     //await walletActions.deductWalletAdmin(req.body.userId, -Number(req.body.money), 4, req.body.type, {}, { id: UserData.sckId }, -1);
-            //     await walletActions.deductWalletPayOut(req.body.userId, -Number(req.body.money), 'Debit', 'Admin_PayOut');
-            // }
 
             res.json({ status: "ok" });
         } else {

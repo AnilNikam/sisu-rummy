@@ -9,7 +9,6 @@ const commandAcions = require('../socketFunctions');
 const cardDealActions = require('./cardDeal');
 const logger = require('../../logger');
 
-const { deductWallet } = require('../common-function/walletTrackTransaction');
 const { getPlayingUserInRound } = require('../common-function/manageUserFunction');
 const walletActions = require('../common-function/walletTrackTransaction');
 
@@ -243,10 +242,10 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
         if (reminingAmount <= totalWinWallet) {
 
-          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit');
-          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit');
+          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
+          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
         }
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus', 'Game');
 
         bonuswalletdeduct = false;
         mainwalletdeduct = false;
@@ -254,13 +253,12 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       } else if (mainwalletdeduct === false && winwalletdeduct === false) {
         let reminingAmount = mainchipscut - totalWallet
-        console.log('reminingAmount -->', reminingAmount)
+        logger.info('pool reminingAmount -->', reminingAmount)
 
         if (reminingAmount <= totalWinWallet) {
-          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit');
-          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit');
+          await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
+          await walletActions.addWalletPayin(pId, - Number(totalWallet), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
         }
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus');
         mainwalletdeduct = false;
         winwalletdeduct = false;
       }
@@ -271,19 +269,19 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
 
       if (bonuswalletdeduct && mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Point Playing Entry Deduct Deposit');
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
+        await walletActions.addWalletPayin(pId, - Number(mainchipscut), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus', 'Game');
 
       } else if (mainwalletdeduct) {
-        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Point Playing Entry Deduct Deposit');
+        await walletActions.addWalletPayin(pId, - Number(gameDepositChips), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
       } else if (bonuswalletdeduct && winwalletdeduct) {
 
-        await walletActions.addWalletWinningPayin(pId, - Number(mainchipscut), 'Debit', 'Point Playing Entry Deduct Deposit');
-        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Point Playing Entry Deduct bonus');
+        await walletActions.addWalletWinningPayin(pId, - Number(mainchipscut), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
+        await walletActions.addWalletBonusDeposit(pId, - Number(bonuscutchips), 'Debit', 'Pool Playing Entry Deduct bonus', 'Game');
 
 
       } else if (winwalletdeduct) {
-        await walletActions.addWalletWinningPayin(pId, - Number(gameDepositChips), 'Debit', 'Point Playing Entry Deduct Deposit');
+        await walletActions.addWalletWinningPayin(pId, - Number(gameDepositChips), 'Debit', 'Pool Playing Entry Deduct Deposit', 'Game');
       }
 
       // if (bonuswalletdeduct || mainwalletdeduct || winwalletdeduct) {

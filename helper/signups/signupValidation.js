@@ -293,7 +293,7 @@ const registerUser = async (requestBody, socket) => {
         if (requestBody.referralCode != "") {
           await checkReferral({ referralCode: requestBody.referralCode, userId: userInsertInfo._id }, socket)
         }
-        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus');
+        await walletActions.addWalletBonusDeposit(userData._id.toString(), Number(50), 'Credit', 'SingUp Bonus', 'Bonus');
       } else {
         commandAcions.sendEvent(socket, CONST.DASHBOARD, requestBody, false, 'User Already Register!');
         return false;

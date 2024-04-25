@@ -65,7 +65,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       //await this.updateUserScore(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, tbInfo.tableAmount);
       //logger.info('lastUserWinnerDeclareCallTemp  after declare upate user chips =>', updetUserChips);
 
-      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', tbInfo);
+      await walletActions.addWallet(tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].playerId, Number(tbInfo.tableAmount), 'Credit', 'Win', 'Game', tbInfo);
 
       const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
 
@@ -92,15 +92,10 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
       for (let i = 0; i < tableInfo.gameTracks.length; i++) {
         if (tableInfo.gameTracks[i].result === CONST.WON) {
-          //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
 
-          //let perdecuct  = GAMELOGICCONFIG.PLAYING_WIN_PER || 5;
           let winningwallet = Number(winnerTrack.winningAmount)
-          //let TotalwithdrawableChips = Number(winnerTrack.winningAmount) - Number(winningwallet)
 
-          //withdrawableChips Management Function name only 
-          //await walletActions.deductWalletPayOut(tableInfo.gameTracks[i]._id,Number(TotalwithdrawableChips), 'Credit', 'Game Win',tableInfo);
-          await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winningwallet), 'Credit', 'Game Win', tableInfo);
+          await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winningwallet), 'Credit', 'Game Win', 'Game', tableInfo);
 
         }
       }
@@ -270,7 +265,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
 
     if (gameStartStatus) {
       logger.info(' Add Win Deal Wallet gameStartStatus', gameStartStatus);
-      await walletActions.addWallet(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+      await walletActions.addWallet(tableInfo.playerInfo[tableInfo.currentPlayerTurnIndex].playerId, Number(winnerTrack.winningAmount), 'Credit', 'Win', 'Game', tableInfo);
     }
 
     playerInGame.forEach((player) => {
@@ -426,7 +421,7 @@ module.exports.waitingWinnerDeclareCall = async (tbInfo, seatIndex) => {
 
     for (let i = 0; i < tableInfo.gameTracks.length; i++) {
       if (tableInfo.gameTracks[i].playerStatus === CONST.WON) {
-        await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+        await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', 'Game', tableInfo);
       }
     }
 

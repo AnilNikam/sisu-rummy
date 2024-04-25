@@ -81,7 +81,7 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
 
     for (let i = 0; i < tableInfo.gameTracks.length; i++) {
       if (tableInfo.gameTracks[i].result === CONST.WON) {
-        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
+        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', 'Game', tableInfo);
       }
     }
 
@@ -211,18 +211,10 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     for (let i = 0; i < tableInfo.gameTracks.length; i++) {
       if (tableInfo.gameTracks[i].result === CONST.WON) {
         logger.info(' Add Win COunter');
-        //await walletActions.addWallet(tableInfo.gameTracks[i]._id, Number(winnerTrack.winningAmount), 'Credit', 'Win', tableInfo);
 
-        //let perdecuct = GAMELOGICCONFIG.PLAYING_WIN_PER || 5
         let winningwallet = Number(winnerTrack.winningAmount)
-        //let TotalwithdrawableChips = Number(winnerTrack.winningAmount) - Number(winningwallet)
 
-
-
-        //withdrawableChips Management Function name only 
-        //await walletActions.deductWalletPayOut(tableInfo.gameTracks[i]._id, Number(TotalwithdrawableChips), 'Credit', 'Game Win', tableInfo);
-        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winningwallet), 'Credit', 'Game Win', tableInfo);
-
+        await walletActions.addWalletWinngChpis(tableInfo.gameTracks[i]._id, Number(winningwallet), 'Credit', 'Game Win', 'Game', tableInfo);
 
       }
     }

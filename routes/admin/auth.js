@@ -121,14 +121,14 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
       logger.info("PaymentIndata ==>", PaymentIndata);
 
       if (PaymentIndata && PaymentIndata.userId) {
-        let res = await walletActions.addWalletPayin(PaymentIndata.userId, Number(PaymentIndata.amount), 'Credit', 'PayIn');
+        let res = await walletActions.addWalletPayin(PaymentIndata.userId, Number(PaymentIndata.amount), 'Credit', 'PayIn', 'Payment', 'paylotus');
         logger.info("addWalletPayin res ->", res);
 
         await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(PaymentIndata.amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 
         if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
           const depositbonus = ((Number(req.body.Amount) * 5) / 100);
-          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus');
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus');
         }
 
 
@@ -212,7 +212,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       });
       logger.info("Bank Details Data ->", bankDetailsData);
 
-      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Amount), 'Debit', 'PayOut');
+      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Amount), 'Debit', 'PayOut', 'Payment', 'wowPe');
 
 
       // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  
@@ -221,13 +221,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       });
       logger.info("PaymentOutdata ======> check ==>", PaymentOutdata)
 
-      // if (PaymentOutdata /*&& PaymentOutdata.userId && req.body.StatusCode == 1 && req.body.Data.Status == 1*/) {
 
-      //   await walletActions.deductWalletPayOut(PaymentOutdata.userId, -Number(req.body.Data.Amount), 'Debit', 'PayOut');
-      // } else {
-      //   //check status code 2 then its pending stage
-      //   logger.info("PaymentOutdata ", PaymentOutdata)
-      // }
     } else {
       logger.info("req.body.Data.Status Else ", req.body.Data.Status)
     }

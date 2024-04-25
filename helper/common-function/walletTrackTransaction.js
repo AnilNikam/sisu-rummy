@@ -52,12 +52,10 @@ module.exports.deductWallet = async (id, deductChips, tType, t, tblInfo) => {
 };
 
 //withdrawableChips 
-module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
+module.exports.deductWalletPayOut = async (id, deductChips, tType, t, wType, paymentGateway) => {
   logger.info("check dedcut function call ===>", id);
   logger.info("check dedcut function call ===> typeof ", typeof id);
   logger.info("check dedcut function call ===> tType ", tType);
-
-
 
   try {
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -107,6 +105,8 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
         winningChips: tbl.winningChips,
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
+        type: wType,
+        paymentGateway: paymentGateway !== undefined ? paymentGateway : 'null',
 
         // referralChips: tbl.referralChips, // referarl Chips
         // unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
@@ -127,12 +127,12 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t) => {
 
     return totalRemaningAmount;
   } catch (e) {
-    logger.error('walletTrackTransaction deductWallet Exception error => ', e);
+    logger.error('walletTrackTransaction deductWalletPayout Exception error => ', e);
     return 0;
   }
 };
 
-module.exports.addWallet = async (id, addCoins, tType, t, tabInfo) => {
+module.exports.addWallet = async (id, addCoins, tType, t, Wtype, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -181,6 +181,7 @@ module.exports.addWallet = async (id, addCoins, tType, t, tabInfo) => {
         transAmount: addedCoins,
         chips: userInfo.chips,
         winningChips: userInfo.winningChips,
+        type: Wtype,
         totalBucket: Number(totalRemaningAmount),
         gameId: tabInfo && tabInfo.gameId ? tabInfo.gameId : '',
         gameType: tabInfo && tabInfo.gamePlayType ? tabInfo.gamePlayType : '', //Game Type
@@ -198,7 +199,7 @@ module.exports.addWallet = async (id, addCoins, tType, t, tabInfo) => {
 };
 
 //Winning Chips 
-module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, tabInfo) => {
+module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, Wtype, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -245,7 +246,7 @@ module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, tabInfo) => 
         winningChips: tbl.winningChips,
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
-
+        type: Wtype,
         // referralChips: tbl.referralChips, // referarl Chips
         // unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
         // lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
@@ -271,7 +272,7 @@ module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, tabInfo) => 
 };
 
 //Diduct Chips in winning chips
-module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, tabInfo) => {
+module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, Wtype, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -319,6 +320,7 @@ module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, tabInfo) =
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
         totalBucket: Number(totalRemaningAmount),
+        type: Wtype,
         gameId: '',
         gameType: '', //Game Type
         maxSeat: 0, //Maxumum Player.
@@ -339,7 +341,7 @@ module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, tabInfo) =
 };
 
 //Depotit Chips 
-module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
+module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGateway, tabInfo) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -387,6 +389,8 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, tabInfo) => {
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
         totalBucket: Number(totalRemaningAmount),
+        type: Wtype,
+        paymentGateway: paymentGateway !== undefined ? paymentGateway : 'null',
         gameId: '',
         gameType: '', //Game Type
         maxSeat: 0, //Maxumum Player.
@@ -586,7 +590,7 @@ module.exports.locktounlockbonus = async (id, addCoins, tType, t, tabInfo) => {
 // };
 
 //Sinup Bonus & Deposit Bonus 
-module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t) => {
+module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -640,6 +644,7 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t) => {
         transTypeText: t,
         transAmount: addedCoins,
         chips: tbl.chips,
+        type: Wtype,
         winningChips: tbl.winningChips,
         bonusChips: tbl.bonusChips,
         lockbonusChips: tbl.lockbonusChips,
