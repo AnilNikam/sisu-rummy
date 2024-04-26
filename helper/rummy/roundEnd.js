@@ -10,6 +10,7 @@ const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
 const gameStartActions = require('./gameStart');
 const { getPlayingUserInRound, getPlayingUserInTable, filterBeforeSendSPEvent } = require('../common-function/manageUserFunction');
+const botLogic = require('../botFunction');
 
 module.exports.roundFinish = async (tb) => {
   try {
@@ -183,6 +184,16 @@ module.exports.roundFinish = async (tb) => {
       logger.info('roundEnd.js table is Null:', tabInfo);
       return false;
     }
+
+    if (tabInfo.activePlayer == 1) {
+
+      const betInfo = await BetLists.findOne({_id:MongoID(tabInfo.betId.toString())}).lean();
+
+      setTimeout(() => {
+        botLogic.findRoom(tabInfo, betInfo)
+      }, 5000)
+    }
+
     if (tabInfo.activePlayer >= 2) {
       await gameStartActions.gameTimerStart(tabInfo);
     }
