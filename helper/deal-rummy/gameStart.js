@@ -230,12 +230,15 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       } else if (totalWallet >= mainchipscut) {
         mainwalletdeduct = true
-      } else if (totalbonus >= bonuscutchips && totalWinWallet >= mainchipscut) {
-        winwalletdeduct = true
-        bonuswalletdeduct = true
-      } else if (totalWinWallet >= mainchipscut) {
-        winwalletdeduct = true
-      } else if (totalbonus >= bonuscutchips) {
+      } 
+      
+      // else if (totalbonus >= bonuscutchips && totalWinWallet >= mainchipscut) {
+      //   winwalletdeduct = true
+      //   bonuswalletdeduct = true
+      // } else if (totalWinWallet >= mainchipscut) {
+      //   winwalletdeduct = true
+      // }
+       else if (totalbonus >= bonuscutchips) {
         console.log('5')
         bonuswalletdeduct = true
       }

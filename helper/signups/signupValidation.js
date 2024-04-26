@@ -250,20 +250,20 @@ const registerUser = async (requestBody, socket) => {
     if (loginType === 'Mobile') {
       const query = { mobileNumber: mobileNumber };
       let result = await Users.findOne(query, {});
-
+      console.log("result.result ",result)
       if (!result) {
-        if (appVersion !== GAMELOGICCONFIG.App_Version) {
-          if (result.appVersion !== GAMELOGICCONFIG.App_Version) {
-            let response = { valid: false, msg: 'Update! Upgrade Your App' };
-            commandAcions.sendEvent(socket, CONST.APP_UPDATE, response);
-            // return false
-          } else {
-            // App version is up to date
-            let response = { valid: true, msg: 'App Already Updated' };
-            commandAcions.sendEvent(socket, CONST.APP_UPDATE, response);
-            // You can add any additional logic here if needed
-          }
-        }
+        // if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
+        //   if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
+        //     let response = { valid: false, msg: 'Update! Upgrade Your App' };
+        //     commandAcions.sendEvent(socket, CONST.APP_UPDATE, response);
+        //     // return false
+        //   } else {
+        //     // App version is up to date
+        //     let response = { valid: true, msg: 'App Already Updated' };
+        //     commandAcions.sendEvent(socket, CONST.APP_UPDATE, response);
+        //     // You can add any additional logic here if needed
+        //   }
+        // }
 
         let defaultData = await getUserDefaultFields(requestBody, socket);
         logger.info('registerUser defaultData : ', defaultData);

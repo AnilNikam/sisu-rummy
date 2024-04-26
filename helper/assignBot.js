@@ -5,6 +5,9 @@ const PlayingTables = mongoose.model("playingTable");
 
 const poolTableAction = require("../helper/deal-rummy/joinTable");
 
+const poolTableAction1 = require("../helper/pool-rummy/joinTable");
+
+
 const logger = require("../logger");
 
 const findPoolRoom = async (tableInfo, betInfo) => {
@@ -50,7 +53,7 @@ const findPoolRoom = async (tableInfo, betInfo) => {
         logger.info("update robot isfree", up);
 
 
-        poolTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        poolTableAction1.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
 
 
 

@@ -230,7 +230,7 @@ module.exports.userTurnExpaire = async (tbid) => {
     if (upRes.playerInfo[upRes.currentPlayerTurnIndex].turnMissCounter >= 3) {
       // logger.info("userTurnExpaire : user turn miss 3 times");
       let sckId = upRes.playerInfo[upRes.currentPlayerTurnIndex].sck
-      sendDirectEvent(sckId, CONST.USER_MESSAGE, { msg: 'User Drop Out for Missed 3 turn' });
+      sendDirectEvent(sckId, CONST.USER_MESSAGE, { msg: 'User Drop Out for Missed 3 turn',uid:upRes.playerInfo[upRes.currentPlayerTurnIndex]._id });
 
       this.handleTimeOut(upRes.playerInfo[upRes.currentPlayerTurnIndex], tbid);
       return;
