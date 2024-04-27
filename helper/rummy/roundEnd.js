@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 //const { omit } = require('lodash');
 
 const PlayingTables = mongoose.model('playingTable');
+const BetLists = mongoose.model('betLists');
 const Users = mongoose.model('users');
 const MongoID = mongoose.Types.ObjectId;
 
@@ -187,7 +188,7 @@ module.exports.roundFinish = async (tb) => {
 
     if (tabInfo.activePlayer == 1) {
 
-      const betInfo = await BetLists.findOne({_id:MongoID(tabInfo.betId.toString())}).lean();
+      const betInfo = await BetLists.findOne({ _id: MongoID(tabInfo.betId) }).lean();
 
       setTimeout(() => {
         botLogic.findRoom(tabInfo, betInfo)

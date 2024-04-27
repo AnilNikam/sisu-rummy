@@ -196,36 +196,40 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         await roundStartAction.nextUserTurnstart(tb);
         //await nextUserTurnstart(tb);
       } else if (playerInGame.length === 1) {
-        let wh = {
-          _id: MongoID(tb._id.toString()),
-          'playerInfo.isBot': true,
-        };
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
 
-        logger.info("Deal check bot details remove ==>", wh)
+          logger.info("Deal check bot details remove ==>", wh)
 
-        let updateData = {
-          $set: {
-            'playerInfo.$': {},
-          },
-          $inc: {
-            activePlayer: -1,
-          },
-        };
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
 
-        let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
-          new: true,
-        });
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
 
-        logger.info("Deal Leave remove robot playerInGame[0] ", playerInGame[0])
+          logger.info("Deal Leave remove robot playerInGame[0] ", playerInGame[0])
 
-        if (tbInfo) {
-          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+          if (tbInfo) {
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
 
-          if (tbInfo.activePlayer === 0) {
-            let wh = {
-              _id: MongoID(tbInfo._id.toString()),
-            };
-            await PlayingTables.deleteOne(wh);
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("Deal table not found")
           }
         }
         await roundStartAction.nextUserTurnstart(tb);
@@ -235,6 +239,45 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         logger.info("deal realPlayerInGame leaveallrobot")
         await this.leaveallrobot(tb._id)
       } else if (playerInGame.length === 1) {
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
+
+          logger.info("Deal check bot details remove ==>", wh)
+
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
+
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
+          logger.info("Deal remove robot tbInfo", tbInfo)
+          logger.info("Deal Leave remove robot playerInGame[0] ", playerInGame[0])
+
+
+          if (tbInfo) {
+
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("Deal tbInfo not found");
+          }
+
+        }
         await gameFinishActions.lastUserWinnerDeclareCall(tb);
       }
     } else if (['', 'GameStartTimer'].indexOf(tb.gameState) !== -1) {

@@ -7,7 +7,7 @@ const logger = require('../../logger');
 const CONST = require('../../constant');
 
 const gameFinishActions = require('./gameFinish');
-const { nextUserTurnstart } = require('./roundStart'); //import the spesific function
+const roundStartAction = require('./roundStart'); //import the spesific function
 const { pushPlayerScoreToPlayerScoreBoard } = require('../common-function/cardFunction');
 const { ifSocketDefine } = require('../helperFunction');
 const { sendDirectEvent, clearJob, sendEventInTable, AddTime, setDelay } = require('../socketFunctions');
@@ -191,54 +191,100 @@ module.exports.manageOnUserLeave = async (tb, client) => {
     const list = ['RoundStated', 'CollectBoot', 'CardDealing'];
 
     if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex === client.seatIndex) {
+
       if (realPlayerInGame.length == 0) {
         this.leaveallrobot(tb._id)
       } else if (playerInGame.length >= 2) {
-        await nextUserTurnstart(tb);
+        await roundStartAction.nextUserTurnstart(tb);
       } else if (playerInGame.length === 1) {
-        let wh = {
-          _id: MongoID(tb._id.toString()),
-          'playerInfo.isBot': true,
-        };
+        // Check if playerInGame is a bot
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
 
-        logger.info("Pool check bot details remove ==>", wh)
+          logger.info("Pool check bot details remove ==>", wh)
 
-        let updateData = {
-          $set: {
-            'playerInfo.$': {},
-          },
-          $inc: {
-            activePlayer: -1,
-          },
-        };
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
 
-        let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
-          new: true,
-        });
-        logger.info("Pool remove robot tbInfo", tbInfo)
-        logger.info("Pool Leave remove robot playerInGame[0] ", playerInGame[0])
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
+          logger.info("Pool remove robot tbInfo", tbInfo)
+          logger.info("Pool Leave remove robot playerInGame[0] ", playerInGame[0])
 
 
-        if (tbInfo) {
+          if (tbInfo) {
 
-          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
 
-          if (tbInfo.activePlayer === 0) {
-            let wh = {
-              _id: MongoID(tbInfo._id.toString()),
-            };
-            await PlayingTables.deleteOne(wh);
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("tbInfo not found");
           }
-        } else {
-          logger.info("tbInfo not found");
-        }
 
-        await nextUserTurnstart(tb);
+          // await roundStartAction.nextUserTurnstart(tb);
+        }
+        await roundStartAction.nextUserTurnstart(tb);
       }
+
     } else if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex !== client.seatIndex) {
       if (realPlayerInGame.length == 0) {
         this.leaveallrobot(tb._id)
       } else if (playerInGame.length === 1) {
+        //remove bot when only bot is seating
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
+
+          logger.info("Pool check bot details remove ==>", wh)
+
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
+
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
+          logger.info("Pool remove robot tbInfo", tbInfo)
+          logger.info("Pool Leave remove robot playerInGame[0] ", playerInGame[0])
+
+
+          if (tbInfo) {
+
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("tbInfo not found");
+          }
+
+        }
         await gameFinishActions.lastUserWinnerDeclareCall(tb);
       }
     } else if (['', 'GameStartTimer'].indexOf(tb.gameState) !== -1) {

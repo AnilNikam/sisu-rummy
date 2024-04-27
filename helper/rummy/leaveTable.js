@@ -200,41 +200,43 @@ module.exports.manageOnUserLeave = async (tb, client) => {
       } else if (playerInGame.length >= 2) {
         await roundStartActions.nextUserTurnstart(tb, false);
       } else if (playerInGame.length === 1) {
-        let wh = {
-          _id: MongoID(tb._id.toString()),
-          'playerInfo.isBot': true,
-        };
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
 
-        logger.info("check bot details remove ==>", wh)
+          logger.info("check bot details remove ==>", wh)
 
-        let updateData = {
-          $set: {
-            'playerInfo.$': {},
-          },
-          $inc: {
-            activePlayer: -1,
-          },
-        };
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
 
-        let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
-          new: true,
-        });
-        logger.info("remove robot tbInfo", tbInfo)
-        logger.info("Leave remove robot playerInGame[0] ", playerInGame[0])
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
+          logger.info("remove robot tbInfo", tbInfo)
+          logger.info("Leave remove robot playerInGame[0] ", playerInGame[0])
 
 
-        if (tbInfo) {
+          if (tbInfo) {
 
-          await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
 
-          if (tbInfo.activePlayer === 0) {
-            let wh = {
-              _id: MongoID(tbInfo._id.toString()),
-            };
-            await PlayingTables.deleteOne(wh);
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("tbInfo not found");
           }
-        } else {
-          logger.info("tbInfo not found");
         }
         await roundStartActions.nextUserTurnstart(tb);
       }
@@ -243,11 +245,49 @@ module.exports.manageOnUserLeave = async (tb, client) => {
         console.log("realPlayerInGame leaveallrobot")
         this.leaveallrobot(tb._id)
       } else if (playerInGame.length === 1) {
+        if (playerInGame[0].isBot) {
+          let wh = {
+            _id: MongoID(tb._id.toString()),
+            'playerInfo.isBot': true,
+          };
+
+          logger.info("check bot details remove ==>", wh)
+
+          let updateData = {
+            $set: {
+              'playerInfo.$': {},
+            },
+            $inc: {
+              activePlayer: -1,
+            },
+          };
+
+          let tbInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+            new: true,
+          });
+          logger.info("remove robot tbInfo", tbInfo)
+          logger.info("Leave remove robot playerInGame[0] ", playerInGame[0])
+
+
+          if (tbInfo) {
+
+            await Users.updateOne({ _id: MongoID(playerInGame[0]._id.toString()) }, { $set: { "isfree": true } });
+
+            if (tbInfo.activePlayer === 0) {
+              let wh = {
+                _id: MongoID(tbInfo._id.toString()),
+              };
+              await PlayingTables.deleteOne(wh);
+            }
+          } else {
+            logger.info("tbInfo not found");
+          }
+        }
         await gameFinishActions.lastUserWinnerDeclareCall(tb);
       }
     } else if (['', 'GameStartTimer'].indexOf(tb.gameState) !== -1) {
       if (realPlayerInGame.length == 0) {
-        console.log("realPlayerInGame leaveallrobot")
+        logger.info("point realPlayerInGame leaveall robot")
         this.leaveallrobot(tb._id)
       } else if (playerInGame.length === 0 && tb.activePlayer === 0) {
         let wh = {

@@ -299,17 +299,22 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                                             logger.info("final discard table =>", tb);
 
-                                            let responsee = {
-                                                playerId: playerInfo._id,
-                                                disCard: disCard,
-                                            };
+                                            if (tb) {
+                                                let responsee = {
+                                                    playerId: playerInfo._id,
+                                                    disCard: disCard,
+                                                };
 
-                                            logger.info("check throw card ->", responsee)
-                                            commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+                                                logger.info("check throw card ->", responsee)
+                                                commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
 
-                                            let re = await roundStartActions.nextUserTurnstart(tb);
-                                            return false
+                                                let re = await roundStartActions.nextUserTurnstart(tb);
+                                                return false
+                                            } else {
+                                                // The update failed
+                                                return false;
+                                            }
 
                                         }
                                         mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
@@ -467,16 +472,21 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
 
                                                     logger.info("final discard table =>", tb);
 
-                                                    let responsee = {
-                                                        playerId: playerInfo._id,
-                                                        disCard: disCard,
-                                                    };
 
+                                                    if (tb) {
+                                                        // The update was successful
+                                                        let responsee = {
+                                                            playerId: playerInfo._id,
+                                                            disCard: disCard,
+                                                        };
+                                                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+                                                        await roundStartActions.nextUserTurnstart(tb);
+                                                    } else {
+                                                        // The update failed
+                                                        logger.info("Deal table Not Found ->")
+                                                        return false;
+                                                    }
 
-                                                    commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
-
-
-                                                    let re = await roundStartActions.nextUserTurnstart(tb);
                                                 }
                                             })
                                         })

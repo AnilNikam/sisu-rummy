@@ -601,18 +601,21 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                             });
 
                                             logger.info("final discard table =>", tb);
+                                            if (tb) {
+                                                let responsee = {
+                                                    playerId: playerInfo._id,
+                                                    disCard: disCard,
+                                                };
 
-                                            let responsee = {
-                                                playerId: playerInfo._id,
-                                                disCard: disCard,
-                                            };
+                                                logger.info("check throw card ->", responsee)
+                                                commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
-                                            logger.info("check throw card ->", responsee)
-                                            commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
-
-
-                                            let re = await roundStartActions.nextUserTurnstart(tb);
-                                            return false
+                                                let re = await roundStartActions.nextUserTurnstart(tb);
+                                                return false
+                                            } else {
+                                                // The update failed
+                                                return false;
+                                            }
 
                                         }
                                         mycardGroup(player.cards, parseInt(tableInfo.wildCard.split("-")[1]), async (cardjson) => {
@@ -769,15 +772,20 @@ const pic = async (tableInfo, playerId, gamePlayType, deck) => {
                                                     });
 
                                                     logger.info("final discard table =>", tb);
+                                                    if (tb) {
+                                                        let responsee = {
+                                                            playerId: playerInfo._id,
+                                                            disCard: disCard,
+                                                        };
 
-                                                    let responsee = {
-                                                        playerId: playerInfo._id,
-                                                        disCard: disCard,
-                                                    };
+                                                        commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
 
-                                                    commandAcions.sendEventInTable(tb._id.toString(), CONST.DISCARD, responsee);
+                                                        let re = await roundStartActions.nextUserTurnstart(tb);
+                                                    } else {
+                                                        // The update failed
+                                                        return false;
+                                                    }
 
-                                                    let re = await roundStartActions.nextUserTurnstart(tb);
                                                 }
                                             })
                                         })
