@@ -207,6 +207,28 @@ router.get('/DeletePlaying', async (req, res) => {
         // const result = await Users.insertMany(dummy);
         // logger.info(`${result.insertedCount} documents inserted successfully`);
 
+        // const result = await Users.aggregate([
+        //     {
+        //         $group: {
+        //             _id: { name: "$name" },
+        //             count: { $sum: 1 },
+        //             firstDoc: { $first: "$$ROOT" } // Keep the first document in each group
+        //         }
+        //     },
+        //     {
+        //         $match: {
+        //             count: { $gt: 1 } // Filter to only include duplicates
+        //         }
+        //     }
+        // ]);
+        // logger.info("result    =>", result)
+        // Now, you can delete the extra documents from each duplicate group
+        // for (const group of result) {
+        //     // Delete all documents in the group except the first one
+        //     await Users.deleteMany({ _id: { $ne: group.firstDoc._id }, "name": group._id.name });
+        // }
+
+
         await Users.updateMany(
             { "isfree": false }, // Filter to match documents where isfree is false
             { $set: { "isfree": true } } // Update to set isfree to true
