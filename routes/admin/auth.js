@@ -212,7 +212,9 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
         new: true,
       });
       logger.info("Bank Details Data ->", bankDetailsData);
-      let amount = req.body.Amount + (req.body.Amount * 2 / 100);
+      let amount = req.body.Amount;
+      let deductedAmount = amount + (amount * 2 / 100);
+
       await walletActions.deductWalletPayOut(paymentdata.userId, -Number(amount), 'Debit', 'PayOut', 'Payment', 'wowPe');
 
 
