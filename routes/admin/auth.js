@@ -205,7 +205,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
     if (req.body.Status == 1) {
       let paymentdata = await paymentout.findOne({ "OrderID": req.body.ClientOrderId.toString() }).lean();
       logger.info("Bank payment data ---->", paymentdata);
-      logger.info("Bank payment data redeemAmount---->", redeemAmount);
+      logger.info("Bank payment data redeemAmount---->", paymentdata.redeemAmount);
 
       // Update 
       const bankDetailsData = await BankDetails.findOneAndUpdate({ userId: paymentdata.userId }, { $set: { verfiy: true } }, {
