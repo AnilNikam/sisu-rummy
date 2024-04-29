@@ -198,6 +198,7 @@ async function PayOutTransfer(requestData, socket) {
             return false
         }
 
+        let redeemAmount = requestData.amount
         const reference = generateReferenceNumber()
         logger.info("PayOutTransfer reference==> ", reference)
 
@@ -214,6 +215,7 @@ async function PayOutTransfer(requestData, socket) {
             amount: requestData.amount,
             accountNo: requestData.accountNo,
             ifscCode: requestData.ifscCode,
+            redeemAmount: redeemAmount,
             paymentGateway: 'wowpe',
             "beneficiaryName": requestData.BeneficiaryName.trim(),
             "transferMode": requestData.transferMode,

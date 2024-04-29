@@ -205,14 +205,15 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
     if (req.body.Status == 1) {
       let paymentdata = await paymentout.findOne({ "OrderID": req.body.ClientOrderId.toString() }).lean();
       logger.info("Bank payment data ---->", paymentdata);
+      logger.info("Bank payment data redeemAmount---->", redeemAmount);
 
       // Update 
       const bankDetailsData = await BankDetails.findOneAndUpdate({ userId: paymentdata.userId }, { $set: { verfiy: true } }, {
         new: true,
       });
       logger.info("Bank Details Data ->", bankDetailsData);
-
-      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(req.body.Amount), 'Debit', 'PayOut', 'Payment', 'wowPe');
+      let amount = req.body.Amount + (req.body.Amount * 2 / 100);
+      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(amount), 'Debit', 'PayOut', 'Payment', 'wowPe');
 
 
       // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  

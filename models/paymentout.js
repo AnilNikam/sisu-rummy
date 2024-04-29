@@ -10,6 +10,7 @@ const TransactionSchema = new Schema(
     email: { type: String, required: true, trim: true },
     phone: { type: String },
     amount: { type: Number, required: true },
+    redeemAmount: { type: Number },
     paymentStatus: {
       type: String,
       enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected'],
