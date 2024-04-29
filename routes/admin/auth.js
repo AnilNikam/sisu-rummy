@@ -215,7 +215,7 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
       let amount = req.body.Amount;
       let deductedAmount = amount + (amount * 2 / 100);
 
-      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(amount), 'Debit', 'PayOut', 'Payment', 'wowPe');
+      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(deductedAmount), 'Debit', 'PayOut', 'Payment', 'wowPe');
 
 
       // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  
