@@ -194,9 +194,9 @@ async function PayOutTransfer(requestData, socket) {
     try {
 
         logger.info(" Create PayOut Transfer =>", requestData);
-        let query = { _id: requestData.playerId.toString() };
+        let query = { _id: MongoID(requestData.playerId) };
         let userDetails = await GameUser.findOne(query, {}).lean();
-        logger.info(" userDetails Transfer =>", userDetails);
+        logger.info("PayOutTransfer userDetails Transfer =>", userDetails);
 
         // Check if withdrawal amount is within the allowed range
         if (requestData.amount < 50 || requestData.amount > 1000) {
