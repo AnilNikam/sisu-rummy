@@ -212,7 +212,7 @@ const CONST = {
   gameCardDistributeDelayTime: 1,
   finishTimer: 20,
   rsbTimer: 4,
-  restartTimer: 5,
+  restartTimer: 6,
 
   // commission
   commission: 10,
