@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const MongoID = mongoose.Types.ObjectId;
 const paymentin = mongoose.model('paymentin');
 const paymentout = mongoose.model('paymentout');
+const GameUser = mongoose.model('users');
 const crypto = require('crypto');
 const axios = require('axios');
 const commandAcions = require('../helper/socketFunctions');
@@ -191,11 +192,22 @@ const Account_WOWPE_PAYOUT = {
 
 async function PayOutTransfer(requestData, socket) {
     try {
-        logger.info(" Create PayOut Transfer =>", requestData);
 
+        logger.info(" Create PayOut Transfer =>", requestData);
+        let query = { _id: requestData.playerId.toString() };
+        let userDetails = await GameUser.findOne(query, {}).lean();
+        logger.info(" userDetails Transfer =>", userDetails);
+
+        // Check if withdrawal amount is within the allowed range
         if (requestData.amount < 50 || requestData.amount > 1000) {
-            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal Not Vaild Amount");
-            return false
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal amount must be between 50 and 1000.");
+            return;
+        }
+
+        // Check if user has sufficient winning chips
+        if (userDetails.winningChips < requestData.amount) {
+            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Insufficient Withdrawal Chips.");
+            return;
         }
 
         let redeemAmount = requestData.amount

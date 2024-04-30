@@ -56,6 +56,7 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, wType, pay
   logger.info("check dedcut function call ===>", id);
   logger.info("check dedcut function call ===> typeof ", typeof id);
   logger.info("check dedcut function call ===> tType ", tType);
+  logger.info("check dedcut function call ===> deductChips ", deductChips);
 
   try {
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
