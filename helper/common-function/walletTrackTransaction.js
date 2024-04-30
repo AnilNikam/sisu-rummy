@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const UserWalletTracks = mongoose.model('walletTrackTransaction');
-const UserReferTracks = mongoose.model('userReferTracks');
 const GameUser = mongoose.model('users');
 const CONST = require('../../constant');
 const commandAcions = require('../socketFunctions');
@@ -124,7 +123,12 @@ module.exports.deductWalletPayOut = async (id, deductChips, tType, t, wType, pay
     }
     // console.log("tbl.sckId ", tbl.sckId)
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
+    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+    const formattedBalance = totalChips.toFixed(2);
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance });
+
+    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: Number(tbl.chips + tbl.winningChips + tbl.bonusChips + tbl.lockbonusChips).toFixed(2) });
 
     return totalRemaningAmount;
   } catch (e) {
@@ -262,8 +266,13 @@ module.exports.addWalletWinngChpis = async (id, addCoins, tType, t, Wtype, tabIn
       await this.trackUserWallet(walletTrack);
     }
     // console.log("tbl.sckId ", tbl.sckId)
+    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+    const formattedBalance = totalChips.toFixed(2);
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance });
+
+
+    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips });
 
     return totalRemaningAmount;
   } catch (e) {
@@ -331,8 +340,13 @@ module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, Wtype, tab
       await this.trackUserWallet(walletTrack);
     }
     // console.log("tbl.sckId ", tbl.sckId)
+    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+    const formattedBalance = totalChips.toFixed(2);
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+
+
+    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 
     return totalRemaningAmount;
   } catch (e) {
@@ -401,8 +415,12 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGat
       await this.trackUserWallet(walletTrack);
     }
     // console.log("tbl.sckId ", tbl.sckId)
+    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+    const formattedBalance = totalChips.toFixed(2);
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+
+    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 
     return totalRemaningAmount;
   } catch (e) {
@@ -666,7 +684,12 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
     }
     // console.log("tbl.sckId ", tbl.sckId)
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
+    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+    const formattedBalance = totalChips.toFixed(2);
+
+    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+
+    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 
     return totalRemaningAmount;
   } catch (e) {

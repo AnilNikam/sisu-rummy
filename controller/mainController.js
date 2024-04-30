@@ -1116,8 +1116,8 @@ async function getTransactiobDetailByUserId(requestBody) {
     responseData.forEach(doc => {
       const createdAt = new Date(doc.createdAt);
       const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-      doc.date = createdAt.toLocaleDateString('en-GB', options); // Format date as dd/mm/yyyy
-      doc.time = createdAt.toLocaleTimeString(); // Keep time in the default format
+      doc.date = createdAt.toLocaleDateString('en-IN', options); // Format date as dd/mm/yyyy
+      doc.time = createdAt.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' }); // Keep time in the default format
     });
 
     logger.info("transactions date formate -> ", responseData); // Now you have formatted dates in each transaction object
