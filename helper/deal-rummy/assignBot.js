@@ -33,24 +33,35 @@ const findRoom = async (tableInfo, betInfo) => {
         let user_wh = {
             isBot: true,
             isfree: true,
-            // "_id": { $nin: RobotPlayer }
         };
 
-        logger.info("JoinRobot ROBOT Not user_wh   : ", user_wh);
+        // Count the total number of documents that match the criteria
+        let totalCount = await GameUser.countDocuments(user_wh);
 
-        let robotInfo = await GameUser.findOne(user_wh, {});
-        // logger.info("JoinRobot ROBOT Info : ", robotInfo);
+        // Generate a random index within the range of totalCount
+        let randomIndex = Math.floor(Math.random() * totalCount);
+
+        // Aggregate pipeline to skip to the random index and limit to 1 document
+        let pipeline = [
+            { $match: user_wh },
+            { $skip: randomIndex },
+            { $limit: 1 }
+        ];
+
+        // Execute the aggregation pipeline
+        let robotInfo = await GameUser.aggregate(pipeline).exec();
+        logger.info("Deal JoinRobot ROBOT Info : ", robotInfo)
 
         if (robotInfo == null) {
             logger.info("JoinRobot ROBOT Not Found  : ");
             return false;
         }
 
-        let up = await GameUser.updateOne({ _id: MongoID(robotInfo._id.toString()) }, { $set: { "isfree": false } });
-        logger.info("update robot isfree", up);
+        let up = await GameUser.updateOne({ _id: MongoID(robotInfo[0]._id.toString()) }, { $set: { "isfree": false } });
+        logger.info("deal update robot isfree", up);
 
 
-        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo._id.toString(), isBot: robotInfo.isBot });
+        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo.isBot });
 
 
 

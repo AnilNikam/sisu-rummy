@@ -51,22 +51,27 @@ const findPoolRoom = async (tableInfo, betInfo) => {
         let user_wh = {
             isBot: true,
             isfree: true,
-            // "_id": { $nin: RobotPlayer }
         };
 
-        logger.info("JoinRobot ROBOT Not user_wh   : ", user_wh);
+        // Count the total number of documents that match the criteria
+        let totalCount = await GameUser.countDocuments(user_wh);
 
-        //let robotInfo = await GameUser.findOne(user_wh, {});
+        // Generate a random index within the range of totalCount
+        let randomIndex = Math.floor(Math.random() * totalCount);
 
-        let robotInfo = await GameUser.aggregate([
+        // Aggregate pipeline to skip to the random index and limit to 1 document
+        let pipeline = [
             { $match: user_wh },
-            { $sample: { size: 1 } }
-        ]).exec()
+            { $skip: randomIndex },
+            { $limit: 1 }
+        ];
 
-        // console.log("JoinRobot ROBOT Info : ", robotInfo)
+        // Execute the aggregation pipeline
+        let robotInfo = await GameUser.aggregate(pipeline).exec();
+        logger.info("pool JoinRobot ROBOT Info : ", robotInfo)
 
         if (robotInfo == null || robotInfo.length == 0) {
-            logger.info("JoinRobot ROBOT Not Found  : ")
+            logger.info("pool JoinRobot ROBOT Not Found  : ")
             return false
         }
 
