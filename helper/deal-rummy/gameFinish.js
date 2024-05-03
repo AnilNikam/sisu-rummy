@@ -201,6 +201,24 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
     let tableInfo = await this.manageUserScore(playerInGame, tbInfo);
     //let lostPlayerInTable = await getPlayingInTable(tableInfo.playerInfo, tableInfo.gameType);
+
+    /*
+    //check round and bet deal is same and bot users score are same
+    let scores = tableInfo.playerInfo.map(player => player.point); // Extracting the scores of all players
+
+    // Checking if all scores in the array are equal
+    let allEqual = scores.every((score, index, arr) => score === arr[0]);
+    
+    if (allEqual) {
+        // Both players have the same score
+        return true;
+    } else {
+        // Players have different scores
+        return false;
+    }
+    */
+
+
     let gameStartStatus = false;
 
     const betInfo = await BetLists.findOne({ _id: tableInfo.betId }, {}).lean();
