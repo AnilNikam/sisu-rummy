@@ -559,7 +559,6 @@ myIo.init = function (server) {
             break;
           }
 
-
           case CONST.LEADER_BOARD: {
             try {
               const result = await mainCtrl.leaderBoard();

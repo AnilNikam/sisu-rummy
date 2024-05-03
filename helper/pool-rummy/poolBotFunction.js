@@ -1377,7 +1377,7 @@ const checkWinCard = async (deck, wildCard, call) => {
 
         logger.info("check isvalid bot function ==>", isValid)
 
-        if (isValid == 0) {
+        if (isValid == 0 && checkCards.length >= 13) {
             return call(sequences); // Callback with valid cards
         } else {
             // Generate new cards and recursively call checkWinCard

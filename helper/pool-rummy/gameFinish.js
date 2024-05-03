@@ -508,11 +508,11 @@ module.exports.manageUserScore = async (playerInfo, tabInfo) => {
       let playerScore = await getScore(playerInfo[i].gCard, tabInfo.wildCard);
 
       let lostChips;
-      // if (playerScore === 0) {
-      //   lostChips = Number(2);
-      // } else {
-      lostChips = Number(playerScore);
-      // }
+      if (playerScore === 0) {
+        lostChips = Number(2);
+      } else {
+        lostChips = Number(playerScore);
+      }
 
       updateData.$set['playerInfo.$.finished'] = true;
       updateData.$set['playerInfo.$.point'] = lostChips;
