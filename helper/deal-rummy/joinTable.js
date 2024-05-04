@@ -75,7 +75,9 @@ module.exports.joinTable = async (requestData, socket) => {
 
       return false;
     } else {
-      return await this.findTable(betInfo, socket, userInfo);
+      let resp = await this.findTable(betInfo, socket, userInfo);
+      logger.info("resp ----->", resp)
+      return resp
     }
   } catch (error) {
     logger.error('joinTable.js joinTable error=> ', error, requestData);
@@ -84,6 +86,8 @@ module.exports.joinTable = async (requestData, socket) => {
 
 module.exports.findTable = async (betInfo, socket, userInfo) => {
   try {
+    logger.info("findTable uuuserinfo->", userInfo)
+
     let tableInfo = await this.getBetTable(betInfo, userInfo);
 
     if (tableInfo.gameTimer !== null && tableInfo.gameTimer !== undefined) {
@@ -123,6 +127,8 @@ module.exports.findTable = async (betInfo, socket, userInfo) => {
 module.exports.getBetTable = async (betInfo, userInfo) => {
   try {
     logger.info('getBetTable betInfo ->', betInfo);
+    logger.info('getBetTable userInfo ->', userInfo);
+
     let wh = {
       _id: { $nin: userInfo.lastTableId },
       deal: betInfo.deal,

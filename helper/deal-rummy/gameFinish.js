@@ -202,21 +202,21 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     let tableInfo = await this.manageUserScore(playerInGame, tbInfo);
     //let lostPlayerInTable = await getPlayingInTable(tableInfo.playerInfo, tableInfo.gameType);
 
-    /*
+
     //check round and bet deal is same and bot users score are same
     let scores = tableInfo.playerInfo.map(player => player.point); // Extracting the scores of all players
 
     // Checking if all scores in the array are equal
     let allEqual = scores.every((score, index, arr) => score === arr[0]);
-    
+    logger.info("All equal ==>", allEqual)
+
+    let checkScore = false
     if (allEqual) {
-        // Both players have the same score
-        return true;
-    } else {
-        // Players have different scores
-        return false;
+      // Both players have the same score
+      // return true;
+      checkScore = true
     }
-    */
+
 
 
     let gameStartStatus = false;
@@ -231,7 +231,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     //  logger.info('finish the game');
     //}
 
-    if (betInfo.deal === tableInfo.round) {
+    if (betInfo.deal <= tableInfo.round && checkScore == false) {
       let amount = (tableInfo.tableAmount * CONST.POOL_COMMISSION) / 100;
       //logger.info('Amount deduct ->', amount);
 
