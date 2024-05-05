@@ -217,8 +217,6 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
       checkScore = true
     }
 
-
-
     let gameStartStatus = false;
 
     const betInfo = await BetLists.findOne({ _id: tableInfo.betId }, {}).lean();
@@ -304,7 +302,8 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     const response = {
       playersScoreBoard: winnerViewResponse.userInfo,
       totalLostChips: tableInfo.tableAmount,
-      gameStartStatus: gameStartStatus
+      gameStartStatus: gameStartStatus,
+      isTie: checkScore
     };
 
     const gsbResponse = { ...response, wildCard: tableInfo.wildCard, gamePlayType: tableInfo.gamePlayType };

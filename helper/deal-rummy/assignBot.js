@@ -61,7 +61,7 @@ const findRoom = async (tableInfo, betInfo) => {
         logger.info("deal update robot isfree", up);
 
 
-        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo.isBot });
+        dealTableAction.findEmptySeatAndUserSeat(tableInfo, betInfo, { uid: robotInfo[0]._id.toString(), isBot: robotInfo[0].isBot });
 
 
 
