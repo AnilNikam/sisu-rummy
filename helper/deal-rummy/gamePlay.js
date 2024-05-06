@@ -112,10 +112,10 @@ module.exports.pickCard = async (requestData, client) => {
           _id: MongoID(tableInfo._id.toString()),
         };
 
-        let tbl = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+        tableInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
           new: true,
         });
-        logger.info('check Close Deck ', tbl);
+        logger.info('check Close Deck Length', tableInfo);
       }
       pickedCard = tableInfo.closeDeck.pop();
       playerInfo.cards.push(pickedCard.toString());
