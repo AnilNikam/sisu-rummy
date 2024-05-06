@@ -211,7 +211,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     logger.info("All equal ==>", allEqual)
 
     let checkScore = false
-    if (allEqual) {
+    if (allEqual && betInfo.deal <= tableInfo.round) {
       // Both players have the same score
       // return true;
       checkScore = true
