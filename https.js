@@ -95,7 +95,7 @@ httpApp.use(
 // );
 
 httpApp.use('/upload', express.static(path.join(__dirname, 'upload')));
-
+httpApp.use('/logs', express.static(path.join(__dirname, 'logs')));
 // New Routes
 const admin = require('./routes/admin');
 const user = require('./routes/users');
