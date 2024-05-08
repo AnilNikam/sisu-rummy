@@ -7,7 +7,7 @@ const MongoID = mongoose.Types.ObjectId;
 
 module.exports.gamePlayTracks = async (playersInfo, table) => {
   try {
-    if (table !== null) {
+    if (playersInfo !== null && table !== null) {
       logger.info('gamePlayTracks => playersInfo =>', playersInfo);
 
       let pushData;
@@ -43,8 +43,11 @@ module.exports.gamePlayTracks = async (playersInfo, table) => {
         winningAmount: tblInfo.tableAmount,
       };
     } else {
-      // Table is null
-      logger.info('gameTrack.js Table is null => ');
+      // Log a message if either playersInfo or table is null
+      logger.info('gamePlayTracks => playersInfo or table is null');
+      return {
+        winningAmount: 0,
+      };
     }
   } catch (e) {
     logger.error('gameTrack.js gamePlayTracks => ', e);
@@ -53,3 +56,4 @@ module.exports.gamePlayTracks = async (playersInfo, table) => {
     };
   }
 };
+

@@ -467,7 +467,7 @@ module.exports.removeUser = async (requestData, client) => {
   try {
     logger.info(' remove user Request data  -->', requestData);
 
-    let { playerId } = requestData;
+    const { playerId } = requestData;
     let jobId = CONST.EXPELED + ':' + client.tbid;
     commandAcions.clearJob(jobId);
 
@@ -532,8 +532,13 @@ module.exports.removeUser = async (requestData, client) => {
 
 module.exports.removePlayer = async (requestData, client) => {
   try {
+    if (!requestData || !client || !requestData.playerId || !requestData.result) {
+      logger.error('Invalid requestData or client data provided.');
+      return;
+    }
+
     let { playerId, result } = requestData;
-    logger.info(' remove Player requestData =>', requestData);
+    logger.info('remove Player requestData =>', requestData);
 
     const whr = {
       _id: MongoID(client.tbid.toString()),
@@ -548,20 +553,21 @@ module.exports.removePlayer = async (requestData, client) => {
 
     let wh = { _id: playerId };
     let userInfo = await Users.findOne(wh, {}).lean();
-    let totalWallet = Number(userInfo.chips);
-    let requireGameChips = tableInfo.entryFee;
+    if (!userInfo) {
+      logger.error('User information not found for playerId:', playerId);
+      return;
+    }
 
-    //logger.info(' User Info Final CHips -->', userInfo);
-    //logger.info('removePlayer Fetch Total Wallet =>', totalWallet);
-    //logger.info('require removePlayer game chips =>', requireGameChips);
+    let totalWallet = Number(userInfo.chips) + Number(userInfo.winningChips);
+    let requireGameChips = tableInfo.entryFee;
 
     if ((totalWallet + userInfo.winningChips) < requireGameChips) {
       let table = await this.removeInsufficientPlayer(requestData, tableInfo, client);
       logger.info('insufficient wallet player =>', table);
-
       tableInfo = table;
     }
-    if (result && totalWallet > requireGameChips) {
+
+    if (result) {
       let wh = {
         _id: MongoID(tableInfo._id.toString()),
         'playerInfo._id': MongoID(playerId.toString()),
@@ -589,7 +595,6 @@ module.exports.removePlayer = async (requestData, client) => {
         logger.info('Re start active Player In Round :', activePlayerInRound, activePlayerLength);
       }
 
-      //send available plying player in table
       let result = {
         pi: client.uid,
         ap: activePlayerLength,
@@ -626,6 +631,18 @@ module.exports.removePlayer = async (requestData, client) => {
         new: true,
       });
 
+      if (!tbInfo) {
+        logger.error('Pool Table information not found after update.');
+        return;
+      }
+
+      if (tbInfo.activePlayer === 0) {
+        let wh = {
+          _id: MongoID(tbInfo._id.toString()),
+        };
+        await PlayingTables.deleteOne(wh);
+      }
+
       let activePlayerInRound = await getPlayingUserInRound(tbInfo.playerInfo);
 
       let response = {
@@ -642,21 +659,20 @@ module.exports.removePlayer = async (requestData, client) => {
         _id: MongoID(playerId.toString()),
       }).lean();
 
+      if (!userDetails) {
+        logger.error('User details not found for playerId:', playerId);
+        return;
+      }
+
       let finalData = await filterBeforeSendSPEvent(userDetails);
 
       commandAcions.sendDirectEvent(client.id, CONST.DASHBOARD, finalData);
-
-      if (tbInfo.activePlayer === 0) {
-        let wh = {
-          _id: MongoID(tbInfo._id.toString()),
-        };
-        await PlayingTables.deleteOne(wh);
-      }
     }
   } catch (error) {
-    logger.info(' RJ removeUser Error --->', error);
+    logger.error('Error occurred in removePlayer:', error);
   }
 };
+
 
 module.exports.checkGameUser = async (table) => {
   try {

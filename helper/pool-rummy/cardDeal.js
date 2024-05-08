@@ -16,6 +16,13 @@ module.exports.cardDealStart = async (tbid) => {
   try {
     let wh = { _id: tbid };
     let table = await PlayingTables.findOne(wh, {}).lean();
+
+    // Check if table or table.playerInfo is null
+    if (!table || !table.playerInfo) {
+      logger.error('cardDealStart: Pool Game Table or playerInfo is null.');
+      return;
+    }
+
     this.getCards(table.playerInfo, table, table.maxSeat, async (cardDetails) => {
 
       logger.info("pool cardDetails", cardDetails)
@@ -66,10 +73,10 @@ module.exports.cardDealStart = async (tbid) => {
       logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
 
       let tbId = tableInfo._id;
-      // let jobId = commandAcions.GetRandomString(10);
-      // let delay = commandAcions.AddTime(4);
+      let jobId = commandAcions.GetRandomString(10);
+      let delay = commandAcions.AddTime(2);
 
-      // await commandAcions.setDelay(jobId, new Date(delay));
+      await commandAcions.setDelay(jobId, new Date(delay));
 
       await roundStartActions.roundStarted(tbId);
     });

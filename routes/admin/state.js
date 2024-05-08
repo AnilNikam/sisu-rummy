@@ -21,7 +21,7 @@ router.get('/stateList', async (req, res) => {
 
         const statelist = await statemanagemet.find({}, {})
 
-        logger.info('admin/dahboard.js stateList stateList  error => ', statelist);
+        // logger.info('admin/dahboard.js stateList stateList  error => ', statelist);
 
         res.json({ statelist });
     } catch (error) {
