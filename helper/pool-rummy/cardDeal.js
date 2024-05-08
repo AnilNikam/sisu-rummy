@@ -73,10 +73,10 @@ module.exports.cardDealStart = async (tbid) => {
       logger.info("cardDealStart tableInfo.playerInfo after  ->", new Date())
 
       let tbId = tableInfo._id;
-      let jobId = commandAcions.GetRandomString(10);
-      let delay = commandAcions.AddTime(2);
+      // let jobId = commandAcions.GetRandomString(10);
+      // let delay = commandAcions.AddTime(2);
 
-      await commandAcions.setDelay(jobId, new Date(delay));
+      // await commandAcions.setDelay(jobId, new Date(delay));
 
       await roundStartActions.roundStarted(tbId);
     });
