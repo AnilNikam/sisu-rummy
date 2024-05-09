@@ -424,6 +424,10 @@ module.exports.reJoinUser = async (requestData, client) => {
         new: true,
       });
 
+      if (!tbInfo) {
+        return;
+      }
+
       logger.info('Re Join User table Info', tbInfo);
       let activePlayerInRound = await getPlayingUserInRound(tbInfo.playerInfo);
 
