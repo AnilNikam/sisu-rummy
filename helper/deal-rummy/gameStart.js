@@ -230,21 +230,21 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       } else if (totalWallet >= mainchipscut) {
         mainwalletdeduct = true
-      } 
-      
+      }
+
       // else if (totalbonus >= bonuscutchips && totalWinWallet >= mainchipscut) {
       //   winwalletdeduct = true
       //   bonuswalletdeduct = true
       // } else if (totalWinWallet >= mainchipscut) {
       //   winwalletdeduct = true
       // }
-       else if (totalbonus >= bonuscutchips) {
-        console.log('5')
+      else if (totalbonus >= bonuscutchips) {
+        logger.info('5')
         bonuswalletdeduct = true
       }
 
       if (mainwalletdeduct === false && winwalletdeduct === false && bonuswalletdeduct === true) {
-        console.log('6')
+        logger.info('6')
 
         let reminingAmount = mainchipscut - totalWallet
         if (reminingAmount <= totalWinWallet) {
@@ -259,7 +259,7 @@ module.exports.deduct = async (tbInfo, playerInfo) => {
 
       } else if (mainwalletdeduct === false && winwalletdeduct === false) {
         let reminingAmount = mainchipscut - totalWallet
-        console.log('reminingAmount -->', reminingAmount)
+        logger.info('reminingAmount -->', reminingAmount)
 
         if (reminingAmount <= totalWinWallet) {
           await walletActions.addWalletWinningPayin(pId, - Number(reminingAmount), 'Debit', 'Deal Playing Entry Deduct Deposit', 'Game');

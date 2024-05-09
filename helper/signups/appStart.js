@@ -11,7 +11,7 @@ const logger = require('../../logger');
 
 module.exports.appLunchDetails = async (requestData, client) => {
   try {
-    // logger.info("appLunchDetails =>", requestData);
+    logger.info("appLunchDetails =>", requestData);
     let { playerId, appVersion/*, deviceId, loginType, email*/ } = requestData;
     let query = { _id: playerId.toString() };
     let result = await GameUser.findOne(query, {}).lean();
