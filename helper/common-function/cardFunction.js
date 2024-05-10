@@ -460,6 +460,7 @@ const countPlayerScore = async (table) => {
 
 const pushPlayerScoreToPlayerScoreBoard = async (table, player) => {
   try {
+    logger.info("pushPlayerScoreToPlayerScoreBoard =>", table)
     table.playersScoreBoard.push({
       playerId: player.playerId,
       playerName: player.name,

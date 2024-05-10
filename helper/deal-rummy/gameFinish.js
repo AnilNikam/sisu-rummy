@@ -15,18 +15,27 @@ const roundEndActions = require('./roundEnd');
 const commonHelper = require('../commonHelper');
 const { getScore } = require('../common-function/cardFunction');
 const walletActions = require('../common-function/walletTrackTransaction');
-const { getPlayingUserInRound /*, getPlayingInTable*/, winnerViewResponseFilter } = require('../common-function/manageUserFunction');
+const { getPlayingUserInRound /*, getPlayingInTable*/, winnerViewResponseFilter, getPlayingAndDropUserRound } = require('../common-function/manageUserFunction');
 
 module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
   const tb = tblInfo;
   logger.info('last Winner Declare =', tb);
   try {
     if (tb.activePlayer === 1) {
+      logger.info('last Winner Declare tb.activePlayer=', tb.activePlayer);
       let tbid = tb._id.toString();
 
-      if (tb.isLastUserFinish) return false;
-      if (tb.gameState === CONST.ROUND_END) return false;
-      if (tb.isFinalWinner) return false;
+      if (tb.isLastUserFinish) {
+        return false;
+      }
+
+      if (tb.gameState === CONST.ROUND_END) {
+        return false;
+      }
+
+      if (tb.isFinalWinner) {
+        return false;
+      }
 
       let updateData = {
         $set: {},
@@ -187,7 +196,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     updateData.$set['playerInfo.$.playerStatus'] = CONST.WON;
 
     let playerSeatIndex = tbInfo.playerInfo[tbInfo.currentPlayerTurnIndex].seatIndex;
-    //logger.info('Player Seat Index winner Declare call -->', playerSeatIndex);
+    logger.info('Player Seat Index winner Declare call -->', playerSeatIndex);
 
     const upWh = {
       _id: MongoID(tbid),
@@ -197,7 +206,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     tbInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, {
       new: true,
     });
-    logger.info(' tb info -->', tbInfo);
+    logger.info('\ndeal Tb info -->', tbInfo);
 
     const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
     let tableInfo = await this.manageUserScore(playerInGame, tbInfo);
@@ -207,7 +216,7 @@ module.exports.winnerDeclareCall = async (tblInfo) => {
     logger.info('\nDeal betInfo -->', betInfo);
     let betDetails = tableInfo.betId;
 
-    logger.info('\n betDetails ==>', betDetails);
+    // logger.info('\n betDetails ==>', betDetails);
     logger.info('\n Round ==>', tableInfo.round);
 
     //check round and bet deal is same and bot users score are same
@@ -544,7 +553,7 @@ module.exports.manageUserScore = async (playerInfo, tabInfo) => {
   let tableInfo = tabInfo;
 
   for (let i = 0; i < playerInfo.length; i++) {
-    if (playerInfo[i].playerStatus !== CONST.WON) {
+    if (playerInfo[i].playerStatus !== CONST.WON && playerInfo[i].playerStatus !== CONST.INVALID_DECLARE) {
       let pId = playerInfo[i].playerId;
 
       let updateData = {

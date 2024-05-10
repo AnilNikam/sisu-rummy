@@ -215,7 +215,7 @@ module.exports.resetTable = async (tb) => {
     let tbInfo = await PlayingTables.findOneAndUpdate(wh, update, {
       new: true,
     });
-    //logger.info('Reset Table Round Finish tbInfo : ==> ', tbInfo);
+    logger.info('Deal Reset Table Round Finish tbInfo : ==> ', tbInfo);
 
     this.restartTable(tbInfo);
 

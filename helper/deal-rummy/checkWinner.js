@@ -47,7 +47,9 @@ module.exports.winnercall = async (tb, client) => {
     };
 
     let tbInfo = await PlayingTables.findOneAndUpdate(upWh, updateData, { new: true });
-    logger.info("tbInfo =====   ====   ===>", tabInfo.round)
+    logger.info("tbInfo =====   ====   ===>", tabInfo)
+    logger.info("tbInfo =====   ====   Round ===>", tabInfo.round)
+
     let winner = await this.getWinner(tbInfo);
 
     //check round or deal finish
@@ -161,6 +163,7 @@ module.exports.checkUserScore = async (playerInfo, tabInfo) => {
 
   for (let i = 0; i < playerInfo.length; i++) {
     let pId = playerInfo[i].playerId;
+    logger.info("playerinfo Status ==>", playerInfo[i].status)
 
     let updateData = {
       $set: {},

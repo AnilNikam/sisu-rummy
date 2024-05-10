@@ -380,6 +380,7 @@ module.exports.declare = async (requestData, client) => {
     const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
       new: true,
     });
+    logger.info("declare pool tb ->", tb)
 
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE, response);
     commandAcions.sendEventInTable(tb._id.toString(), CONST.DECLARE_TIMER_SET, { pi: playerDetails._id });
@@ -498,18 +499,52 @@ module.exports.invalidDeclare = async (tbInfo, client) => {
       },
     };
 
-    const tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+    let tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
       new: true,
     });
-    //logger.info('Player InValid tb : ', tb);
+    logger.info('Deal Player InValid tb : ', tb);
+    logger.info('Deal Player InValid tb Round: ', tb.round);
 
     let playerDetails = tb.playerInfo[client.seatIndex];
 
     // eslint-disable-next-line no-unused-vars
     await pushPlayerScoreToPlayerScoreBoard(tb, playerDetails);
 
-    let activePlayerInRound = await getPlayingUserInRound(tb.playerDetails);
+    let activePlayerInRound = await getPlayingUserInRound(tb.playerInfo);
     logger.info('PACK activePlayerInRound :', activePlayerInRound, activePlayerInRound.length);
+    if (activePlayerInRound.length === 1 && tb.round == 1) {
+      let uId = activePlayerInRound[0]._id
+
+      const upWh = {
+        _id: MongoID(tb._id.toString()),
+        'playerInfo.seatIndex': Number(activePlayerInRound[0].seatIndex),
+      };
+
+      const updateData = {
+        $set: {
+          'playerInfo.$.point': activePlayerInRound[0].currentGamePoint,
+        },
+      }
+      tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+        new: true,
+      });
+      logger.info('Deal Player InValid tb set zero : ', tb);
+    } else if (activePlayerInRound.length === 1 && tb.round == 2) {
+      const upWh = {
+        _id: MongoID(tb._id.toString()),
+        'playerInfo.seatIndex': Number(activePlayerInRound[0].seatIndex),
+      };
+
+      const updateData = {
+        $inc: {
+          'playerInfo.$.point': -Number(lostChips),
+        },
+      }
+      tb = await PlayingTables.findOneAndUpdate(upWh, updateData, {
+        new: true,
+      });
+      logger.info('Deal Player InValid tb check round 2 : ', tb);
+    }
 
     let jobID = commandAcions.GetRandomString(10);
     let delay = commandAcions.AddTime(1);
