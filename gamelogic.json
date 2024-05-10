@@ -24,7 +24,7 @@
     "BOTVERSION": 123,
     "BOTMODE": "Only Bot join with Player",
     "BOTDIFFICULTY": "MEDIUM",
-    "App_Version": "0.0.2",
+    "App_Version": "0.0.3",
     "ForceUpdate": false,
     "MaintenanceMode": false,
     "DeviceRestriction": false,
