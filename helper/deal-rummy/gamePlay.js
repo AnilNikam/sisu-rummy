@@ -486,12 +486,12 @@ module.exports.invalidDeclare = async (tbInfo, client) => {
         'playerInfo.$.gCard': playerInfo.gCard,
         'playerInfo.$.currentGamePoint': lostChips,
         'playerInfo.$.pickedCard': '',
-        'playerInfo.$.point': lostChips,
         discardCard: '',
         openDeck: tabInfo.openDeck,
         callFinalWinner: false,
       },
       $inc: {
+        'playerInfo.$.point': lostChips,
         'playerInfo.$.gameChips': lostChips,
       },
       $push: {
@@ -512,6 +512,7 @@ module.exports.invalidDeclare = async (tbInfo, client) => {
 
     let activePlayerInRound = await getPlayingUserInRound(tb.playerInfo);
     logger.info('PACK activePlayerInRound :', activePlayerInRound, activePlayerInRound.length);
+    /*
     if (activePlayerInRound.length === 1 && tb.round == 1) {
       let uId = activePlayerInRound[0]._id
 
@@ -545,6 +546,7 @@ module.exports.invalidDeclare = async (tbInfo, client) => {
       });
       logger.info('Deal Player InValid tb check round 2 : ', tb);
     }
+    */
 
     let jobID = commandAcions.GetRandomString(10);
     let delay = commandAcions.AddTime(1);

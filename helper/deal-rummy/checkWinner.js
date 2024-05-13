@@ -51,6 +51,7 @@ module.exports.winnercall = async (tb, client) => {
     logger.info("tbInfo =====   ====   Round ===>", tabInfo.round)
 
     let winner = await this.getWinner(tbInfo);
+    logger.info("Deal Winner =>", winner)
 
     //check round or deal finish
     //find set winner player
@@ -70,10 +71,13 @@ module.exports.winnercall = async (tb, client) => {
 
       //check player gamechip
       let playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
-      let table = await this.checkUserScore(playerInGame, tbInfo);
-      logger.info('check table', table);
 
-      tbInfo = table;
+      if (winner == 0) {
+        let table = await this.checkUserScore(playerInGame, tbInfo);
+        logger.info('check table', table);
+        tbInfo = table;
+      }
+
       if (betInfo.deal === tbInfo.round) {
         let minCoinHavingPlayer = null;
         tbInfo.playerInfo.forEach((player) => {

@@ -302,8 +302,9 @@ module.exports.findEmptySeatAndUserSeat = async (table, betInfo, socket) => {
     });
 
     //JT event
-    if (userInfo.isBot == undefined || userInfo.isBot == false)
+    if (userInfo.isBot == undefined || userInfo.isBot == false) {
       socket.join(tableInfo._id.toString());
+    }
 
     sendDirectEvent(socket.tbid.toString(), CONST.JOIN_TABLE, {
       ap: tableInfo.activePlayer,

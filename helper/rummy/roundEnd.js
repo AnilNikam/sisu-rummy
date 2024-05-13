@@ -12,6 +12,7 @@ const commandAcions = require('../socketFunctions');
 const gameStartActions = require('./gameStart');
 const { getPlayingUserInRound, getPlayingUserInTable, filterBeforeSendSPEvent } = require('../common-function/manageUserFunction');
 const botLogic = require('../botFunction');
+const leaveRobotAction = require('./leaveTable');
 
 module.exports.roundFinish = async (tb) => {
   try {
@@ -63,8 +64,6 @@ module.exports.roundFinish = async (tb) => {
               gameChips: finalGameChips,
               chips: Math.abs(remaningChip),
             };
-
-
 
             logger.info(' BORROW_USER_CHIPS Result ==>', result);
             commandAcions.sendDirectEvent(player.sck.toString(), CONST.BORROW_USER_CHIPS, result);
@@ -178,12 +177,29 @@ module.exports.roundFinish = async (tb) => {
       _id: MongoID(table_id.toString()),
     };
 
-    const tabInfo = await PlayingTables.findOne(wh1, {}).lean();
-    //logger.info(' start re game new table ->', tabInfo);
+    let tabInfo = await PlayingTables.findOne(wh1, {}).lean();
+    logger.info(' start re game new table ->', tabInfo);
+
 
     if (!tabInfo) {
       logger.info('roundEnd.js table is Null:', tabInfo);
       return false;
+    }
+
+    //remove all bot and assign new bot
+    let reees = await leaveRobotAction.leaveallrobot(tabInfo._id)
+    logger.info("Result --> reees", reees)
+
+    const wh2 = {
+      _id: MongoID(table_id.toString()),
+    };
+
+    tabInfo = await PlayingTables.findOne(wh2, {}).lean();
+    logger.info('After Remove Bot new table ->', tabInfo);
+
+    if (!tabInfo) {
+      logger.info("Table not found for robot removal");
+      return;
     }
 
     if (tabInfo.activePlayer == 1) {
@@ -196,6 +212,7 @@ module.exports.roundFinish = async (tb) => {
     }
 
     if (tabInfo.activePlayer >= 2) {
+      logger.info("game re start ---->")
       await gameStartActions.gameTimerStart(tabInfo);
     }
     return true;

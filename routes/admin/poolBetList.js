@@ -89,42 +89,42 @@ router.delete('/:id', async (req, res) => {
  * @apiError (Error 4xx) {String} message Validation or error message.
  */
 router.put('/', async (req, res) => {
-  logger.info('Update Pool Bet List req.body => ', req.body);
+  // logger.info('Update Pool Bet List req.body => ', req.body);
   try {
-    const { entryFee, betListId, maxSeat, status, tableName,type } = req.body;
+    const { entryFee, betListId, maxSeat, status, tableName, type } = req.body;
     // const entryFeexists = await BetLists.countDocuments({ entryFee });
     // logger.info('put entryFeexists 11111111111111111', entryFeexists);
     // if (entryFeexists > 0) {
     //   res.status(config.OK_STATUS).json({ status: 0, message: 'Entry Fee Already Exists' });
     // } else {
-      const newData = {
-        entryFee: parseInt(entryFee),
-        modifiedAt: Date.now(),
-        maxSeat: maxSeat,
-        status: status,
-        tableName: tableName,
-        type:type
-      };
-       logger.info('newData => ', newData);
+    const newData = {
+      entryFee: parseInt(entryFee),
+      modifiedAt: Date.now(),
+      maxSeat: maxSeat,
+      status: status,
+      tableName: tableName,
+      type: type
+    };
+    logger.info('newData => ', newData);
 
-      const condition = { _id: commonHelper.strToMongoDb(betListId) };
-       logger.info('condition => ', condition);
+    const condition = { _id: commonHelper.strToMongoDb(betListId) };
+    logger.info('condition => ', condition);
 
-      const responseData = await commonHelper.update(BetLists, condition, newData);
-       logger.info('update response Data => ', responseData);
+    const responseData = await commonHelper.update(BetLists, condition, newData);
+    logger.info('update response Data => ', responseData);
 
-      if (responseData.status === 1) {
-        res.status(config.OK_STATUS).json({
-          status: 1,
-          message: 'record Update',
-          data: responseData.data,
-        });
-      } else {
-        res.status(config.DATABASE_ERROR_STATUS).json({
-          status: 0,
-          message: 'record not Updated',
-        });
-      }
+    if (responseData.status === 1) {
+      res.status(config.OK_STATUS).json({
+        status: 1,
+        message: 'record Update',
+        data: responseData.data,
+      });
+    } else {
+      res.status(config.DATABASE_ERROR_STATUS).json({
+        status: 0,
+        message: 'record not Updated',
+      });
+    }
     //}
   } catch (error) {
     logger.error('admin/users.js put bet-list error => ', error);

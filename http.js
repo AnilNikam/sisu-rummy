@@ -13,7 +13,7 @@ const cors = require('cors');
 
 // fs.unlinkSync("./log_file.log");
 GAMELOGICCONFIG = module.exports = require('./gamelogic.json')
-console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
+// console.log("GAMELOGICCONFIG ",GAMELOGICCONFIG)
 require('./database/mongoDbConnection');
 
 const modelsPath = './models';

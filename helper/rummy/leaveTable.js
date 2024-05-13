@@ -243,7 +243,7 @@ module.exports.manageOnUserLeave = async (tb, client) => {
     } else if (list.includes(tb.gameState) && tb.currentPlayerTurnIndex !== client.seatIndex) {
       if (realPlayerInGame.length == 0) {
         console.log("realPlayerInGame leaveallrobot")
-        this.leaveallrobot(tb._id)
+        await this.leaveallrobot(tb._id)
       } else if (playerInGame.length === 1) {
         if (playerInGame[0].isBot) {
           let wh = {
@@ -305,68 +305,61 @@ module.exports.manageOnUserLeave = async (tb, client) => {
 
 module.exports.leaveallrobot = async (tbid) => {
   try {
-    logger.info("chek all leave robot =>");
+    logger.info("check all leave robot =>");
     let tbId = tbid;
 
     const wh1 = {
       _id: MongoID(tbId.toString()),
     };
-    logger.info("chek all leave robot wh1=>", wh1);
+    logger.info("check all leave robot wh1=>", wh1);
 
-    const tabInfo = await PlayingTables.findOne(wh1, {}).lean();
-    logger.info("chek all leave robot tabInfo=>", tabInfo);
+    let tabInfo = await PlayingTables.findOne(wh1, {}).lean();
+    logger.info("check all leave robot tabInfo=>", tabInfo);
 
-    //if (tabInfo.activePlayer === 1) {
+    if (!tabInfo) {
+      logger.info("Table not found for robot removal");
+      return;
+    }
+
     let playerInfos = tabInfo.playerInfo;
     for (let i = 0; i < playerInfos.length; i++) {
       logger.info("check loop", playerInfos[i]);
-      if (typeof playerInfos[i].seatIndex !== 'undefined') {
-
+      if (playerInfos[i].isBot) {
         let wh = {
           _id: MongoID(tbId.toString()),
-          'playerInfo.isBot': true,
+          'playerInfo._id': playerInfos[i]._id,
         };
 
-        // const res = await PlayingTables.findOne(whr, {}).lean();
-        // logger.info("for bot details  ==> res", res)
-
-
-        // let wh = { _id: MongoID(tb._id).toString(), isBot: true }
-        // 'playerInfo._id': MongoID(client.uid.toString()),
-
-        logger.info("check bot details remove ==>", wh)
+        logger.info("check bot details remove ==>", wh);
 
         let updateData = {
           $set: {
-            'playerInfo.$': {},
+            [`playerInfo.${i}`]: {} // Set the element at index i to an empty object
           },
           $inc: {
             activePlayer: -1,
           },
         };
 
-        let tbInfo1 = await PlayingTables.findOneAndUpdate(wh, updateData, {
-          new: true,
-        });
-        logger.info("remove robot tbInfo1", tbInfo1)
-
+        tabInfo = await PlayingTables.updateOne(wh, updateData);
+        logger.info("check table after robot =>", tabInfo)
 
         await Users.updateOne({ _id: MongoID(playerInfos[i]._id.toString()) }, { $set: { "isfree": true } });
-
-        if (tbInfo1.activePlayer === 0) {
-          let wh = {
-            _id: MongoID(tbInfo1._id.toString()),
-          };
-          await PlayingTables.deleteOne(wh);
-        }
-
       }
     }
-    //}
+
+    if (tabInfo.activePlayer === 0) {
+      let wh = {
+        _id: MongoID(tbId.toString()),
+      };
+      await PlayingTables.deleteOne(wh);
+    }
+    return tabInfo;
   } catch (e) {
     logger.error('leaveTable.js leaveallrobot error : ', e);
   }
 };
+
 
 module.exports.leaveSingleUser = async (tbid) => {
   try {

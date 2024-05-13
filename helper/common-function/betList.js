@@ -22,7 +22,7 @@ module.exports.getPoolBet = async (requestData, socket) => {
       Type: requestData.type,
       List: betInfo,
     };
-    logger.info('Pool bet list response', response);
+    // logger.info('Pool bet list response', response);
 
     socket.uid = requestData.playerId;
     socket.sck = socket.id;

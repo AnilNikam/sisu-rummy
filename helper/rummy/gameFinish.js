@@ -59,6 +59,11 @@ module.exports.lastUserWinnerDeclareCall = async (tblInfo) => {
       new: true,
     });
 
+    if (!tbInfo) {
+      logger.info("Table Not Found");
+      return
+    }
+
     const playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
     const tableInfo = await PlayingTables.findOne(upWh, {}).lean();
     logger.info('Last Winner Declare Call =>', tableInfo);
