@@ -206,6 +206,13 @@ module.exports.roundFinish = async (tb) => {
 
       const betInfo = await BetLists.findOne({ _id: MongoID(tabInfo.betId) }).lean();
 
+      logger.info("Bot Assign When game Restart");
+
+      let jobId = commandAcions.GetRandomString(10);
+      let delay = commandAcions.AddTime(3);
+
+      await commandAcions.setDelay(jobId, new Date(delay));
+
       setTimeout(() => {
         botLogic.findRoom(tabInfo, betInfo)
       }, 5000)
