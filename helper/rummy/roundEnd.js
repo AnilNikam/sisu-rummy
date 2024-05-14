@@ -53,7 +53,7 @@ module.exports.roundFinish = async (tb) => {
 
           let diff = requireGameChips - player.gameChips;
           logger.info('diff ->', diff);
-          if (Number(player.gameChips + player.winningChips) >= diff) {
+          if (totalWallet >= diff) {
             let finalGameChips = player.gameChips + Math.abs(diff);
             let remaningChip = totalWallet - Math.abs(diff);
             logger.info('remaningChip ->', remaningChip);
