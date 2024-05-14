@@ -341,10 +341,23 @@ module.exports.leaveallrobot = async (tbid) => {
           },
         };
 
-        tabInfo = await PlayingTables.updateOne(wh, updateData);
+        // tabInfo = await PlayingTables.updateOne(wh, updateData);
+        tabInfo = await PlayingTables.findOneAndUpdate(wh, updateData, {
+          new: true,
+        });
         logger.info("check table after robot =>", tabInfo)
 
         await Users.updateOne({ _id: MongoID(playerInfos[i]._id.toString()) }, { $set: { "isfree": true } });
+
+        let response = {
+          pi: playerInfos[i]._id,
+          score: playerInfos[i].point,
+          lostChips: 0,
+          totalRewardCoins: tabInfo.tableAmount,
+          ap: tabInfo.activePlayer,
+        };
+        sendEventInTable(tabInfo._id.toString(), CONST.LEAVE, response);
+
       }
     }
 
