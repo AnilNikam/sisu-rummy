@@ -141,7 +141,7 @@ module.exports.getBetTable = async (betInfo, userInfo) => {
 
 module.exports.createTable = async (betInfo) => {
   try {
-    let winingDeclareCount = 1//getRandomNumber(4, 8)
+    let winingDeclareCount = getRandomNumber(4, 8)
     let insertobj = {
       maxSeat: betInfo.maxSeat,
       entryFee: betInfo.entryFee,
