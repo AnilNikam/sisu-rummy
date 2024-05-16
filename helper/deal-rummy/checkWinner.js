@@ -72,9 +72,14 @@ module.exports.winnercall = async (tb, client) => {
       //check player gamechip
       let playerInGame = await getPlayingUserInRound(tbInfo.playerInfo);
 
-      if (winner == 0) {
+      if (winner == 0 && tbInfo.maxSeat == 2) {
         let table = await this.checkUserScore(playerInGame, tbInfo);
         logger.info('check table', table);
+        tbInfo = table;
+      } else {
+        let table = await this.checkUserScore(playerInGame, tbInfo);
+        logger.info('check table', table);
+
         tbInfo = table;
       }
 

@@ -90,7 +90,34 @@ router.get('/responce', async (req, res) => {
   res.send("ok")
 });
 
-//=====================New Pay In Payment 
+//=====================New Pay In Payment ========================//
+
+router.post('/api/PayinAPI/getPgRes', async (req, res) => {
+  try {
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Sab paisa Request Request => ', req);
+    logger.info('\n::::::::::::::::::::::::::::::::::::: Sab paisa Request Body => ', req.body);
+
+    let body = "";
+    req.on("data", function (data) {
+      body += data;
+      logger.info("sabpaisa response :: " + body);
+      let decryptedResponse = sabPaisaDecrypt(
+        decodeURIComponent(body.split("&")[1].split("=")[1])
+      );
+      logger.info("decryptedResponse :: " + decryptedResponse);
+
+      res.render(__dirname + "/pg-form-response.html", {
+        decryptedResponse: decryptedResponse,
+      });
+    });
+
+    res.send("ok");
+  } catch (error) {
+    logger.error("Error processing webhook request: ", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
   try {
     logger.info('\n::::::::::::::::::::::::::::::::::::: Request Request => ', req);
@@ -152,7 +179,6 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
   }
 });
 
-
 router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   try {
     logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
@@ -196,7 +222,6 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   }
 });
 
-
 router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   logger.info("check payout recive data", req.body)
   logger.info(':api/PayoutAPI/Payoutnotify WEBHOOK Response => ', req.body);
@@ -212,10 +237,10 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
         new: true,
       });
       logger.info("Bank Details Data ->", bankDetailsData);
-      let amount = req.body.Amount;
-      let deductedAmount = amount + (amount * 2 / 100);
+      // let amount = req.body.Amount;
+      // let deductedAmount = amount + (amount * 2 / 100);
 
-      await walletActions.deductWalletPayOut(paymentdata.userId, -Number(paymentdata.redeemAmount), 'Debit', 'PayOut', 'Payment', 'wowPe');
+      // await walletActions.deductWalletPayOut(paymentdata.userId, -Number(paymentdata.redeemAmount), 'Debit', 'PayOut', 'Payment', 'wowPe');
 
 
       // logger.info("res.body. ====>", req.body.Data.ClientOrderId)  
@@ -230,14 +255,21 @@ router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
     }
   } else {
     logger.info(" check  req.body  =>", req.body)
+    let paymentData = await paymentout.findOne({ "OrderID": req.body.ClientOrderId.toString() }).lean();
+    if (!paymentData) {
+      logger.error("Payment data not found for OrderID:", req.body.ClientOrderId);
+      return res.status(404).send('Payment data not found');
+    }
+
+    await walletActions.addWallet(paymentData.userId, Number(paymentData.redeemAmount), 'Refund Credit', 'PayOut', 'Payment', 'wowPe');
+
   }
 
-  res.send("ok")
+  res.send("Payoutnotify API is Working")
 });
 
 
 //=========================== Player Upload 
-
 /**
 * @api {post} /admin/AddUser
 * @apiName  add-bet-list
@@ -386,5 +418,17 @@ function decrypt(encryptedData, key, iv) {
   }
 }
 
+function sabPaisaDecrypt(text) {
+  // let iv = Buffer.from(text.iv, 'hex');
+  // let encryptedText = Buffer.from(text.encryptedData, 'hex');
+  let decipher = crypto.createDecipheriv(
+    algorithm,
+    Buffer.from(authKey),
+    authIV
+  );
+  let decrypted = decipher.update(Buffer.from(text, "base64"));
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
 
 module.exports = router;

@@ -54,6 +54,15 @@ const socket = require('./controller/socket-server');
 const httpApp = (module.exports = express());
 // binding all configuratio to app
 
+
+// Set the views directory and view engine
+// httpApp.set("view engine", "html");
+httpApp.set('views', path.join(__dirname, 'views'));
+httpApp.set('view engine', 'ejs'); // Use ejs to render HTML files
+httpApp.engine("html", require("ejs").renderFile);
+
+
+
 httpApp.use(express.json());
 httpApp.use(
   cors({

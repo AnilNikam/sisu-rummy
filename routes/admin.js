@@ -21,7 +21,7 @@ const notification = require('./admin/notification');
 const banner = require('./admin/banner');
 const bot = require('./admin/bot');
 const usertransction = require('./admin/usertransction');
-//const upi = require('./admin/upi');
+const payIn = require('./admin/payIn');
 const mail = require('./admin/Mail');
 const coin = require('./admin/coin');
 const bank = require('./admin/bank');
@@ -32,6 +32,7 @@ const paymentconfig = require('./admin/paymentconfig');
 
 
 router.use('/', auth);
+router.use('/pay', payIn);
 router.use('/lobbies', authMiddleware, bet);
 router.use('/pool-lobbies', authMiddleware, poolbetLists);
 router.use('/deal-lobbies', authMiddleware, dealbetLists);

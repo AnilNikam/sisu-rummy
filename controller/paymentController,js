@@ -5,9 +5,15 @@ const paymentout = mongoose.model('paymentout');
 const GameUser = mongoose.model('users');
 const crypto = require('crypto');
 const axios = require('axios');
-const commandAcions = require('../helper/socketFunctions');
+const commandActions = require('../helper/socketFunctions');
+const walletActions = require('../helper/common-function/walletTrackTransaction');
 const CONST = require('../constant');
 const logger = require('../logger');
+
+const algorithm = "aes-128-cbc";
+const authKey = "0jeOYcu3UnfmWyLC";
+const authIV = "C28LAmGxXTqmK0QJ";
+
 
 const PaymentInOrderCreate = {
     url: 'https://api.wowpe.in/api/GOrders/generateorder',
@@ -66,23 +72,23 @@ async function initiatePayment(requestData, socket) {
 
                     const responseDeep = await axios.post(PaymentInDeepLink.url, payloaddeeplink);
                     logger.info("response Deeplink ", responseDeep.data)
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
+                    commandActions.sendEvent(socket, CONST.PAY_IN, responseDeep.data);
 
                 } else {
-                    commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+                    commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
                 }
             } else {
-                commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
+                commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, response.data.message);
             }
         } else {
             logger.info("Data Not Insert ")
-            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+            commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
 
     } catch (error) {
         console.error('Error initiating payment:', error.response ? error.response.data : error.message);
 
-        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
 
         throw error; // Throw the error to be caught by the caller
     }
@@ -156,12 +162,12 @@ async function newInitiatePayment(requestData, socket) {
                     logger.info("final Response -> ", decryptedData);
 
                     if (decryptedData && decryptedData.AggRefNo !== undefined && decryptedData.AggRefNo !== null) {
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, decryptedData);
+                        commandActions.sendEvent(socket, CONST.PAY_IN, decryptedData);
                         let upOrderId = await paymentin.findOneAndUpdate({ _id: MongoID(paymentindata._id.toString()) }, { $set: { "OrderID": decryptedData.AggRefNo } }, { new: true });
                         logger.info("Update Order Id =>", upOrderId)
                     } else {
 
-                        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, decryptedData);
+                        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, decryptedData);
                     }
                 } else {
                     logger.info('Response data or respData not found:', response);
@@ -171,13 +177,80 @@ async function newInitiatePayment(requestData, socket) {
             }
         } else {
             logger.info("Data Not Insert ")
-            commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+            commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
         }
 
     } catch (error) {
         console.error('Error initiating payment:', error.response ? error.response.data : error.message);
 
-        commandAcions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+
+        throw error; // Throw the error to be caught by the caller
+    }
+}
+
+async function sabPaisaInitiatePayment(requestData, socket) {
+    try {
+        let payerName = requestData.customerName;
+        let payerEmail = requestData.customerEmail;
+        let payerMobile = requestData.customerPhone;
+        let clientTxnId = randomStr(20, "12345abcde");
+        let amount = requestData.amount;
+        let clientCode = "TM001";       // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+        let transUserName = "spuser_2013";      // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+        let transUserPassword = "RIADA_SP336";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+        const callbackUrl = "https://13.51.155.167:3001/admin/api/PayinAPI/getPgRes";
+        const channelId = "W";
+        const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; // Staging environment
+        //let spURL = "https://uatsp.sabpaisa.in/SabPaisa/sabPaisaInit"; // UAT environment
+        //  let spDomain = 'https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit'; // production environment
+
+        let mcc = "5666";
+        let transData = new Date();
+
+        let stringForRequest =
+            "payerName=" +
+            payerName +
+            "&payerEmail=" +
+            payerEmail +
+            "&payerMobile=" +
+            payerMobile +
+            "&clientTxnId=" +
+            clientTxnId +
+            "&amount=" +
+            amount +
+            "&clientCode=" +
+            clientCode +
+            "&transUserName=" +
+            transUserName +
+            "&transUserPassword=" +
+            transUserPassword +
+            "&callbackUrl=" +
+            callbackUrl +
+            "&channelId=" +
+            channelId +
+            "&mcc=" +
+            mcc +
+            "&transData=" +
+            transData;
+
+        logger.info("stringForRequest :: " + stringForRequest);
+
+        let encryptedStringForRequest = sabPaisaEncrypt(stringForRequest);
+        logger.info("encryptedStringForRequest :: " + encryptedStringForRequest);
+
+        const formData = {
+            spURL: spURL,
+            encData: encryptedStringForRequest,
+            clientCode: clientCode,
+        };
+
+        res.render(__dirname + "/pg-form-request.html", { formData: formData });
+
+    } catch (error) {
+        logger.error('Error sabpaisa initiating payment:', error.response ? error.response.data : error.message);
+
+        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
 
         throw error; // Throw the error to be caught by the caller
     }
@@ -200,15 +273,32 @@ async function PayOutTransfer(requestData, socket) {
 
         // Check if withdrawal amount is within the allowed range
         if (requestData.amount < 50 || requestData.amount > 1000) {
-            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal amount must be between 50 and 1000.");
+            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal amount must be between 50 and 1000.");
             return;
         }
 
         // Check if user has sufficient winning chips
         if (userDetails.winningChips < requestData.amount) {
-            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Insufficient Withdrawal Chips.");
+            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Insufficient Withdrawal Chips.");
             return;
         }
+
+        // Check the number of withdrawals made today
+        let startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        let endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+
+        let withdrawalCount = await paymentout.countDocuments({
+            userId: requestData.playerId,
+            createdAt: { $gte: startOfToday, $lte: endOfToday }
+        });
+        logger.info("withdrawalCount->", withdrawalCount)
+        if (withdrawalCount >= 5) {
+            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "You can only withdraw 5 times per day.");
+            return;
+        }
+
 
         let redeemAmount = requestData.amount
         const reference = generateReferenceNumber()
@@ -274,7 +364,13 @@ async function PayOutTransfer(requestData, socket) {
                     logger.info("payout  Update data ", Updatedata)
 
 
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data);
+                    commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data);
+
+                    //deduct user chips
+
+                    await walletActions.deductWalletPayOut(requestData.playerId, -Number(redeemAmount), 'Debit', 'PayOut', 'Payment', 'wowPe');
+
+
 
                 } else if (response.data.status == 2) {
                     logger.info("response elase 1 ", response.data)
@@ -282,19 +378,21 @@ async function PayOutTransfer(requestData, socket) {
                     const Updatedata = await paymentout.findOneAndUpdate({ _id: MongoID(paymentoutdata._id.toString()) }, { $set: { "OrderID": response.data.clientOrderId } }, {
                         new: true,
                     });
-                    logger.info("payout  Update data ", Updatedata)
+                    logger.info("payout Status Update data ", Updatedata)
 
-                    commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data);
+                    commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, response.data);
+                    await walletActions.deductWalletPayOut(requestData.playerId, -Number(redeemAmount), 'Debit', 'PayOut', 'Payment', 'wowPe');
+
                 }
 
             } else {
                 logger.info(" Response else ->", response.data)
-                commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data);
+                commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, response.data);
             }
         } else {
             logger.info("Data Not Insert ")
 
-            commandAcions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
+            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, {}, false, 'Something Went Wrong Please try again');
 
         }
 
@@ -386,6 +484,37 @@ function decrypt(encryptedData, key, iv) {
     }
 }
 
+
+function sabPaisaEncrypt(text) {
+    let cipher = crypto.createCipheriv(algorithm, Buffer.from(authKey), authIV);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return encrypted.toString("base64");
+}
+
+function sabPaisaDecrypt(text) {
+    // let iv = Buffer.from(text.iv, 'hex');
+    // let encryptedText = Buffer.from(text.encryptedData, 'hex');
+    let decipher = crypto.createDecipheriv(
+        algorithm,
+        Buffer.from(authKey),
+        authIV
+    );
+    let decrypted = decipher.update(Buffer.from(text, "base64"));
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
+
+//generate random string
+function randomStr(len, arr) {
+    let ans = "";
+    for (let i = len; i > 0; i--) {
+        ans += arr[Math.floor(Math.random() * arr.length)];
+    }
+    return ans;
+}
+
+
 module.exports = {
     initiatePayment,
     PayOutTransfer,
@@ -393,7 +522,10 @@ module.exports = {
     newInitiatePayment,
     generateReferenceNumber,
     encrypt,
-    decrypt
+    decrypt,
+    sabPaisaInitiatePayment,
+    sabPaisaEncrypt,
+    sabPaisaDecrypt
     // createPayout,
     // checkPayoutStatus,
     // getAccountBalance
