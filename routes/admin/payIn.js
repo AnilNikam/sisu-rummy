@@ -8,21 +8,32 @@ const algorithm = "aes-128-cbc";
 const authKey = "0jeOYcu3UnfmWyLC";
 const authIV = "C28LAmGxXTqmK0QJ";
 
-router.post("/initPgReq", (req, res) => {
+router.get("/initPgReq", (req, res) => {
     try {
-        logger.info("req.body-->", req.body);
-        let { customerName, customerEmail, customerPhone, customerAmount } = req.body
-        let payerName = customerName;
-        let payerEmail = customerEmail;
-        let payerMobile = customerPhone;
+        // logger.info("req.body-->", req.body);
+        // let { customerName, customerEmail, customerPhone, customerAmount } = req.body
+        // console.log("req.body ::::::::::::::::::", req.body)
+        // let payerName = customerName;
+        // let payerEmail = customerEmail;
+        // let payerMobile = customerPhone;
+
+
+        var payerName = "Name";
+        var payerEmail = "test@email.in";
+        var payerMobile = "1234567890";
+       
+
         let clientTxnId = randomStr(20, "12345abcde");
-        let amount = customerAmount;
+        let amount = parseInt(customerAmount);
         let clientCode = "TM001";       // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
         let transUserName = "spuser_2013";      // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
         let transUserPassword = "RIADA_SP336";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-        const callbackUrl = "http://192.168.0.105:3001/admin/pay/getPgRes";
+        const callbackUrl = "http://192.168.0.203:3001/admin/pay/getPgRes";
         const channelId = "W";
         const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; // Staging environment
+
+        // Live https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1
+
         //let spURL = "https://uatsp.sabpaisa.in/SabPaisa/sabPaisaInit"; // UAT environment
         //  let spDomain = 'https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit'; // production environment
 
