@@ -75,7 +75,7 @@ async function starPaisaPayment(requestData, socket) {
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Basic cmFodWxzaW5naGF4aXMxQGdtYWlsLmNvbTpUcmFpbkA0OTEwNzI='
+                            'Authorization': 'Basic aGFyc2hpdGhAaGFudXZlbC5jb206TGVnaXRwbGF5QDEy'
                         }
                     }
                 );
