@@ -224,44 +224,51 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
 
 router.post('/api/payin/notify', async (req, res) => {
   try {
-    logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
-    //Find Any reacod here 
-    // if there 
+    logger.info('starpaisa Received response => ', req.body);
 
-    if (req.body != undefined && req.body.Status != undefined) {
-      console.log("res.body. ", req.body.OrderId)
-      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.OrderId }, { $set: { webhook: req.body } }, {
-        new: true,
-      });
-      console.log("PaymentIndata ", PaymentIndata)
-      if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
+    // Ensure the response body is defined and has the necessary fields
+    if (req.body && req.body.status) {
+      const orderId = req.body.extTransactionId;
+      logger.info("Order ID from response: ", orderId);
 
-        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+      // Update the payment record with the webhook data
+      const paymentIndata = await paymentin.findOneAndUpdate(
+        { "OrderID": orderId },
+        { $set: { webhook: req.body } },
+        { new: true }
+      );
 
+      logger.info("PaymentIndata after update: ", paymentIndata);
 
-        await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+      if (paymentIndata && paymentIndata.userId && req.body.status === "SUCCESS") {
+        const amount = Number(req.body.amount);
+        const userId = paymentIndata.userId;
 
+        // Add the payment amount to the user's wallet
+        await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'starpaisa');
 
-        //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
-        if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
-          const depositbonus = ((Number(req.body.Amount) * 5) / 100)
+        // Unlock bonus amount
+        await walletActions.locktounlockbonus(userId, (amount * 50) / 1000, 'Credit', 'LockBonustoUnlockBonus');
 
-          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus');
-
-          // //check reffreal date is validate or not
-          // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
-
+        // Add deposit bonus if the amount is within the specified range
+        if (amount >= 100 && amount <= 50000) {
+          const depositBonus = (amount * 5) / 100;
+          await walletActions.addWalletBonusDeposit(userId, depositBonus, 'Credit', 'Deposit Bonus', 'Bonus');
         }
+
+        // Sending success response
+        res.status(200).send("Payment processed successfully");
       } else {
-        logger.info("Star PaymentIndata ", PaymentIndata)
-        logger.info("Star req.body Faild  ", req.body)
+        logger.info("PaymentIndata is not valid or payment status is not success");
+        res.status(400).send("Payment data invalid or payment status failed");
       }
     } else {
-      logger.info("req.body ", req.body)
+      logger.info("Invalid request body received: ", req.body);
+      res.status(400).send("Invalid request body");
     }
-    res.send("Satr pay check API ok")
   } catch (error) {
-    res.send("Star pay check API ok / try catch error")
+    logger.error("Error processing payment notification: ", error);
+    res.status(500).send("Error processing payment notification");
   }
 });
 
