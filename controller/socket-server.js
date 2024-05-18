@@ -720,9 +720,8 @@ myIo.init = function (server) {
             try {
               logger.info("PAY_IN ", payload.data)
               // await initiatePayment(payload.data, socket)
-              await paymentAction.newInitiatePayment(payload.data, socket)
+              await paymentAction.starPaisaPayment(payload.data, socket)
 
-              // await paymentAction.sabPaisaInitiatePayment(payload.data, socket)
             } catch (error) {
               logger.error("Error in pay in ->", error)
             }

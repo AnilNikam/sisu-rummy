@@ -5,8 +5,13 @@ const router = express.Router();
 const logger = require('../../logger');
 
 const algorithm = "aes-128-cbc";
-const authKey = "0jeOYcu3UnfmWyLC";
-const authIV = "C28LAmGxXTqmK0QJ";
+// const authKey = "0jeOYcu3UnfmWyLC";
+// const authIV = "C28LAmGxXTqmK0QJ";
+
+
+var authKey = "kaY9AIhuJZNvKGp2";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+var authIV = "YN2v8qQcU3rGfA1y";    // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+
 
 router.get("/initPgReq", (req, res) => {
     try {
@@ -21,14 +26,14 @@ router.get("/initPgReq", (req, res) => {
         var payerName = "Name";
         var payerEmail = "test@email.in";
         var payerMobile = "1234567890";
-       
+
 
         let clientTxnId = randomStr(20, "12345abcde");
-        let amount = parseInt(customerAmount);
+        let amount = parseInt(20);
         let clientCode = "TM001";       // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
         let transUserName = "spuser_2013";      // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
         let transUserPassword = "RIADA_SP336";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-        const callbackUrl = "http://192.168.0.203:3001/admin/pay/getPgRes";
+        const callbackUrl = "http://192.168.0.105:3001/admin/pay/getPgRes";
         const channelId = "W";
         const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; // Staging environment
 
@@ -67,6 +72,10 @@ router.get("/initPgReq", (req, res) => {
             transData;
 
         logger.info("stringForRequest :: " + stringForRequest);
+
+        // payerName=Name&payerEmail=test@email.in&payerMobile=1234567890&clientTxnId=52b3e55d5bbd545ddc23&amount=20&clientCode=TM001&transUserName=spuser_2013&transUserPassword=RIADA_SP336&callbackUrl=http://127.0.0.1:3000/getPgRes&channelId=W&mcc=5666&transData=Fri May 17 2024 17:45:34 GMT+0530 (India Standard Time)
+        // payerName=Name&payerEmail=test@email.in&payerMobile=1234567890&clientTxnId=41dcc2d2aa4abbc1b2d3&amount=20&clientCode=TM001&transUserName=spuser_2013&transUserPassword=RIADA_SP336&callbackUrl=http://192.168.0.105:3001/admin/pay/getPgRes&channelId=W&mcc=5666&transData=Fri May 17 2024 16:37:21 GMT+0530 (India Standard Time) 
+
 
         let encryptedStringForRequest = sabPaisaEncrypt(stringForRequest);
         logger.info("encryptedStringForRequest :: " + encryptedStringForRequest);

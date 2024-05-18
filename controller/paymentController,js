@@ -27,6 +27,95 @@ const PaymentInDeepLink = {
     secret_key: '04d34b84-e065-42a7-bbef-795965535275',
 };
 
+async function starPaisaPayment(requestData, socket) {
+    try {
+        logger.info("Initiate Payment requestData", requestData);
+
+        // Validate requestData
+        if (!requestData.amount || !requestData.playerId || !requestData.customerName || !requestData.customerEmail || !requestData.customerPhone) {
+            throw new Error('Missing required fields in requestData');
+        }
+
+        const amountNumber = parseFloat(requestData.amount);
+        if (isNaN(amountNumber) || amountNumber <= 0) {
+            throw new Error('Invalid amount value');
+        }
+
+        logger.info("Amount", amountNumber.toFixed(2));
+
+        const reference = generateReferenceNumber();
+        logger.info("Reference", reference);
+
+        const formattedDate = formatDate(new Date().toISOString());
+        logger.info("Formatted Date", formattedDate);
+
+        // Create payment record in database
+        const paymentData = await paymentin.create({
+            userId: requestData.playerId,
+            transactionId: reference,
+            name: requestData.customerName,
+            email: requestData.customerEmail,
+            phone: requestData.customerPhone,
+            amount: requestData.amount,
+            paymentGateway: 'starPaisa',
+            paymentStatus: "Pending"
+        });
+
+        if (paymentData) {
+            logger.info("Payload paymentData =>", paymentData);
+
+            const payload = { amount: requestData.amount };
+            const stringifiedPayload = JSON.stringify(payload);
+            logger.info("Stringified Payload Star pay payload =>", stringifiedPayload);
+
+            try {
+                const response = await axios.post(
+                    'https://api.starpaisa.in/v1/merchant/generateQR',
+                    stringifiedPayload,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Basic cmFodWxzaW5naGF4aXMxQGdtYWlsLmNvbTpUcmFpbkA0OTEwNzI='
+                        }
+                    }
+                );
+
+                const responseData = response.data;
+                logger.info('Response:', responseData);
+
+                if (responseData.statusCode === 200) {
+                    if (responseData.data.status === "SUCCESS") {
+                        commandActions.sendEvent(socket, CONST.PAY_IN, responseData.data, true, 'Payment initiated successfully');
+
+                        // Update OrderID in payment record
+                        const updatedOrder = await paymentin.findOneAndUpdate(
+                            { _id: paymentData._id },
+                            { $set: { "OrderID": responseData.data.extTransactionId } },
+                            { new: true }
+                        );
+                        logger.info("Updated Order ID =>", updatedOrder);
+                    } else {
+                        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, responseData.data.respMessage || 'Payment initiation failed');
+                    }
+                } else {
+                    commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, responseData.message || 'Something went wrong. Please try again');
+                }
+            } catch (error) {
+                logger.error("Payin error =>", error.response ? error.response.data : error.message);
+                commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something went wrong. Please try again');
+            }
+        } else {
+            logger.info("Data not inserted");
+            commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something went wrong. Please try again');
+        }
+
+    } catch (error) {
+        logger.error('Error initiating payment:', error.response ? error.response.data : error.message);
+        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something went wrong. Please try again');
+        throw error; // Throw the error to be caught by the caller if necessary
+    }
+}
+
 async function initiatePayment(requestData, socket) {
     try {
         logger.info("initiatePayment requestData ", requestData)
@@ -521,6 +610,7 @@ module.exports = {
     checkPayoutStatus,
     newInitiatePayment,
     generateReferenceNumber,
+    starPaisaPayment,
     encrypt,
     decrypt,
     sabPaisaInitiatePayment,

@@ -222,6 +222,49 @@ router.post('/api/PayinAPI/Payinnotify', async (req, res) => {
   }
 });
 
+router.post('/api/payin/notify', async (req, res) => {
+  try {
+    logger.info(':::::::::::::::::::::::::::::::::::::responce => ', req.body);
+    //Find Any reacod here 
+    // if there 
+
+    if (req.body != undefined && req.body.Status != undefined) {
+      console.log("res.body. ", req.body.OrderId)
+      const PaymentIndata = await paymentin.findOneAndUpdate({ "OrderID": req.body.OrderId }, { $set: { webhook: req.body } }, {
+        new: true,
+      });
+      console.log("PaymentIndata ", PaymentIndata)
+      if (PaymentIndata && PaymentIndata.userId && req.body.Status == "Success") {
+
+        await walletActions.addWalletPayin(PaymentIndata.userId, Number(req.body.Amount), 'Credit', 'PayIn');
+
+
+        await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(req.body.Amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+
+
+        //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
+        if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
+          const depositbonus = ((Number(req.body.Amount) * 5) / 100)
+
+          await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus');
+
+          // //check reffreal date is validate or not
+          // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+
+        }
+      } else {
+        logger.info("Star PaymentIndata ", PaymentIndata)
+        logger.info("Star req.body Faild  ", req.body)
+      }
+    } else {
+      logger.info("req.body ", req.body)
+    }
+    res.send("Satr pay check API ok")
+  } catch (error) {
+    res.send("Star pay check API ok / try catch error")
+  }
+});
+
 router.post('/api/PayoutAPI/Payoutnotify', async (req, res) => {
   logger.info("check payout recive data", req.body)
   logger.info(':api/PayoutAPI/Payoutnotify WEBHOOK Response => ', req.body);
