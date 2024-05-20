@@ -326,13 +326,6 @@ async function sabPaisaInitiatePayment(requestData, socket) {
     } catch (error) {
         logger.error('Error sabpaisa initiating payment:', error.response ? error.response.data : error.message);
 
-        commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
-            success: 0,
-            msg: 'Something went wrong, please try again',
-            error: error.response ? error.response.data : error.message
-        });
-
-        throw error; // Throw the error to be caught by the caller
     }
 }
 

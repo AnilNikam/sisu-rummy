@@ -731,7 +731,7 @@ myIo.init = function (server) {
           case CONST.SAB_PAISA_PAY_IN: {
             try {
               logger.info("SAB PAISA ", payload.data)
-              await paymentAction.starPaisaPayment(payload.data, socket)
+              await paymentAction.sabPaisaInitiatePayment(payload.data, socket)
 
             } catch (error) {
               logger.error("Error in pay in ->", error)
