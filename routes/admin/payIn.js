@@ -9,8 +9,8 @@ const algorithm = "aes-128-cbc";
 // const authIV = "C28LAmGxXTqmK0QJ";
 
 
-var authKey = "kaY9AIhuJZNvKGp2";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-var authIV = "YN2v8qQcU3rGfA1y";    // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+const authKey = "kaY9AIhuJZNvKGp2";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+const authIV = "YN2v8qQcU3rGfA1y";    // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
 
 
 router.get("/initPgReq", (req, res) => {

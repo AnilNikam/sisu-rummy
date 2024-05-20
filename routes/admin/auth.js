@@ -15,6 +15,10 @@ const paymentout = mongoose.model('paymentout');
 const walletActions = require('../../helper/common-function/walletTrackTransaction');
 
 
+const algorithm = "aes-128-cbc";
+var authKey = "lkU9sJ0DHNpndM7X";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+var authIV = "cOWq9Me7qwUJ3lfu";    // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
+
 /**
  * @api {post} /admin/signup-admin
  * @apiName  register admin
@@ -92,7 +96,7 @@ router.get('/responce', async (req, res) => {
 
 //=====================New Pay In Payment ========================//
 
-router.post('/api/PayinAPI/getPgRes', async (req, res) => {
+router.post('/pay/sabpaisa/getPgRes', async (req, res) => {
   try {
     logger.info('\n::::::::::::::::::::::::::::::::::::: Sab paisa Request Request => ', req);
     logger.info('\n::::::::::::::::::::::::::::::::::::: Sab paisa Request Body => ', req.body);

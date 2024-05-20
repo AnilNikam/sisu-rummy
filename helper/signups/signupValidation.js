@@ -476,12 +476,25 @@ const OKYCRequest = async (requestBody, socket) => {
     //username get from request data
     logger.info("OKYCRequest Request Body -->", requestBody)
 
+    const wh = { _id: commonHelper.strToMongoDb(requestBody.playerId.toString()) };
+    const userdet = await Users.findOne(wh, {}).lean();
+    logger.info("OKYCRequest Request Body userdet -->", userdet);
+
+    if (!userdet) {
+      logger.error("User not found for the given criteria:", wh);
+      throw new Error("User not found");
+    }
+
+    const { username } = userdet; // Destructure userName and provide a default empty string if undefined
+
     let okyc = {
       userId: OBJECT_ID(requestBody.playerId.toString()),
       adharcard: requestBody.customer_aadhaar_number,
       verified: false,
-      userName: requestBody.userName != undefined ? requestBody.userName : "",
+      userName: username,
     }
+
+    logger.error("okyc criteria:", okyc);
 
     const isverified = await otpAdharkyc.find({ userId: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, {})
     const findadharcard = await otpAdharkyc.find({ adharcard: requestBody.customer_aadhaar_number }, {})
@@ -567,13 +580,10 @@ const OKYCRequest = async (requestBody, socket) => {
 
 
   } catch (error) {
-    console.log("error", error)
     if (error.response)
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
     else {
       commandAcions.sendEvent(socket, CONST.CHECK_KYC_ADHARA_NUMBER, { success: 0, msg: "Fail", status: error.response.data.response_code, statusText: error.response.data.response_message });
-
-
 
     }
   }
@@ -739,6 +749,17 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
 
         );
       } else {
+        const wh = { _id: commonHelper.strToMongoDb(requestBody.playerId.toString()) };
+        const userdet = await Users.findOne(wh, {}).lean();
+        logger.info("OKYCRequest Request Body userdet -->", userdet);
+
+        if (!userdet) {
+          logger.error("User not found for the given criteria:", wh);
+          throw new Error("User not found");
+        }
+
+        const { username } = userdet
+
         const insertt = await otpAdharkyc.create({
           userId: OBJECT_ID(requestBody.playerId.toString()),
           pancard: requestBody.pancard,
@@ -746,7 +767,7 @@ const OKYCPanverifyRequest = async (requestBody, socket) => {
           pancardverified: true,
           panInfo: response.data.result,
           pancardfrontimages: requestBody.pancardfrontimages,
-          userName: requestBody.userName != undefined ? requestBody.userName : "",
+          userName: username,
         });
 
         console.log("insertt ", insertt)
