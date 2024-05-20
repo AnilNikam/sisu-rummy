@@ -250,7 +250,7 @@ const registerUser = async (requestBody, socket) => {
     if (loginType === 'Mobile') {
       const query = { mobileNumber: mobileNumber };
       let result = await Users.findOne(query, {});
-      console.log("result.result ",result)
+      console.log("result.result ", result)
       if (!result) {
         // if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
         //   if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
@@ -474,6 +474,7 @@ const OKYCRequest = async (requestBody, socket) => {
   try {
 
     //username get from request data
+    logger.info("OKYCRequest Request Body -->", requestBody)
 
     let okyc = {
       userId: OBJECT_ID(requestBody.playerId.toString()),
@@ -685,9 +686,9 @@ const OKYCverifyRequest = async (requestBody, socket) => {
  */
 const OKYCPanverifyRequest = async (requestBody, socket) => {
   try {
+    logger.info("OKYCPanverifyRequest Request Body -->", requestBody)
 
     const findadharcard = await otpAdharkyc.find({ userId: { $ne: commonHelper.strToMongoDb(requestBody.playerId.toString()) }, pancard: requestBody.pancard }, {})
-
 
     if (findadharcard.length != 0) {
       commandAcions.sendEvent(socket, CONST.VERIFY_KYC_PAN_CARD, { success: 0, msg: "Fail", status: "001", statusText: "Already Pan Card Use ...!!!" });

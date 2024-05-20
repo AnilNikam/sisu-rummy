@@ -451,8 +451,8 @@ router.get('/kycInfoList', async (req, res) => {
         } else {
 
             wh = {
-                $or: [{ verified: false, adharcard: { $ne: "" }, adharcardadminverified: false },
-                { pancardverified: false, pancard: { $ne: "" }, pancardadminverified: false }
+                $or: [{ verified: false, adharcardadminverified: false },
+                { pancardverified: false, pancardadminverified: false }
 
                 ]
             }

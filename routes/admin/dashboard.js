@@ -5,6 +5,7 @@ const Transaction = mongoose.model('Transaction');
 const playingTables = mongoose.model('playingTable');
 const GamePlayTrack = mongoose.model('gamePlayTracks');
 const TableHistory = mongoose.model('tableHistory');
+const Paymentouts = mongoose.model('paymentouts');
 const Commission = mongoose.model('commissions');
 const Users = mongoose.model('users');
 const config = require('../../config');
@@ -278,21 +279,36 @@ router.get('/', async (req, res) => {
 
     const totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total.toFixed(2) : 0;
 
-    let totalWithdrawData = await UserWalletTracks.aggregate([
+    let totalWithdrawData = await Paymentouts.aggregate([
       {
         $match: {
-          "transTypeText": "PayOut"
+          "paymentStatus": "Approved"
         }
       },
       {
         $group: {
           _id: 'null',
           total: {
-            $sum: '$transAmount'
+            $sum: '$amount'
           }
         }
       }
     ]);
+    // let totalWithdrawData = await UserWalletTracks.aggregate([
+    //   {
+    //     $match: {
+    //       "transTypeText": "PayOut"
+    //     }
+    //   },
+    //   {
+    //     $group: {
+    //       _id: 'null',
+    //       total: {
+    //         $sum: '$transAmount'
+    //       }
+    //     }
+    //   }
+    // ]);
     logger.info("totalWithdrawData ", totalWithdrawData)
 
 
@@ -318,23 +334,42 @@ router.get('/', async (req, res) => {
 
     const todayDeposit = todayDepositDataToday.length > 0 ? todayDepositDataToday[0].total.toFixed(2) : 0;
 
-    let todayWithdrawDataToday = await UserWalletTracks.aggregate([
+    // let todayWithdrawDataToday = await UserWalletTracks.aggregate([
+    //   {
+    //     $match: {
+    //       "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
+    //       "transTypeText": "PayOut"
+    //     }
+    //   },
+    //   {
+    //     $group: {
+    //       _id: 'null',
+    //       total: {
+    //         $sum: '$transAmount'
+    //       }
+    //     }
+    //   }
+    // ]);
+    // logger.info("todayWithdrawDataToday ", todayWithdrawDataToday)
+
+
+    let todayWithdrawDataToday = await Paymentouts.aggregate([
       {
         $match: {
           "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
-          "transTypeText": "PayOut"
+          "paymentStatus": "Approved"
         }
       },
       {
         $group: {
           _id: 'null',
           total: {
-            $sum: '$transAmount'
+            $sum: '$amount'
           }
         }
       }
     ]);
-    logger.info("todayWithdrawDataToday ", todayWithdrawDataToday)
+    logger.info("todayWithdrawDataToday ==>", todayWithdrawDataToday)
 
     const todayWithdraw = todayWithdrawDataToday.length > 0 ? todayWithdrawDataToday[0].total.toFixed(2) : 0
 
@@ -377,7 +412,7 @@ router.get('/latatestUser', async (req, res) => {
   try {
     //console.info('requet => ', req);
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
-    const RecentUser = await Users.find({"isBot" : false, createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
+    const RecentUser = await Users.find({ "isBot": false, createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
 
     logger.info('admin/latatestUser => ', RecentUser);
 
@@ -424,8 +459,8 @@ router.get('/latatestUserStatewise', async (req, res) => {
         }
       },
       {
-        $sort:{
-          total:-1
+        $sort: {
+          total: -1
         }
       }
     ]);

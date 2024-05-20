@@ -247,6 +247,13 @@ router.post('/api/payin/notify', async (req, res) => {
         // Add the payment amount to the user's wallet
         await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'starpaisa');
 
+        const pupdateStatus = await paymentin.findOneAndUpdate(
+          { "OrderID": orderId },
+          { $set: { paymentStatus: 'Successful' } },
+          { new: true }
+        );
+        logger.info("pupdateStatus after update: ", pupdateStatus);
+
         // Unlock bonus amount
         await walletActions.locktounlockbonus(userId, (amount * 50) / 1000, 'Credit', 'LockBonustoUnlockBonus');
 
