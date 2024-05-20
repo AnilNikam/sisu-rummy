@@ -283,25 +283,23 @@ async function sabPaisaInitiatePayment(requestData, socket) {
         // Log the incoming request data
         logger.info("sabPaisaInitiatePayment requestData =>", requestData);
 
-        // Generate a unique transaction reference (assuming `reference` is a globally available variable or generated within this scope)
-        const reference = "your_unique_reference_generation_logic"; // Replace with actual logic
-
         // Create a payment record in the database
         const paymentindata = await paymentin.create({
             userId: requestData.playerId,
-            transactionId: reference,
+            transactionId: requestData.clientTxnId,
             name: requestData.payerName,
             email: requestData.payerEmail,
             phone: requestData.payerMobile,
             amount: requestData.amount,
             paymentGateway: 'sabpaisa',
-            paymentStatus: requestData.status
+            paymentStatus: requestData.status,
+            OrderID: requestData.sabpaisaTxnId
         });
 
         logger.info("sab paisa paymentindata=>", paymentindata);
 
         // Check the payment status and handle success or failure accordingly
-        if (paymentindata && paymentindata.userId && requestData.status === "SUCCESS") {
+        if (requestData.status === "SUCCESS") {
             const amount = Number(requestData.amount);
             const userId = paymentindata.userId;
 
