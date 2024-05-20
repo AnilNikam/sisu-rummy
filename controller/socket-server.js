@@ -728,6 +728,17 @@ myIo.init = function (server) {
             break;
           }
 
+          case CONST.SAB_PAISA_PAY_IN: {
+            try {
+              logger.info("SAB PAISA ", payload.data)
+              await paymentAction.starPaisaPayment(payload.data, socket)
+
+            } catch (error) {
+              logger.error("Error in pay in ->", error)
+            }
+            break;
+          }
+
           case CONST.CREATE_PAY_OUT: {
             try {
               await PayOutTransfer(payload.data, socket)

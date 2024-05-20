@@ -280,66 +280,59 @@ async function newInitiatePayment(requestData, socket) {
 
 async function sabPaisaInitiatePayment(requestData, socket) {
     try {
-        let payerName = requestData.customerName;
-        let payerEmail = requestData.customerEmail;
-        let payerMobile = requestData.customerPhone;
-        let clientTxnId = randomStr(20, "12345abcde");
-        let amount = requestData.amount;
-        let clientCode = "TM001";       // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-        let transUserName = "spuser_2013";      // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-        let transUserPassword = "RIADA_SP336";   // Please use the credentials shared by your Account Manager  If not, please contact your Account Manage
-        const callbackUrl = "https://13.51.155.167:3001/admin/api/PayinAPI/getPgRes";
-        const channelId = "W";
-        const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; // Staging environment
-        //let spURL = "https://uatsp.sabpaisa.in/SabPaisa/sabPaisaInit"; // UAT environment
-        //  let spDomain = 'https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit'; // production environment
+        // Log the incoming request data
+        logger.info("sabPaisaInitiatePayment requestData =>", requestData);
 
-        let mcc = "5666";
-        let transData = new Date();
+        // Generate a unique transaction reference (assuming `reference` is a globally available variable or generated within this scope)
+        const reference = "your_unique_reference_generation_logic"; // Replace with actual logic
 
-        let stringForRequest =
-            "payerName=" +
-            payerName +
-            "&payerEmail=" +
-            payerEmail +
-            "&payerMobile=" +
-            payerMobile +
-            "&clientTxnId=" +
-            clientTxnId +
-            "&amount=" +
-            amount +
-            "&clientCode=" +
-            clientCode +
-            "&transUserName=" +
-            transUserName +
-            "&transUserPassword=" +
-            transUserPassword +
-            "&callbackUrl=" +
-            callbackUrl +
-            "&channelId=" +
-            channelId +
-            "&mcc=" +
-            mcc +
-            "&transData=" +
-            transData;
+        // Create a payment record in the database
+        const paymentindata = await paymentin.create({
+            userId: requestData.playerId,
+            transactionId: reference,
+            name: requestData.payerName,
+            email: requestData.payerEmail,
+            phone: requestData.payerMobile,
+            amount: requestData.amount,
+            paymentGateway: 'sabpaisa',
+            paymentStatus: requestData.status
+        });
 
-        logger.info("stringForRequest :: " + stringForRequest);
+        logger.info("sab paisa paymentindata=>", paymentindata);
 
-        let encryptedStringForRequest = sabPaisaEncrypt(stringForRequest);
-        logger.info("encryptedStringForRequest :: " + encryptedStringForRequest);
+        // Check the payment status and handle success or failure accordingly
+        if (paymentindata && paymentindata.userId && requestData.status === "SUCCESS") {
+            const amount = Number(requestData.amount);
+            const userId = paymentindata.userId;
 
-        const formData = {
-            spURL: spURL,
-            encData: encryptedStringForRequest,
-            clientCode: clientCode,
-        };
+            // Add the payment amount to the user's wallet
+            await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'sabPaisa');
 
-        res.render(__dirname + "/pg-form-request.html", { formData: formData });
-
+            // Notify the user of successful payment
+            // commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
+            //     success: 1,
+            //     msg: "Payment successful",
+            //     status: requestData.status,
+            //     amount: requestData.amount
+            // });
+        }// else {
+        //     // Handle failure scenarios
+        //     commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
+        //         success: 0,
+        //         msg: "Payment failed or aborted",
+        //         status: requestData.status,
+        //         errorCode: requestData.sabpaisaErrorCode,
+        //         errorMessage: requestData.sabpaisaMessage
+        //     });
+        // }
     } catch (error) {
         logger.error('Error sabpaisa initiating payment:', error.response ? error.response.data : error.message);
 
-        commandActions.sendEvent(socket, CONST.PAY_IN, {}, false, 'Something Went Wrong Please try again');
+        commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
+            success: 0,
+            msg: 'Something went wrong, please try again',
+            error: error.response ? error.response.data : error.message
+        });
 
         throw error; // Throw the error to be caught by the caller
     }

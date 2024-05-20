@@ -205,6 +205,7 @@ const CONST = {
   BANK_ACCOUNT_VERIFY: 'BANKVERIFY',
   GET_STATE_LIST: 'GSL',
   USER_UPDATE_STATE: 'US',
+  SAB_PAISA_PAY_IN: 'SAB_PAISA',
 
   // Timer
   userTurnTimer: 30,
