@@ -687,7 +687,7 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
     }
     // console.log("tbl.sckId ", tbl.sckId)
 
-    const userSocketId = socket ? socket : user.sckId;
+    const userSocketId = socket ? socket.id : user.sckId;
     logger.info("userSocketId ==>", userSocketId)
 
     if (userSocketId) {
