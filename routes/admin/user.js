@@ -32,7 +32,7 @@ router.get('/UserList', async (req, res) => {
             username: 1, avatar: 1, profileUrl: 1, winningChips: 1, bonusChips: 1, id: 1, email: 1, uniqueId: 1, name: 1,
             "blackandwhite.totalMatch": 1, "aviator.totalMatch": 1, mobileNumber: 1, "counters.totalMatch": 1, isVIP: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1
         }).sort({ createdAt: -1 })
-        logger.info('UserList=> ', userList);
+        // logger.info('UserList=> ', userList);
 
         res.json({ userList });
     } catch (error) {
@@ -56,7 +56,7 @@ router.get('/UserData', async (req, res) => {
         //userInfo
         const userInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) }, { name: 1, winningChips: 1, bonusChips: 1, username: 1, id: 1, loginType: 1, profileUrl: 1, mobileNumber: 1, email: 1, uniqueId: 1, "counters.totalMatch": 1, deviceType: 1, location: 1, chips: 1, referralCode: 1, createdAt: 1, lastLoginDate: 1, status: 1, avatar: 1, isBlock: 1 })
 
-        console.log("userInfo :::::::::::::::::::", userInfo)
+        logger.info("userInfo :::::::::::::::::::", userInfo)
 
         userInfo.winningChips = userInfo.winningChips != undefined ? userInfo.winningChips.toFixed(2) : 0
         userInfo.bonusChips = userInfo.bonusChips != undefined ? userInfo.bonusChips.toFixed(2) : 0
@@ -70,7 +70,7 @@ router.get('/UserData', async (req, res) => {
                 "userInfo": 1, "DOB": 1, adharcardfrontimages: 1, adharcardbackimages: 1,
                 pancardname: 1, pancardfrontimages: 1, pancard: 1, "panInfo": 1, pancardverified: 1, panHypervergemark: 1, pancardadminverified: 1, adminremark: 1, adminname: 1
             })
-        console.log("UserOKYC", UserOKYC)
+        logger.info("UserOKYC", UserOKYC)
 
         let UserOKYCData = {
             adharcard: " - ",
@@ -184,7 +184,6 @@ router.get('/BankData', async (req, res) => {
 */
 router.get('/DeviceData', async (req, res) => {
     try {
-        console.log("fdffffffffffffffffffffffffffffffffffffffffffffff DeviceData")
         //userInfo
         const userDecviceInfo = await Users.findOne({ _id: new mongoose.Types.ObjectId(req.query.userId) },
             {
@@ -295,7 +294,7 @@ router.delete('/DeleteUser/:id', async (req, res) => {
 */
 router.put('/addMoney', async (req, res) => {
     try {
-        console.log("Add Money =>", req.body)
+        logger.info("Add Money =>", req.body)
 
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
         if (req.body.userId != undefined
@@ -317,7 +316,7 @@ router.put('/addMoney', async (req, res) => {
 
             res.json({ status: "ok" });
         } else {
-            console.log("false")
+            logger.info("false")
             res.json({ status: false });
         }
 
@@ -404,7 +403,7 @@ router.put('/deductMoney', async (req, res) => {
 */
 router.put('/blockandunblock', async (req, res) => {
     try {
-        console.log("blockandunblock ", req.body)
+        logger.info("blockandunblock ", req.body)
         //const RecentUser = //await Users.deleteOne({_id: new mongoose.Types.ObjectId(req.params.id)})
 
         if (req.body.userId != undefined && req.body.isblock != undefined) {
@@ -413,7 +412,7 @@ router.put('/blockandunblock', async (req, res) => {
 
             res.json({ status: "ok" });
         } else {
-            console.log("false")
+            logger.info("false")
             res.json({ status: false });
         }
 
@@ -483,7 +482,7 @@ router.get('/kycInfoList', async (req, res) => {
 router.put('/KycUpdate', async (req, res) => {
     try {
 
-        console.log("req ", req.body)
+        logger.info("req ", req.body)
         //currently send rendom number and generate 
         let response = {
             $set: {
@@ -495,9 +494,9 @@ router.put('/KycUpdate', async (req, res) => {
             }
         }
 
-        console.log("response ", response)
+        logger.info("response ", response)
 
-        console.log("response ", req.body)
+        logger.info("response ", req.body)
 
 
         const userInfo = await otpAdharkyc.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
@@ -524,7 +523,7 @@ router.put('/KycUpdate', async (req, res) => {
 router.put('/KYCUpdateprofile', async (req, res) => {
     try {
 
-        console.log("req ", req.body)
+        logger.info("req ", req.body)
 
         if (req.body.name == undefined || req.body.name == null || req.body.name == "" ||
             req.body.adharcard == undefined || req.body.adharcard == null || req.body.adharcard == "" ||
@@ -549,9 +548,9 @@ router.put('/KYCUpdateprofile', async (req, res) => {
             }
         }
 
-        console.log("response ", response)
+        logger.info("response ", response)
 
-        console.log("response ", req.body)
+        logger.info("response ", req.body)
 
 
         const userInfo = await otpAdharkyc.findOneAndUpdate({ userId: new mongoose.Types.ObjectId(req.body.userId) }, response, { new: true });
@@ -619,7 +618,7 @@ router.get('/ReferralList', async (req, res) => {
 
 
         for (var i = 0; i < ReferralList.length; i++) {
-            console.log("ReferralList ::::::::::::::::", ReferralList[i])
+            logger.info("ReferralList ::::::::::::::::", ReferralList[i])
 
             ReferralList[i].userName = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].name != undefined) ? ReferralList[i].results[0].name : ""
             ReferralList[i].totalbonus = (ReferralList[i].results.length > 0 && ReferralList[i].results[0].reffralStatus != undefined) ?
@@ -632,7 +631,7 @@ router.get('/ReferralList', async (req, res) => {
             delete ReferralList[i].results
 
         }
-        console.log("ReferralList ", ReferralList)
+        logger.info("ReferralList ", ReferralList)
 
         res.json({ ReferralList });
 
@@ -672,10 +671,10 @@ router.get('/ReferralListUserWise', async (req, res) => {
             }
         ]);
 
-        console.log("ReferralListDAta ", ReferralListData)
+        logger.info("ReferralListDAta ", ReferralListData)
 
         for (var i = 0; i < ReferralListData.length; i++) {
-            console.log("ReferralListData ::::::::::::::::", ReferralListData[i].results)
+            logger.info("ReferralListData ::::::::::::::::", ReferralListData[i].results)
 
             ReferralListData[i].name = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0].name != undefined) ? ReferralListData[i].results[0].name : ""
             ReferralListData[i]._id = (ReferralListData[i].results.length > 0 && ReferralListData[i].results[0]._id != undefined) ? ReferralListData[i].results[0]._id : ""
@@ -686,7 +685,7 @@ router.get('/ReferralListUserWise', async (req, res) => {
 
         }
 
-        console.log("ReferralListDAta ", ReferralListData)
+        logger.info("ReferralListDAta ", ReferralListData)
 
 
         res.json({ ReferralListData });

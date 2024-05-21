@@ -687,12 +687,17 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
     }
     // console.log("tbl.sckId ", tbl.sckId)
 
-    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
-    const formattedBalance = totalChips.toFixed(2);
+    const userSocketId = socket ? socket : user.sckId;
+    logger.info("userSocketId ==>", userSocketId)
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+    if (userSocketId) {
+      const totalChips = Number(user.chips) + Number(user.winningChips) + Number(user.bonusChips) + Number(user.lockbonusChips);
+      const formattedBalance = totalChips.toFixed(2);
 
-    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
+      commandAcions.sendDirectEvent(userSocketId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+    } else {
+      logger.info(`Socket ID not found for user: ${user._id}`);
+    }
 
     return totalRemaningAmount;
   } catch (e) {

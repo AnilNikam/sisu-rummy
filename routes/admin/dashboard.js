@@ -8,6 +8,7 @@ const TableHistory = mongoose.model('tableHistory');
 const Paymentouts = mongoose.model('paymentout');
 const Commission = mongoose.model('commissions');
 const Users = mongoose.model('users');
+const moment = require('moment');
 const config = require('../../config');
 const commonHelper = require('../../helper/commonHelper');
 const logger = require('../../logger');
@@ -260,6 +261,12 @@ router.get('/', async (req, res) => {
     const totalUser = await Users.find({ isBot: false }).count()
     let lastdate = AddTime(-86000)
 
+    const startOfDay = moment().startOf('day').toDate();
+    const endOfDay = moment().endOf('day').toDate();
+
+    logger.info("startOfDay ->", startOfDay)
+    logger.info("endOfDay ->", endOfDay)
+
     let totalDepositData = await UserWalletTracks.aggregate([
       {
         $match: {
@@ -317,13 +324,13 @@ router.get('/', async (req, res) => {
     let todayDepositDataToday = await UserWalletTracks.aggregate([
       {
         $match: {
-          "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
+          "createdAt": { $gte: startOfDay, $lte: endOfDay },
           "transTypeText": "PayIn"
         }
       },
       {
         $group: {
-          _id: 'null',
+          _id: null,
           total: {
             $sum: '$transAmount'
           }
@@ -356,7 +363,7 @@ router.get('/', async (req, res) => {
     let todayWithdrawDataToday = await Paymentouts.aggregate([
       {
         $match: {
-          "createdAt": { $gte: new Date(lastdate), $lte: new Date() },
+          "createdAt": { $gte: startOfDay, $lte: endOfDay },
           "paymentStatus": "Approved"
         }
       },
@@ -414,7 +421,7 @@ router.get('/latatestUser', async (req, res) => {
     let t = new Date().setSeconds(new Date().getSeconds() - 604800);
     const RecentUser = await Users.find({ "isBot": false, createdAt: { $gte: new Date(t) } }, { name: 1, id: 1, createdAt: 1 }).sort({ createdAt: -1 })
 
-    logger.info('admin/latatestUser => ', RecentUser);
+    // logger.info('admin/latatestUser => ', RecentUser);
 
     res.json({ RecentUser });
   } catch (error) {

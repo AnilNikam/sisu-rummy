@@ -13,7 +13,7 @@ const TransactionSchema = new Schema(
     amount: { type: Number, required: true },
     paymentStatus: {
       type: String,
-      enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'FAILED', 'approve', 'Cancelled', 'Approved', 'Rejected', 'SUCCESS'],
+      enum: ['successful', 'success', 'Pending', 'pending', 'failed', 'Successful', 'approve', 'Cancelled', 'Approved', 'Rejected', 'SUCCESS', 'ABORTED', 'INITIATED', 'FAILED'],
       default: 'Pending',
     },
     OrderID: { type: String, default: '' },
