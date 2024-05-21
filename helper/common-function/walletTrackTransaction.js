@@ -356,7 +356,7 @@ module.exports.addWalletWinningPayin = async (id, addCoins, tType, t, Wtype, tab
 };
 
 //Depotit Chips 
-module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGateway, tabInfo) => {
+module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGateway, socket) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -382,10 +382,10 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGat
     logger.info('\n Add* Wallet setInfo :: ==>', setInfo);
     logger.info('\n Add* Wallet addedCoins :: ==>', addedCoins);
 
-    let tbl = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
-    logger.info('\n Add Wallet up Reps :::: ', tbl);
+    let user = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
+    logger.info('\n Add Wallet up Reps :::: ', user);
 
-    let totalRemaningAmount = Number(tbl.chips);
+    let totalRemaningAmount = Number(user.chips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
     if (typeof tType !== 'undefined' && !userInfo.isBot) {
@@ -393,16 +393,16 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGat
 
       let walletTrack = {
         // id: userInfo._id,
-        uniqueId: tbl.uniqueId,
-        userId: tbl._id,
-        username: tbl.name,
+        uniqueId: user.uniqueId,
+        userId: user._id,
+        username: user.name,
         transType: tType,
         transTypeText: t,
         transAmount: addedCoins,
-        chips: tbl.chips,
-        winningChips: tbl.winningChips,
-        bonusChips: tbl.bonusChips,
-        lockbonusChips: tbl.lockbonusChips,
+        chips: user.chips,
+        winningChips: user.winningChips,
+        bonusChips: user.bonusChips,
+        lockbonusChips: user.lockbonusChips,
         totalBucket: Number(totalRemaningAmount),
         type: Wtype,
         paymentGateway: paymentGateway !== undefined ? paymentGateway : 'null',
@@ -414,11 +414,14 @@ module.exports.addWalletPayin = async (id, addCoins, tType, t, Wtype, paymentGat
       };
       await this.trackUserWallet(walletTrack);
     }
-    // console.log("tbl.sckId ", tbl.sckId)
-    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
+
+    logger.info("user.sckId ", user.sckId)
+    logger.info("sckId ", socket)
+
+    const totalChips = Number(user.chips) + Number(user.winningChips) + Number(user.bonusChips) + Number(user.lockbonusChips);
     const formattedBalance = totalChips.toFixed(2);
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+    commandAcions.sendDirectEvent(user.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
 
     // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
 

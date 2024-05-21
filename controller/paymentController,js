@@ -304,7 +304,7 @@ async function sabPaisaInitiatePayment(requestData, socket) {
             const userId = paymentindata.userId;
 
             // Add the payment amount to the user's wallet
-            await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'sabPaisa');
+            await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'sabPaisa', socket);
 
             // Notify the user of successful payment
             // commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
