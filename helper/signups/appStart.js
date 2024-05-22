@@ -23,26 +23,20 @@ module.exports.appLunchDetails = async (requestData, client) => {
         if (result.appVersion !== GAMELOGICCONFIG.App_Version) {
           let response = { valid: false, msg: 'Update! Upgrade Your App' };
           commandAcions.sendEvent(client, CONST.APP_UPDATE, response);
+          logger.info("Update! Upgrade Your App")
           // return false
         } else {
           // App version is up to date
           let response = { valid: true, msg: 'App Already Updated' };
           commandAcions.sendEvent(client, CONST.APP_UPDATE, response);
+          logger.info("App Already Updated")
           // You can add any additional logic here if needed
         }
       } else {
-        await GameUser.findOneAndUpdate(query, { $set: { appVersion: appVersion } }, { new: true }).lean();
+        const us = await GameUser.findOneAndUpdate(query, { $set: { appVersion: appVersion } }, { new: true }).lean();
+        logger.info("App Update --User ->", us)
       }
 
-      //user connect sckId store
-      //disconnect when null
-
-      // if (result.sckId && result.sckId !== client.id) {
-      //   // User is already logged in from another device
-      //   commandAcions.sendEvent(client, CONST.ALREADY_PLAYER_AXIST);
-      //   logger.info("check socket id unatched ");
-      //   return; // Stop further execution
-      // }
 
       // Update user session with new socket id
       await this.userSesssionSet(result, client);
