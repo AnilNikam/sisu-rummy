@@ -15,7 +15,7 @@ module.exports.appLunchDetails = async (requestData, client) => {
     let { playerId, appVersion/*, deviceId, loginType, email*/ } = requestData;
     let query = { _id: playerId.toString() };
     let result = await GameUser.findOne(query, {}).lean();
-    // logger.info('Guest Final response result', result);
+    logger.info('GAMELOGICCONFIG.App_Version', GAMELOGICCONFIG.App_Version);
 
     if (result) {
 
