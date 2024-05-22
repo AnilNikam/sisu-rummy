@@ -158,7 +158,7 @@ router.post('/api/PayinAPI/newPayInNotify', async (req, res) => {
         await walletActions.locktounlockbonus(PaymentIndata.userId, ((Number(PaymentIndata.amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
 
         if (Number(req.body.Amount) >= 100 && Number(req.body.Amount) <= 50000) {
-          const depositbonus = ((Number(req.body.Amount) * 5) / 100);
+          const depositbonus = ((Number(req.body.Amount) * 2) / 100);
           await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus');
         }
 

@@ -615,7 +615,7 @@ module.exports.locktounlockbonus = async (id, addCoins, tType, t, Wtype, tabInfo
 // };
 
 //Sinup Bonus & Deposit Bonus 
-module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => {
+module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype, socket) => {
   try {
     logger.info('\n add Wallet : call -->>>', id, addCoins, t);
     const wh = typeof id === 'string' ? { _id: MongoID(id).toString() } : { _id: id };
@@ -651,10 +651,10 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
     logger.info('\n Add* Wallet setInfo :: ==>', setInfo);
     logger.info('\n Add* Wallet addedCoins :: ==>', addedCoins);
 
-    let tbl = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
-    logger.info('\n Add Wallet up Reps :::: ', tbl);
+    let usersDetail = await GameUser.findOneAndUpdate(wh, setInfo, { new: true });
+    logger.info('\n Add Wallet up Reps :::: ', usersDetail);
 
-    let totalRemaningAmount = Number(tbl.chips);
+    let totalRemaningAmount = Number(usersDetail.chips);
     logger.info('\n Dedudct Wallet total RemaningAmount :: ', Number(totalRemaningAmount));
 
     if (typeof tType !== 'undefined' && !userInfo.isBot) {
@@ -662,22 +662,17 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
 
       let walletTrack = {
         // id: userInfo._id,
-        uniqueId: tbl.uniqueId,
-        userId: tbl._id,
-        username: tbl.name,
+        uniqueId: usersDetail.uniqueId,
+        userId: usersDetail._id,
+        username: usersDetail.name,
         transType: tType,
         transTypeText: t,
         transAmount: addedCoins,
-        chips: tbl.chips,
+        chips: usersDetail.chips,
         type: Wtype,
-        winningChips: tbl.winningChips,
-        bonusChips: tbl.bonusChips,
-        lockbonusChips: tbl.lockbonusChips,
-
-        //referralChips: tbl.referralChips, // referarl Chips
-        //unlockreferralChips: tbl.unlockreferralChips, // referarl Chips unlock Chips  
-        //lockreferralChips: tbl.lockreferralChips, // referarl Chips lock Chips 
-        //withdrawableChips: tbl.withdrawableChips,
+        winningChips: usersDetail.winningChips,
+        bonusChips: usersDetail.bonusChips,
+        lockbonusChips: usersDetail.lockbonusChips,
         totalBucket: Number(totalRemaningAmount),
         gameId: '',
         gameType: '', //Game Type
@@ -687,14 +682,20 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype) => 
       };
       await this.trackUserWallet(walletTrack);
     }
-    // console.log("tbl.sckId ", tbl.sckId)
+    // console.log("usersDetail.sckId ", usersDetail.sckId)
 
-    const totalChips = Number(tbl.chips) + Number(tbl.winningChips) + Number(tbl.bonusChips) + Number(tbl.lockbonusChips);
-    const formattedBalance = totalChips.toFixed(2);
+    const userSocketId = socket ? socket.id : usersDetail.sckId;
+    logger.info("addWalletBonusDeposit userSocketId ==>", userSocketId)
 
-    commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
 
-    // commandAcions.sendDirectEvent(tbl.sckId, CONST.PLAYER_BALANCE, { chips: tbl.chips, addCoins: addCoins });
+    if (userSocketId) {
+      const totalChips = Number(usersDetail.chips) + Number(usersDetail.winningChips) + Number(usersDetail.bonusChips) + Number(usersDetail.lockbonusChips);
+      const formattedBalance = totalChips.toFixed(2);
+
+      commandAcions.sendDirectEvent(usersDetail.sckId, CONST.PLAYER_BALANCE, { chips: formattedBalance, addCoins: addCoins });
+    } else {
+      logger.info(`Socket ID not found for user: ${usersDetail._id}`);
+    }
 
     return totalRemaningAmount;
   } catch (e) {

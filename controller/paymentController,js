@@ -306,23 +306,21 @@ async function sabPaisaInitiatePayment(requestData, socket) {
             // Add the payment amount to the user's wallet
             await walletActions.addWalletPayin(userId, amount, 'Credit', 'PayIn', 'Payment', 'sabPaisa', socket);
 
-            // Notify the user of successful payment
-            // commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
-            //     success: 1,
-            //     msg: "Payment successful",
-            //     status: requestData.status,
-            //     amount: requestData.amount
-            // });
-        }// else {
-        //     // Handle failure scenarios
-        //     commandActions.sendEvent(socket, CONST.SAB_PAISA_PAY_IN, {
-        //         success: 0,
-        //         msg: "Payment failed or aborted",
-        //         status: requestData.status,
-        //         errorCode: requestData.sabpaisaErrorCode,
-        //         errorMessage: requestData.sabpaisaMessage
-        //     });
-        // }
+            await walletActions.locktounlockbonus(userId, ((Number(amount) * 50) / 1000), 'Credit', 'LockBonustoUnlockBonus');
+
+
+            //GAMELOGICCONFIG.DEPOSIT_BONUS_PER
+            if (Number(amount) >= 100 && Number(amount) <= 50000) {
+                const depositbonus = ((Number(amount) * 2) / 100)
+
+                await walletActions.addWalletBonusDeposit(userId, Number(depositbonus), 'Credit', 'Deposit Bonus', 'Bonus', socket);
+
+                // //check reffreal date is validate or not
+                // await walletActions.addWalletBonusDeposit(PaymentIndata.userId, Number(depositbonus), 'Credit', 'Reffral Bonus');
+
+            }
+
+        }
     } catch (error) {
         logger.error('Error sabpaisa initiating payment:', error.response ? error.response.data : error.message);
 
@@ -352,8 +350,8 @@ async function PayOutTransfer(requestData, socket) {
         logger.info("PayOutTransfer userDetails Transfer =>", userDetails);
 
         // Check if withdrawal amount is within the allowed range
-        if (requestData.amount < 50 || requestData.amount > 1000) {
-            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal amount must be between 50 and 1000.");
+        if (requestData.amount < 100 || requestData.amount > 1000) {
+            commandActions.sendEvent(socket, CONST.CREATE_PAY_OUT, false, "Withdrawal amount must be between 100 and 1000.");
             return;
         }
 
