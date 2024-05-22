@@ -396,10 +396,27 @@ router.get('/', async (req, res) => {
 
     const totalCommission = commissionData.length > 0 ? commissionData[0].totalCommission.toFixed(2) : 0;
 
-    logger.info('totalUser', totalUser);
-    logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission })
+    let todayCommissionData = await Commission.aggregate([
+      {
+        $match: {
+          "createdAt": { $gte: startOfDay, $lte: endOfDay },
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalTodayCommission: { $sum: "$CommisonAmount" }
+        }
+      }
+    ]);
+    logger.info("todayCommissionData ", todayCommissionData)
 
-    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission });
+    const totalTodayCommission = todayCommissionData.length > 0 ? todayCommissionData[0].totalCommission.toFixed(2) : 0;
+
+    logger.info('totalUser', totalUser);
+    logger.info("Json ->", { totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission, totalTodayCommission })
+
+    res.json({ totalUser, totalDeposit, totalWithdraw, todayDeposit, todayWithdraw, todayKYC, totalGamePay, totalCommission, totalTodayCommission });
   } catch (error) {
     logger.error('admin/dahboard.js post bet-list error => ', error);
     res.status(config.INTERNAL_SERVER_ERROR).json(error);
