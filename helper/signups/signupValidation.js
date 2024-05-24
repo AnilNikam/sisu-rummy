@@ -250,7 +250,7 @@ const registerUser = async (requestBody, socket) => {
     if (loginType === 'Mobile') {
       const query = { mobileNumber: mobileNumber };
       let result = await Users.findOne(query, {});
-      console.log("result.result ", result)
+      logger.info("result.result ", result)
       if (!result) {
         // if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
         //   if (requestBody.appVersion !== GAMELOGICCONFIG.App_Version) {
