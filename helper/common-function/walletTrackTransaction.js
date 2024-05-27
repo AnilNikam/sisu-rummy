@@ -634,7 +634,7 @@ module.exports.addWalletBonusDeposit = async (id, addCoins, tType, t, Wtype, soc
     let setInfo = {
 
     }
-    if (userInfo.bonusChips + userInfo.lockbonusChips + addedCoins >= 500) {
+    if (userInfo.bonusChips + userInfo.lockbonusChips + addedCoins >= 5000) {
       setInfo = {
         $inc: {
           lockbonusChips: addedCoins
